@@ -49,17 +49,35 @@
             <p class="text-muted mb-0 small">Modern • Elegan • Presisi • SEO-friendly</p>
           </div>
         </div>
-        <a class="btn btn-outline-primary btn-sm" href="#preview" aria-label="Loncat ke Preview">Lihat Preview</a>
+        <div class="d-flex align-items-center gap-2">
+          <a class="btn btn-outline-primary btn-sm" href="#preview" aria-label="Loncat ke Preview">Lihat Preview</a>
+          <!-- Dropdown Menu Guru -->
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-badge"></i> Guru
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><button class="dropdown-item unit-item" data-unit="RA">RA</button></li>
+              <li><button class="dropdown-item unit-item" data-unit="MI">MI</button></li>
+              <li><button class="dropdown-item unit-item" data-unit="MTs">MTs</button></li>
+              <li><button class="dropdown-item unit-item" data-unit="MA">MA</button></li>
+              <li><button class="dropdown-item unit-item" data-unit="MADIN">MADIN</button></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </header>
 
     <main class="container my-4">
       <div class="row g-4">
         <!-- Form kolom kiri -->
-        <section class="col-lg-5">
+        <section id="form-panel" class="col-lg-5 d-none">
           <div class="card shadow-sm">
             <div class="card-body">
-              <h2 class="h5 fw-semibold mb-3">Isi Data</h2>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h2 class="h5 fw-semibold mb-0">Isi Data</h2>
+                <span class="badge rounded-pill text-bg-primary" id="selectedUnitLabel">Pilih unit</span>
+              </div>
               <form id="payroll-form" autocomplete="off">
                 <h3 class="h6 text-primary mt-2">Data Perusahaan</h3>
                 <div class="row g-3">
@@ -131,7 +149,7 @@
         </section>
 
         <!-- Preview kolom kanan -->
-        <section id="preview" class="col-lg-7">
+        <section id="preview" class="col-lg-7 d-none" aria-hidden="true">
           <div class="salary-slip" id="slip-a4" role="document" aria-label="Slip Gaji Preview">
             <div class="slip-inner">
               <div class="d-flex justify-content-between align-items-start mb-3">
@@ -152,6 +170,7 @@
                 <div class="text-end">
                   <h2 class="h5 fw-bold mb-1">SLIP GAJI</h2>
                   <div class="small" id="p_month">Periode</div>
+                  <div class="small" id="p_unit"></div>
                 </div>
               </div>
 
@@ -223,6 +242,13 @@
         </section>
       </div>
     </main>
+
+    <!-- Gate info sebelum unit dipilih -->
+    <div id="gate-info" class="container">
+      <div class="alert alert-warning" role="alert">
+        Pilih menu <strong>Guru</strong> lalu pilih unit <strong>RA, MI, MTs, MA</strong>, atau <strong>MADIN</strong> untuk memulai pengisian slip gaji.
+      </div>
+    </div>
 
     <footer class="py-3 text-center text-muted small">
       Dibuat dengan HTML • CSS • Bootstrap • JS — Generator Slip Gaji

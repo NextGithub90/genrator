@@ -56,7 +56,7 @@ const state = {
     month: ''
   },
   employee: {
-    nik: 'QC001', kode: 'QC001', nama: 'FAIZAR KHAIRI', jabatan: 'QUALITY CONTROL', npwp: '333444555666'
+    nik: 'QC001', kode: 'QC001', nama: 'FAIZAR KHAIRI', jabatan: 'QUALITY CONTROL', npwp: '333444555666', unit: ''
   },
   income: [
     { label: 'GAJI POKOK', amount: 4750000 },
@@ -113,6 +113,13 @@ const el = {
   netSalary: document.getElementById('net-salary'),
   terbilang: document.getElementById('terbilang')
 };
+
+// Panels & Unit UI
+el.formPanel = document.getElementById('form-panel');
+el.previewPanel = document.getElementById('preview');
+el.gateInfo = document.getElementById('gate-info');
+el.selectedUnitLabel = document.getElementById('selectedUnitLabel');
+el.p_unit = document.getElementById('p_unit');
 
 function monthLabel(val) {
   if (!val) return 'Periode';
@@ -172,6 +179,7 @@ function updateEmployeePreview() {
   el.p_nama.textContent = state.employee.nama;
   el.p_jabatan.textContent = state.employee.jabatan;
   el.p_npwp.textContent = state.employee.npwp;
+  el.p_unit.textContent = state.employee.unit ? `Unit: ${state.employee.unit}` : '';
 }
 
 function recalc() {
@@ -240,6 +248,11 @@ function exportPDF() {
 }
 
 function attachEvents() {
+  // Menu Guru unit selection
+  document.querySelectorAll('.unit-item').forEach(btn => {
+    btn.addEventListener('click', () => selectUnit(btn.dataset.unit));
+  });
+
   // Inputs company/employee
   ['companyName','companyAddress','companyPhone','companyCity','payrollMonth','nik','kode','nama','jabatan','npwp']
     .forEach(id => document.getElementById(id).addEventListener('input', syncFromInputs));
@@ -306,6 +319,19 @@ function attachEvents() {
       syncFromInputs();
     }, 50);
   });
+}
+
+function selectUnit(unit) {
+  state.employee.unit = unit;
+  el.selectedUnitLabel.textContent = unit;
+  // Show panels and hide gate message
+  el.formPanel.classList.remove('d-none');
+  el.previewPanel.classList.remove('d-none');
+  el.previewPanel.setAttribute('aria-hidden','false');
+  if (el.gateInfo) el.gateInfo.classList.add('d-none');
+  updateEmployeePreview();
+  // Scroll to form for convenience
+  el.formPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function init() {
