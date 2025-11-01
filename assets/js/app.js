@@ -1,141 +1,138 @@
 // Utility: format uang Rupiah
 const formatIDR = (n) => {
   const val = Number(n || 0);
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(val);
 };
 
 // Utility: parse angka dari input yang mungkin berisi titik/koma
 const parseIDR = (s) => {
-  if (typeof s === 'number') return s;
+  if (typeof s === "number") return s;
   if (!s) return 0;
-  return Number(String(s).replace(/[^0-9-]/g, '')) || 0;
+  return Number(String(s).replace(/[^0-9-]/g, "")) || 0;
 };
 
 // Convert number to Indonesian words (Terbilang)
 function terbilang(n) {
   n = Math.floor(parseIDR(n));
-  if (n === 0) return 'nol Rupiah';
-  const angka = ['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan'];
-  const tingkat = ['','puluh','ratus','ribu','juta','milyar','triliun'];
+  if (n === 0) return "nol Rupiah";
+  const angka = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan"];
+  const tingkat = ["", "puluh", "ratus", "ribu", "juta", "milyar", "triliun"];
   const chunk = (num) => {
-    let str = '';
-    const ratus = Math.floor(num/100);
-    const puluh = Math.floor((num%100)/10);
-    const satuan = num%10;
-    if (ratus) str += (ratus===1? 'seratus' : angka[ratus]+' ratus');
-    if (puluh) str += (str? ' ' : '') + (puluh===1? 'sepuluh' : angka[puluh]+' puluh');
+    let str = "";
+    const ratus = Math.floor(num / 100);
+    const puluh = Math.floor((num % 100) / 10);
+    const satuan = num % 10;
+    if (ratus) str += ratus === 1 ? "seratus" : angka[ratus] + " ratus";
+    if (puluh) str += (str ? " " : "") + (puluh === 1 ? "sepuluh" : angka[puluh] + " puluh");
     if (satuan) {
-      if (puluh===1 && satuan===1) str = (str? ' ' : '') + 'sebelas';
-      else if (puluh===1 && satuan>1) str = (str? ' ' : '') + angka[satuan] + ' belas';
-      else str += (str? ' ' : '') + (satuan===1 && !puluh && !ratus ? 'satu' : angka[satuan]);
+      if (puluh === 1 && satuan === 1) str = (str ? " " : "") + "sebelas";
+      else if (puluh === 1 && satuan > 1) str = (str ? " " : "") + angka[satuan] + " belas";
+      else str += (str ? " " : "") + (satuan === 1 && !puluh && !ratus ? "satu" : angka[satuan]);
     }
     return str;
   };
-  let words = '';
+  let words = "";
   let i = 0;
   while (n > 0) {
     const part = n % 1000;
     if (part) {
       let partStr = chunk(part);
-      if (i === 1 && part === 1) partStr = 'seribu';
-      words = partStr + (tingkat[i] && part? ' ' + tingkat[i] : '') + (words? ' ' + words : '');
+      if (i === 1 && part === 1) partStr = "seribu";
+      words = partStr + (tingkat[i] && part ? " " + tingkat[i] : "") + (words ? " " + words : "");
     }
-    n = Math.floor(n/1000);
+    n = Math.floor(n / 1000);
     i++;
   }
-  return words + ' Rupiah';
+  return words + " Rupiah";
 }
 
 // State
 const state = {
   company: {
-    name: 'PT. PUSAT CARA CARA',
-    address: 'Jl. Sekedar Contoh Saja No. 100',
-    phone: '(012) 34567890',
-    city: 'Kota Sampel',
-    month: ''
+    name: "PT. PUSAT CARA CARA",
+    address: "Jl. Sekedar Contoh Saja No. 100",
+    phone: "(012) 34567890",
+    city: "Kota Sampel",
+    month: "",
   },
   employee: {
-    nik: 'QC001', kode: 'QC001', nama: 'FAIZAR KHAIRI', jabatan: 'QUALITY CONTROL', npwp: '333444555666', unit: ''
+    nik: "QC001",
+    kode: "QC001",
+    nama: "FAIZAR KHAIRI",
+    jabatan: "QUALITY CONTROL",
+    npwp: "333444555666",
   },
   income: [
-    { label: 'GAJI POKOK', amount: 4750000 },
-    { label: 'TUNJANGAN JABATAN', amount: 2100000 },
-    { label: 'TUNJANGAN BERAS', amount: 1000000 },
-    { label: 'TUNJANGAN LAIN-LAIN', amount: 500000 },
-    { label: 'LEMBUR', amount: 300000 },
-    { label: 'THR', amount: 0 }
+    { label: "GAJI POKOK", amount: 4750000 },
+    { label: "TUNJANGAN JABATAN", amount: 2100000 },
+    { label: "TUNJANGAN BERAS", amount: 1000000 },
+    { label: "TUNJANGAN LAIN-LAIN", amount: 500000 },
+    { label: "LEMBUR", amount: 300000 },
+    { label: "THR", amount: 0 },
   ],
   deduction: [
-    { label: 'PPh21', amount: 712500 },
-    { label: 'BPJS/JAMSOSTEK', amount: 712500 },
-    { label: 'KOPERASI', amount: 90000 },
-    { label: '', amount: 1250000 }
-  ]
+    { label: "PPh21", amount: 712500 },
+    { label: "BPJS/JAMSOSTEK", amount: 712500 },
+    { label: "KOPERASI", amount: 90000 },
+    { label: "", amount: 1250000 },
+  ],
 };
 
 // Elements
 const el = {
-  form: document.getElementById('payroll-form'),
+  form: document.getElementById("payroll-form"),
   // company
-  companyName: document.getElementById('companyName'),
-  companyAddress: document.getElementById('companyAddress'),
-  companyPhone: document.getElementById('companyPhone'),
-  companyCity: document.getElementById('companyCity'),
-  payrollMonth: document.getElementById('payrollMonth'),
+  companyName: document.getElementById("companyName"),
+  companyAddress: document.getElementById("companyAddress"),
+  companyPhone: document.getElementById("companyPhone"),
+  companyCity: document.getElementById("companyCity"),
+  payrollMonth: document.getElementById("payrollMonth"),
   // employee
-  nik: document.getElementById('nik'),
-  kode: document.getElementById('kode'),
-  nama: document.getElementById('nama'),
-  jabatan: document.getElementById('jabatan'),
-  npwp: document.getElementById('npwp'),
+  nik: document.getElementById("nik"),
+  kode: document.getElementById("kode"),
+  nama: document.getElementById("nama"),
+  jabatan: document.getElementById("jabatan"),
+  npwp: document.getElementById("npwp"),
   // containers
-  incomeItems: document.getElementById('income-items'),
-  deductionItems: document.getElementById('deduction-items'),
-  addIncome: document.getElementById('addIncome'),
-  addDeduction: document.getElementById('addDeduction'),
-  resetForm: document.getElementById('resetForm'),
-  downloadPdf: document.getElementById('downloadPdf'),
+  incomeItems: document.getElementById("income-items"),
+  deductionItems: document.getElementById("deduction-items"),
+  addIncome: document.getElementById("addIncome"),
+  addDeduction: document.getElementById("addDeduction"),
+  resetForm: document.getElementById("resetForm"),
+  downloadPdf: document.getElementById("downloadPdf"),
   // preview
-  p_companyName: document.getElementById('p_companyName'),
-  p_companyAddress: document.getElementById('p_companyAddress'),
-  p_companyPhone: document.getElementById('p_companyPhone'),
-  p_companyCity: document.getElementById('p_companyCity'),
-  p_month: document.getElementById('p_month'),
-  p_nik: document.getElementById('p_nik'),
-  p_nama: document.getElementById('p_nama'),
-  p_jabatan: document.getElementById('p_jabatan'),
-  p_npwp: document.getElementById('p_npwp'),
-  incomeTable: document.getElementById('income-table'),
-  deductionTable: document.getElementById('deduction-table'),
-  totalIncome: document.getElementById('total-income'),
-  totalDeduction: document.getElementById('total-deduction'),
-  netSalary: document.getElementById('net-salary'),
-  terbilang: document.getElementById('terbilang')
+  p_companyName: document.getElementById("p_companyName"),
+  p_companyAddress: document.getElementById("p_companyAddress"),
+  p_companyPhone: document.getElementById("p_companyPhone"),
+  p_companyCity: document.getElementById("p_companyCity"),
+  p_month: document.getElementById("p_month"),
+  p_nik: document.getElementById("p_nik"),
+  p_nama: document.getElementById("p_nama"),
+  p_jabatan: document.getElementById("p_jabatan"),
+  p_npwp: document.getElementById("p_npwp"),
+  incomeTable: document.getElementById("income-table"),
+  deductionTable: document.getElementById("deduction-table"),
+  totalIncome: document.getElementById("total-income"),
+  totalDeduction: document.getElementById("total-deduction"),
+  netSalary: document.getElementById("net-salary"),
+  terbilang: document.getElementById("terbilang"),
 };
 
-// Panels & Unit UI
-el.formPanel = document.getElementById('form-panel');
-el.previewPanel = document.getElementById('preview');
-el.gateInfo = document.getElementById('gate-info');
-el.selectedUnitLabel = document.getElementById('selectedUnitLabel');
-el.p_unit = document.getElementById('p_unit');
-
 function monthLabel(val) {
-  if (!val) return 'Periode';
-  const [y,m] = val.split('-');
-  const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  return `${months[Number(m)-1]} ${y}`;
+  if (!val) return "Periode";
+  const [y, m] = val.split("-");
+  const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  return `${months[Number(m) - 1]} ${y}`;
 }
 
 // Render form item rows
 function renderItemRows(type) {
-  const list = type === 'income' ? state.income : state.deduction;
-  const container = type === 'income' ? el.incomeItems : el.deductionItems;
-  container.innerHTML = '';
+  const list = type === "income" ? state.income : state.deduction;
+  const container = type === "income" ? el.incomeItems : el.deductionItems;
+  container.innerHTML = "";
   list.forEach((it, idx) => {
-    const row = document.createElement('div');
-    row.className = 'row align-items-center g-2 mb-2';
+    const row = document.createElement("div");
+    row.className = "row align-items-center g-2 mb-2";
     row.innerHTML = `
       <div class="col-6">
         <input type="text" class="form-control form-control-sm" value="${it.label}" data-type="${type}" data-index="${idx}" data-field="label" aria-label="${type} label">
@@ -152,16 +149,16 @@ function renderItemRows(type) {
 
 // Render slip preview tables
 function renderSlipTables() {
-  el.incomeTable.innerHTML = '';
-  el.deductionTable.innerHTML = '';
-  state.income.forEach(it => {
-    const tr = document.createElement('tr');
+  el.incomeTable.innerHTML = "";
+  el.deductionTable.innerHTML = "";
+  state.income.forEach((it) => {
+    const tr = document.createElement("tr");
     tr.innerHTML = `<td>- ${it.label}</td><td>${formatIDR(it.amount)}</td>`;
     el.incomeTable.appendChild(tr);
   });
-  state.deduction.forEach(it => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>- ${it.label || ''}</td><td>${formatIDR(it.amount)}</td>`;
+  state.deduction.forEach((it) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>- ${it.label || ""}</td><td>${formatIDR(it.amount)}</td>`;
     el.deductionTable.appendChild(tr);
   });
 }
@@ -179,7 +176,6 @@ function updateEmployeePreview() {
   el.p_nama.textContent = state.employee.nama;
   el.p_jabatan.textContent = state.employee.jabatan;
   el.p_npwp.textContent = state.employee.npwp;
-  el.p_unit.textContent = state.employee.unit ? `Unit: ${state.employee.unit}` : '';
 }
 
 function recalc() {
@@ -188,7 +184,7 @@ function recalc() {
   const net = totalIn - totalOut;
   el.totalIncome.textContent = formatIDR(totalIn);
   el.totalDeduction.textContent = formatIDR(totalOut);
-  el.netSalary.textContent = new Intl.NumberFormat('id-ID', {maximumFractionDigits: 0}).format(net);
+  el.netSalary.textContent = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(net);
   el.terbilang.textContent = `# ${terbilang(net)} #`;
 }
 
@@ -212,15 +208,15 @@ function syncFromInputs() {
 }
 
 function addItem(type) {
-  const list = type === 'income' ? state.income : state.deduction;
-  list.push({ label: type === 'income' ? 'Pendapatan Baru' : 'Potongan Baru', amount: 0 });
+  const list = type === "income" ? state.income : state.deduction;
+  list.push({ label: type === "income" ? "Pendapatan Baru" : "Potongan Baru", amount: 0 });
   renderItemRows(type);
   renderSlipTables();
   recalc();
 }
 
 function removeItem(type, index) {
-  const list = type === 'income' ? state.income : state.deduction;
+  const list = type === "income" ? state.income : state.deduction;
   list.splice(index, 1);
   renderItemRows(type);
   renderSlipTables();
@@ -229,41 +225,36 @@ function removeItem(type, index) {
 
 function initMonthDefault() {
   const now = new Date();
-  const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   el.payrollMonth.value = ym;
   state.company.month = ym;
 }
 
 function exportPDF() {
-  const element = document.getElementById('slip-a4');
-  const fileNameSafe = state.employee.nama ? state.employee.nama.replace(/\s+/g,'_') : 'Slip_Gaji';
+  const element = document.getElementById("slip-a4");
+  const fileNameSafe = state.employee.nama ? state.employee.nama.replace(/\s+/g, "_") : "Slip_Gaji";
   const opt = {
-    margin:       0,
-    filename:     `Slip_Gaji_${fileNameSafe}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    margin: 0,
+    filename: `Slip_Gaji_${fileNameSafe}.pdf`,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
   };
   html2pdf().from(element).set(opt).save();
 }
 
 function attachEvents() {
-  // Menu Guru unit selection
-  document.querySelectorAll('.unit-item').forEach(btn => {
-    btn.addEventListener('click', () => selectUnit(btn.dataset.unit));
-  });
-
   // Inputs company/employee
-  ['companyName','companyAddress','companyPhone','companyCity','payrollMonth','nik','kode','nama','jabatan','npwp']
-    .forEach(id => document.getElementById(id).addEventListener('input', syncFromInputs));
+  ["companyName", "companyAddress", "companyPhone", "companyCity", "payrollMonth", "nik", "kode", "nama", "jabatan", "npwp"].forEach((id) => document.getElementById(id).addEventListener("input", syncFromInputs));
 
   // Delegation for item edit/remove
-  el.incomeItems.addEventListener('input', (e) => {
+  el.incomeItems.addEventListener("input", (e) => {
     const t = e.target;
-    const type = t.dataset.type; if (!type) return;
+    const type = t.dataset.type;
+    if (!type) return;
     const idx = Number(t.dataset.index);
     const field = t.dataset.field;
-    if (field === 'label') {
+    if (field === "label") {
       state.income[idx].label = t.value;
     } else {
       state.income[idx].amount = parseIDR(t.value);
@@ -271,67 +262,64 @@ function attachEvents() {
     renderSlipTables();
     recalc();
   });
-  el.deductionItems.addEventListener('input', (e) => {
-    const t = e.target; const type = t.dataset.type; if (!type) return;
-    const idx = Number(t.dataset.index); const field = t.dataset.field;
-    if (field === 'label') state.deduction[idx].label = t.value; else state.deduction[idx].amount = parseIDR(t.value);
-    renderSlipTables(); recalc();
+  el.deductionItems.addEventListener("input", (e) => {
+    const t = e.target;
+    const type = t.dataset.type;
+    if (!type) return;
+    const idx = Number(t.dataset.index);
+    const field = t.dataset.field;
+    if (field === "label") state.deduction[idx].label = t.value;
+    else state.deduction[idx].amount = parseIDR(t.value);
+    renderSlipTables();
+    recalc();
   });
 
   // Remove buttons
-  [el.incomeItems, el.deductionItems].forEach(container => {
-    container.addEventListener('click', (e) => {
-      const btn = e.target.closest('.remove-btn');
+  [el.incomeItems, el.deductionItems].forEach((container) => {
+    container.addEventListener("click", (e) => {
+      const btn = e.target.closest(".remove-btn");
       if (!btn) return;
       removeItem(btn.dataset.type, Number(btn.dataset.index));
     });
   });
 
-  el.addIncome.addEventListener('click', () => addItem('income'));
-  el.addDeduction.addEventListener('click', () => addItem('deduction'));
-  el.downloadPdf.addEventListener('click', exportPDF);
-  el.resetForm.addEventListener('click', () => {
-    setTimeout(() => { // wait for browser reset
+  el.addIncome.addEventListener("click", () => addItem("income"));
+  el.addDeduction.addEventListener("click", () => addItem("deduction"));
+  el.downloadPdf.addEventListener("click", exportPDF);
+  el.resetForm.addEventListener("click", () => {
+    setTimeout(() => {
+      // wait for browser reset
       // Re-sync defaults from inputs
-      state.company.name = el.companyName.value = 'PT. PUSAT CARA CARA';
-      state.company.address = el.companyAddress.value = 'Jl. Sekedar Contoh Saja No. 100';
-      state.company.phone = el.companyPhone.value = '(012) 34567890';
-      state.company.city = el.companyCity.value = 'Kota Sampel';
+      state.company.name = el.companyName.value = "PT. PUSAT CARA CARA";
+      state.company.address = el.companyAddress.value = "Jl. Sekedar Contoh Saja No. 100";
+      state.company.phone = el.companyPhone.value = "(012) 34567890";
+      state.company.city = el.companyCity.value = "Kota Sampel";
       initMonthDefault();
-      state.employee = { nik: 'QC001', kode: 'QC001', nama: 'FAIZAR KHAIRI', jabatan: 'QUALITY CONTROL', npwp: '333444555666' };
-      el.nik.value = state.employee.nik; el.kode.value = state.employee.kode; el.nama.value = state.employee.nama; el.jabatan.value = state.employee.jabatan; el.npwp.value = state.employee.npwp;
+      state.employee = { nik: "QC001", kode: "QC001", nama: "FAIZAR KHAIRI", jabatan: "QUALITY CONTROL", npwp: "333444555666" };
+      el.nik.value = state.employee.nik;
+      el.kode.value = state.employee.kode;
+      el.nama.value = state.employee.nama;
+      el.jabatan.value = state.employee.jabatan;
+      el.npwp.value = state.employee.npwp;
       state.income = [
-        { label: 'GAJI POKOK', amount: 4750000 },
-        { label: 'TUNJANGAN JABATAN', amount: 2100000 },
-        { label: 'TUNJANGAN BERAS', amount: 1000000 },
-        { label: 'TUNJANGAN LAIN-LAIN', amount: 500000 },
-        { label: 'LEMBUR', amount: 300000 },
-        { label: 'THR', amount: 0 }
+        { label: "GAJI POKOK", amount: 4750000 },
+        { label: "TUNJANGAN JABATAN", amount: 2100000 },
+        { label: "TUNJANGAN BERAS", amount: 1000000 },
+        { label: "TUNJANGAN LAIN-LAIN", amount: 500000 },
+        { label: "LEMBUR", amount: 300000 },
+        { label: "THR", amount: 0 },
       ];
       state.deduction = [
-        { label: 'PPh21', amount: 712500 },
-        { label: 'BPJS/JAMSOSTEK', amount: 712500 },
-        { label: 'KOPERASI', amount: 90000 },
-        { label: '', amount: 1250000 }
+        { label: "PPh21", amount: 712500 },
+        { label: "BPJS/JAMSOSTEK", amount: 712500 },
+        { label: "KOPERASI", amount: 90000 },
+        { label: "", amount: 1250000 },
       ];
-      renderItemRows('income');
-      renderItemRows('deduction');
+      renderItemRows("income");
+      renderItemRows("deduction");
       syncFromInputs();
     }, 50);
   });
-}
-
-function selectUnit(unit) {
-  state.employee.unit = unit;
-  el.selectedUnitLabel.textContent = unit;
-  // Show panels and hide gate message
-  el.formPanel.classList.remove('d-none');
-  el.previewPanel.classList.remove('d-none');
-  el.previewPanel.setAttribute('aria-hidden','false');
-  if (el.gateInfo) el.gateInfo.classList.add('d-none');
-  updateEmployeePreview();
-  // Scroll to form for convenience
-  el.formPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function init() {
@@ -348,10 +336,295 @@ function init() {
   el.jabatan.value = state.employee.jabatan;
   el.npwp.value = state.employee.npwp;
 
-  renderItemRows('income');
-  renderItemRows('deduction');
+  renderItemRows("income");
+  renderItemRows("deduction");
   syncFromInputs();
   attachEvents();
 }
 
-document.addEventListener('DOMContentLoaded', init);
+// -----------------------
+// Navigasi & Halaman Data Guru
+// -----------------------
+function initNavigation() {
+  const navSlip = document.getElementById("nav-slip");
+  const navGuru = document.getElementById("nav-guru");
+  const tabSlip = document.getElementById("tab-slip");
+  const tabGuru = document.getElementById("tab-guru");
+
+  function showTab(which) {
+    if (which === "guru") {
+      tabSlip.classList.add("d-none");
+      tabGuru.classList.remove("d-none");
+      navGuru.classList.add("active");
+      navSlip.classList.remove("active");
+    } else {
+      tabGuru.classList.add("d-none");
+      tabSlip.classList.remove("d-none");
+      navSlip.classList.add("active");
+      navGuru.classList.remove("active");
+    }
+  }
+
+  navSlip?.addEventListener("click", () => showTab("slip"));
+  navGuru?.addEventListener("click", () => showTab("guru"));
+}
+
+function initGuruPage() {
+  const gEl = {
+    unitList: document.getElementById("guru-unit-list"),
+    tbody: document.getElementById("guruTbody"),
+    info: document.getElementById("guruInfo"),
+    search: document.getElementById("guruSearch"),
+    pageSize: document.getElementById("guruPageSize"),
+    add: document.getElementById("guruAdd"),
+    copy: document.getElementById("guruCopy"),
+    print: document.getElementById("guruPrint"),
+    excel: document.getElementById("guruExcel"),
+    modal: document.getElementById("guruModal"),
+    modalTitle: document.getElementById("guruModalTitle"),
+    save: document.getElementById("guruSave"),
+    table: document.getElementById("guruTable"),
+    form: {
+      unit: document.getElementById("f_unit"),
+      nik: document.getElementById("f_nik"),
+      nama: document.getElementById("f_nama"),
+      gender: document.getElementById("f_gender"),
+      ttl: document.getElementById("f_ttl"),
+      pendidikan: document.getElementById("f_pendidikan"),
+      password: document.getElementById("f_password"),
+      wali: document.getElementById("f_wali"),
+      jtm: document.getElementById("f_jtm"),
+    },
+  };
+
+  const guru = {
+    data: [
+      { id: 1, unit: "MI", foto: "", nik: "1982370001", nama: "Ahmad Nailal", gender: "L", ttl: "Kota, 1990", pendidikan: "Sarjana (S1)", password: "******", wali: "Ya", jtm: 18 },
+      { id: 2, unit: "RA", foto: "", nik: "1982370002", nama: "Siti Rahma", gender: "P", ttl: "Kota, 1992", pendidikan: "Sarjana (S1)", password: "******", wali: "Tidak", jtm: 20 },
+      { id: 3, unit: "MTs", foto: "", nik: "1982370003", nama: "Budi Santoso", gender: "L", ttl: "Kota, 1989", pendidikan: "Magister (S2)", password: "******", wali: "Ya", jtm: 24 },
+      { id: 4, unit: "MA", foto: "", nik: "1982370004", nama: "Dewi Lestari", gender: "P", ttl: "Kota, 1991", pendidikan: "Sarjana (S1)", password: "******", wali: "Tidak", jtm: 16 },
+      { id: 5, unit: "MI", foto: "", nik: "1982370005", nama: "Fajar Pratama", gender: "L", ttl: "Kota, 1993", pendidikan: "Sarjana (S1)", password: "******", wali: "Ya", jtm: 18 },
+      { id: 6, unit: "RA", foto: "", nik: "1982370006", nama: "Nur Aini", gender: "P", ttl: "Kota, 1994", pendidikan: "Diploma (D3)", password: "******", wali: "Tidak", jtm: 14 },
+      { id: 7, unit: "MTs", foto: "", nik: "1982370007", nama: "Rizky Ramadhan", gender: "L", ttl: "Kota, 1988", pendidikan: "Sarjana (S1)", password: "******", wali: "Ya", jtm: 22 },
+      { id: 8, unit: "MA", foto: "", nik: "1982370008", nama: "Laila Oktaviani", gender: "P", ttl: "Kota, 1995", pendidikan: "Sarjana (S1)", password: "******", wali: "Tidak", jtm: 12 },
+    ],
+    filterUnit: "ALL",
+    search: "",
+    pageSize: 10,
+    editId: null,
+  };
+
+  function filteredData() {
+    let arr = guru.data.filter((it) => guru.filterUnit === "ALL" || it.unit === guru.filterUnit);
+    const s = guru.search.toLowerCase();
+    if (s) {
+      arr = arr.filter(
+        (it) =>
+          it.nik.toLowerCase().includes(s) ||
+          it.nama.toLowerCase().includes(s) ||
+          it.pendidikan.toLowerCase().includes(s) ||
+          it.ttl.toLowerCase().includes(s)
+      );
+    }
+    return arr;
+  }
+
+  function renderTable() {
+    const arr = filteredData();
+    gEl.tbody.innerHTML = "";
+    const showCount = Math.min(arr.length, Number(guru.pageSize));
+    arr.slice(0, showCount).forEach((it, idx) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td><span class="avatar bg-primary-subtle text-primary">${(it.nama || "").charAt(0).toUpperCase()}</span></td>
+        <td>${it.nik}</td>
+        <td>${it.nama}</td>
+        <td>${it.gender}</td>
+        <td>${it.ttl}</td>
+        <td>${it.pendidikan}</td>
+        <td>${it.password}</td>
+        <td>${it.wali}</td>
+        <td>${it.jtm}</td>
+        <td><button class="btn btn-sm btn-outline-primary me-1 edit-btn" data-id="${it.id}"><i class="bi bi-pencil-square"></i> Edit</button></td>
+      `;
+      gEl.tbody.appendChild(tr);
+    });
+    gEl.info.textContent = `Showing ${Math.min(showCount, arr.length)} of ${arr.length} entries`;
+  }
+
+  // Unit filter
+  gEl.unitList?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".list-group-item");
+    if (!btn) return;
+    [...gEl.unitList.children].forEach((c) => c.classList.remove("active"));
+    btn.classList.add("active");
+    guru.filterUnit = btn.dataset.unit || "ALL";
+    renderTable();
+  });
+
+  // Search and page size
+  gEl.search?.addEventListener("input", (e) => {
+    guru.search = e.target.value.trim();
+    renderTable();
+  });
+  gEl.pageSize?.addEventListener("change", (e) => {
+    guru.pageSize = Number(e.target.value || 10);
+    renderTable();
+  });
+
+  // Add & Edit
+  let guruModal;
+  function openModal(mode, id) {
+    guru.editId = null;
+    gEl.modalTitle.textContent = mode === "edit" ? "Edit Guru" : "Tambah Guru";
+    // default values
+    gEl.form.unit.value = "MI";
+    gEl.form.nik.value = "";
+    gEl.form.nama.value = "";
+    gEl.form.gender.value = "L";
+    gEl.form.ttl.value = "";
+    gEl.form.pendidikan.value = "Sarjana (S1)";
+    gEl.form.password.value = "";
+    gEl.form.wali.value = "Tidak";
+    gEl.form.jtm.value = 18;
+
+    if (mode === "edit" && id != null) {
+      const it = guru.data.find((d) => d.id === id);
+      if (it) {
+        guru.editId = id;
+        gEl.form.unit.value = it.unit;
+        gEl.form.nik.value = it.nik;
+        gEl.form.nama.value = it.nama;
+        gEl.form.gender.value = it.gender;
+        gEl.form.ttl.value = it.ttl;
+        gEl.form.pendidikan.value = it.pendidikan;
+        gEl.form.password.value = it.password;
+        gEl.form.wali.value = it.wali;
+        gEl.form.jtm.value = it.jtm;
+      }
+    }
+    guruModal = guruModal || new bootstrap.Modal(gEl.modal);
+    guruModal.show();
+  }
+
+  gEl.add?.addEventListener("click", () => openModal("add"));
+  gEl.table?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".edit-btn");
+    if (btn) openModal("edit", Number(btn.dataset.id));
+  });
+
+  gEl.save?.addEventListener("click", () => {
+    const item = {
+      id: guru.editId || Math.max(0, ...guru.data.map((d) => d.id)) + 1,
+      unit: gEl.form.unit.value,
+      foto: "",
+      nik: gEl.form.nik.value.trim(),
+      nama: gEl.form.nama.value.trim(),
+      gender: gEl.form.gender.value,
+      ttl: gEl.form.ttl.value.trim(),
+      pendidikan: gEl.form.pendidikan.value.trim(),
+      password: gEl.form.password.value.trim(),
+      wali: gEl.form.wali.value,
+      jtm: Number(gEl.form.jtm.value || 0),
+    };
+    if (guru.editId) {
+      const idx = guru.data.findIndex((d) => d.id === guru.editId);
+      if (idx >= 0) guru.data[idx] = item;
+    } else {
+      guru.data.push(item);
+    }
+    renderTable();
+    bootstrap.Modal.getInstance(gEl.modal)?.hide();
+  });
+
+  // Copy / Print / Excel (CSV)
+  gEl.copy?.addEventListener("click", () => {
+    const arr = filteredData();
+    const header = [
+      "No",
+      "NIK/NUPTK",
+      "Nama",
+      "L/P",
+      "TTL",
+      "Pendidikan",
+      "Password",
+      "Wali Kelas",
+      "JTM",
+      "Unit",
+    ];
+    const rows = arr.map(
+      (it, i) =>
+        [i + 1, it.nik, it.nama, it.gender, it.ttl, it.pendidikan, it.password, it.wali, it.jtm, it.unit].join("\t")
+    );
+    const text = header.join("\t") + "\n" + rows.join("\n");
+    navigator.clipboard
+      .writeText(text)
+      .then(() => alert("Data dicopy ke clipboard"))
+      .catch(() => alert("Gagal copy ke clipboard"));
+  });
+
+  gEl.print?.addEventListener("click", () => {
+    const w = window.open("", "_blank");
+    w.document.write(
+      `<!doctype html><html><head><title>Data Guru</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"></head><body class="p-3">`
+    );
+    w.document.write(`<h5>Data Guru</h5>`);
+    w.document.write(document.getElementById("guruTable").outerHTML);
+    w.document.write("</body></html>");
+    w.document.close();
+    w.focus();
+    w.print();
+    w.close();
+  });
+
+  gEl.excel?.addEventListener("click", () => {
+    const arr = filteredData();
+    const header = [
+      "No",
+      "NIK/NUPTK",
+      "Nama",
+      "L/P",
+      "TTL",
+      "Pendidikan",
+      "Password",
+      "Wali Kelas",
+      "JTM",
+      "Unit",
+    ];
+    const csv = [
+      header.join(","),
+      ...arr.map(
+        (it, i) =>
+          [
+            i + 1,
+            it.nik,
+            it.nama,
+            it.gender,
+            `"${it.ttl.replace(/"/g, '""')}"`,
+            `"${it.pendidikan.replace(/"/g, '""')}"`,
+            `"${String(it.password).replace(/"/g, '""')}"`,
+            it.wali,
+            it.jtm,
+            it.unit,
+          ].join(",")
+      ),
+    ].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "data_guru.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Initial render
+  renderTable();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  init();
+  initNavigation();
+  initGuruPage();
+});

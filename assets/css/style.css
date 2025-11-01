@@ -52,3 +52,8 @@ body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helveti
 
 /* Small utility */
 .small { font-size: .875rem; }
+
+/* Data Guru helpers */
+.avatar { display: inline-flex; width: 32px; height: 32px; border-radius: 50%; align-items: center; justify-content: center; font-weight: 600; }
+.bg-primary-subtle { background-color: #e6f0ff; }
+.table-responsive { overflow-x: auto; }

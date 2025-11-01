@@ -1,17 +1,21 @@
 <!doctype html>
 <html lang="id">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Generator Slip Gaji PDF — Modern & Elegan</title>
-    <meta name="description" content="Buat dan unduh Slip Gaji PDF yang modern, elegan, dan presisi. Masukkan data perusahaan, karyawan, pendapatan, potongan, lalu ekspor ke PDF.">
+    <meta name="description"
+        content="Buat dan unduh Slip Gaji PDF yang modern, elegan, dan presisi. Masukkan data perusahaan, karyawan, pendapatan, potongan, lalu ekspor ke PDF.">
     <meta name="keywords" content="slip gaji, generator slip gaji, pdf slip gaji, payroll, indonesia, bootstrap">
     <meta name="author" content="Generator Slip Gaji">
     <link rel="canonical" href="https://localhost/slip-gaji-generator">
     <meta name="robots" content="index, follow">
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;600&display=swap"
+        rel="stylesheet">
 
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -32,231 +36,372 @@
       "url": "https://localhost/slip-gaji-generator"
     }
     </script>
-  </head>
-  <body class="bg-light">
+</head>
+
+<body class="bg-light">
     <header class="py-4 border-bottom bg-white sticky-top">
-      <div class="container d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center gap-3">
-          <div class="logo-circle" aria-hidden="true">
-            <!-- Simple inline logo -->
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo">
-              <circle cx="18" cy="18" r="18" fill="#0d6efd"/>
-              <path d="M8 20h20l-10-8-10 8z" fill="#fff" opacity=".9"/>
-            </svg>
-          </div>
-          <div>
-            <h1 class="h4 mb-0 fw-bold">Generator Slip Gaji PDF</h1>
-            <p class="text-muted mb-0 small">Modern • Elegan • Presisi • SEO-friendly</p>
-          </div>
+        <div class="container d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <div class="logo-circle" aria-hidden="true">
+                    <!-- Simple inline logo -->
+                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        role="img" aria-label="Logo">
+                        <circle cx="18" cy="18" r="18" fill="#0d6efd" />
+                        <path d="M8 20h20l-10-8-10 8z" fill="#fff" opacity=".9" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="h4 mb-0 fw-bold">Generator Slip Gaji PDF</h1>
+                    <p class="text-muted mb-0 small">Modern • Elegan • Presisi • SEO-friendly</p>
+                </div>
+            </div>
+            <a class="btn btn-outline-primary btn-sm" href="#preview" aria-label="Loncat ke Preview">Lihat Preview</a>
         </div>
-        <div class="d-flex align-items-center gap-2">
-          <a class="btn btn-outline-primary btn-sm" href="#preview" aria-label="Loncat ke Preview">Lihat Preview</a>
-          <!-- Dropdown Menu Guru -->
-          <div class="btn-group">
-            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-person-badge"></i> Guru
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><button class="dropdown-item unit-item" data-unit="RA">RA</button></li>
-              <li><button class="dropdown-item unit-item" data-unit="MI">MI</button></li>
-              <li><button class="dropdown-item unit-item" data-unit="MTs">MTs</button></li>
-              <li><button class="dropdown-item unit-item" data-unit="MA">MA</button></li>
-              <li><button class="dropdown-item unit-item" data-unit="MADIN">MADIN</button></li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </header>
 
     <main class="container my-4">
-      <div class="row g-4">
-        <!-- Form kolom kiri -->
-        <section id="form-panel" class="col-lg-5 d-none">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <div class="d-flex align-items-center justify-content-between mb-3">
-                <h2 class="h5 fw-semibold mb-0">Isi Data</h2>
-                <span class="badge rounded-pill text-bg-primary" id="selectedUnitLabel">Pilih unit</span>
-              </div>
-              <form id="payroll-form" autocomplete="off">
-                <h3 class="h6 text-primary mt-2">Data Perusahaan</h3>
-                <div class="row g-3">
-                  <div class="col-12">
-                    <label class="form-label">Nama Perusahaan</label>
-                    <input id="companyName" type="text" class="form-control" value="PT. PUSAT CARA CARA">
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">Alamat</label>
-                    <input id="companyAddress" type="text" class="form-control" value="Jl. Sekedar Contoh Saja No. 100">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Telepon/Fax</label>
-                    <input id="companyPhone" type="text" class="form-control" value="(012) 34567890">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Kota</label>
-                    <input id="companyCity" type="text" class="form-control" value="Kota Sampel">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Periode (bulan)</label>
-                    <input id="payrollMonth" type="month" class="form-control">
-                  </div>
-                </div>
+        <!-- Navigasi utama: Slip Gaji / Data Guru -->
+        <ul class="nav nav-pills mb-3" id="main-nav" role="tablist" aria-label="Navigasi Utama">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="nav-slip" type="button">Slip Gaji</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="nav-guru" type="button">Data Guru</button>
+            </li>
+        </ul>
 
-                <h3 class="h6 text-primary mt-4">Data Karyawan</h3>
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <label class="form-label">NIK</label>
-                    <input id="nik" type="text" class="form-control" value="QC001">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Kode</label>
-                    <input id="kode" type="text" class="form-control" value="QC001">
-                  </div>
-                  <div class="col-md-8">
-                    <label class="form-label">Nama Karyawan</label>
-                    <input id="nama" type="text" class="form-control" value="FAIZAR KHAIRI">
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Jabatan</label>
-                    <input id="jabatan" type="text" class="form-control" value="QUALITY CONTROL">
-                  </div>
-                  <div class="col-md-12">
-                    <label class="form-label">NPWP</label>
-                    <input id="npwp" type="text" class="form-control" value="333444555666">
-                  </div>
-                </div>
+        <!-- Tab: Slip Gaji (konten asli) -->
+        <div id="tab-slip">
+        <div class="row g-4">
+            <!-- Form kolom kiri -->
+            <section class="col-lg-5">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h2 class="h5 fw-semibold mb-3">Isi Data</h2>
+                        <form id="payroll-form" autocomplete="off">
+                            <h3 class="h6 text-primary mt-2">Data Perusahaan</h3>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Nama Perusahaan</label>
+                                    <input id="companyName" type="text" class="form-control"
+                                        value="PT. PUSAT CARA CARA">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Alamat</label>
+                                    <input id="companyAddress" type="text" class="form-control"
+                                        value="Jl. Sekedar Contoh Saja No. 100">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Telepon/Fax</label>
+                                    <input id="companyPhone" type="text" class="form-control" value="(012) 34567890">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Kota</label>
+                                    <input id="companyCity" type="text" class="form-control" value="Kota Sampel">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Periode (bulan)</label>
+                                    <input id="payrollMonth" type="month" class="form-control">
+                                </div>
+                            </div>
 
-                <div class="d-flex align-items-center justify-content-between mt-4">
-                  <h3 class="h6 text-primary mb-0">Pendapatan</h3>
-                  <button type="button" id="addIncome" class="btn btn-outline-success btn-sm"><i class="bi bi-plus-circle"></i> Tambah</button>
-                </div>
-                <div id="income-items" class="mt-2"></div>
+                            <h3 class="h6 text-primary mt-4">Data Karyawan</h3>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">NIK</label>
+                                    <input id="nik" type="text" class="form-control" value="QC001">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Kode</label>
+                                    <input id="kode" type="text" class="form-control" value="QC001">
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label">Nama Karyawan</label>
+                                    <input id="nama" type="text" class="form-control" value="FAIZAR KHAIRI">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Jabatan</label>
+                                    <input id="jabatan" type="text" class="form-control" value="QUALITY CONTROL">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label">NPWP</label>
+                                    <input id="npwp" type="text" class="form-control" value="333444555666">
+                                </div>
+                            </div>
 
-                <div class="d-flex align-items-center justify-content-between mt-4">
-                  <h3 class="h6 text-primary mb-0">Potongan</h3>
-                  <button type="button" id="addDeduction" class="btn btn-outline-danger btn-sm"><i class="bi bi-plus-circle"></i> Tambah</button>
-                </div>
-                <div id="deduction-items" class="mt-2"></div>
+                            <div class="d-flex align-items-center justify-content-between mt-4">
+                                <h3 class="h6 text-primary mb-0">Pendapatan</h3>
+                                <button type="button" id="addIncome" class="btn btn-outline-success btn-sm"><i
+                                        class="bi bi-plus-circle"></i> Tambah</button>
+                            </div>
+                            <div id="income-items" class="mt-2"></div>
 
-                <div class="mt-4 d-flex gap-2">
-                  <button type="button" id="downloadPdf" class="btn btn-primary"><i class="bi bi-filetype-pdf"></i> Unduh PDF</button>
-                  <button type="reset" id="resetForm" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                            <div class="d-flex align-items-center justify-content-between mt-4">
+                                <h3 class="h6 text-primary mb-0">Potongan</h3>
+                                <button type="button" id="addDeduction" class="btn btn-outline-danger btn-sm"><i
+                                        class="bi bi-plus-circle"></i> Tambah</button>
+                            </div>
+                            <div id="deduction-items" class="mt-2"></div>
+
+                            <div class="mt-4 d-flex gap-2">
+                                <button type="button" id="downloadPdf" class="btn btn-primary"><i
+                                        class="bi bi-filetype-pdf"></i> Unduh PDF</button>
+                                <button type="reset" id="resetForm" class="btn btn-secondary"><i
+                                        class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-              </form>
+            </section>
+
+            <!-- Preview kolom kanan -->
+            <section id="preview" class="col-lg-7">
+                <div class="salary-slip" id="slip-a4" role="document" aria-label="Slip Gaji Preview">
+                    <div class="slip-inner">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex gap-3">
+                                <div class="logo-circle" aria-hidden="true">
+                                    <svg width="48" height="48" viewBox="0 0 36 36" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="18" cy="18" r="18" fill="#0d6efd" />
+                                        <path d="M8 20h20l-10-8-10 8z" fill="#fff" opacity=".9" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 id="p_companyName" class="h5 fw-bold mb-1">PT. PUSAT CARA CARA</h2>
+                                    <div id="p_companyAddress" class="small">Jl. Sekedar Contoh Saja No. 100</div>
+                                    <div class="small">Tlp./Fax <span id="p_companyPhone">(012) 34567890</span></div>
+                                    <div id="p_companyCity" class="small fw-semibold">Kota Sampel</div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <h2 class="h5 fw-bold mb-1">SLIP GAJI</h2>
+                                <div class="small" id="p_month">Periode</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-2">
+
+                        <!-- Info Karyawan -->
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between small"><span>NIK</span><span
+                                        id="p_nik">QC001</span></div>
+                                <div class="d-flex justify-content-between small"><span>Nama Karyawan</span><span
+                                        id="p_nama">FAIZAR KHAIRI</span></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between small"><span>Jabatan</span><span
+                                        id="p_jabatan">QUALITY CONTROL</span></div>
+                                <div class="d-flex justify-content-between small"><span>NPWP</span><span
+                                        id="p_npwp">333444555666</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Tabel Pendapatan dan Potongan -->
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-6">
+                                <div class="fw-semibold mb-1 small">PENDAPATAN</div>
+                                <table class="table table-sm table-borderless slip-table">
+                                    <tbody id="income-table"></tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="fw-semibold mb-1 small">POTONGAN</div>
+                                <table class="table table-sm table-borderless slip-table">
+                                    <tbody id="deduction-table"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <hr class="my-2">
+                        <!-- Total -->
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between">
+                                    <span class="small fw-semibold">JUMLAH PENDAPATAN</span>
+                                    <span id="total-income" class="small">Rp 0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between">
+                                    <span class="small fw-semibold">JUMLAH POTONGAN</span>
+                                    <span id="total-deduction" class="small">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gaji Bersih -->
+                        <div class="net-box d-flex align-items-center justify-content-between my-3">
+                            <div class="fw-semibold">GAJI BERSIH</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="small text-muted">Rp</span>
+                                <div id="net-salary" class="fs-6 fw-bold">0</div>
+                            </div>
+                        </div>
+                        <div id="terbilang" class="small fst-italic text-muted"># — Rupiah #</div>
+
+                        <div class="row mt-4">
+                            <div class="col text-end small">
+                                <div class="mb-5">Bendahara,</div>
+                                <div id="signatureName" class="fw-semibold">F.M. Fatih</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        </div>
+
+        <!-- Tab: Data Guru -->
+        <div id="tab-guru" class="d-none">
+            <div class="row g-4">
+                <!-- Sub menu RA/MI/MTs/MA -->
+                <section class="col-lg-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h2 class="h6 fw-semibold mb-3">Guru • Sub Menu</h2>
+                            <div class="list-group" id="guru-unit-list">
+                                <button type="button" class="list-group-item list-group-item-action active" data-unit="ALL">Semua</button>
+                                <button type="button" class="list-group-item list-group-item-action" data-unit="RA">RA</button>
+                                <button type="button" class="list-group-item list-group-item-action" data-unit="MI">MI</button>
+                                <button type="button" class="list-group-item list-group-item-action" data-unit="MTs">MTs</button>
+                                <button type="button" class="list-group-item list-group-item-action" data-unit="MA">MA</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Data Guru Table -->
+                <section class="col-lg-9">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                <div class="btn-group" role="group" aria-label="Ekspor">
+                                    <button id="guruCopy" class="btn btn-outline-secondary btn-sm"><i class="bi bi-clipboard"></i> Copy</button>
+                                    <button id="guruPrint" class="btn btn-outline-secondary btn-sm"><i class="bi bi-printer"></i> Print</button>
+                                    <button id="guruExcel" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-excel"></i> Excel</button>
+                                </div>
+                                <div class="d-flex align-items-center flex-wrap gap-2 ms-auto">
+                                    <label class="small text-muted">Show</label>
+                                    <select id="guruPageSize" class="form-select form-select-sm" style="width:auto">
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                    </select>
+                                    <span class="small text-muted">entries</span>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input id="guruSearch" type="text" class="form-control" placeholder="Search">
+                                    </div>
+                                    <button id="guruAdd" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Tambah</button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover align-middle" id="guruTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="small">#</th>
+                                            <th class="small">Foto</th>
+                                            <th class="small">NIK/NUPTK</th>
+                                            <th class="small">Nama</th>
+                                            <th class="small">L/P</th>
+                                            <th class="small">TTL</th>
+                                            <th class="small">Pendidikan</th>
+                                            <th class="small">Password</th>
+                                            <th class="small">Wali Kelas</th>
+                                            <th class="small">JTM</th>
+                                            <th class="small">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="guruTbody"></tbody>
+                                </table>
+                            </div>
+                            <div class="small text-muted" id="guruInfo">Showing 0 entries</div>
+                        </div>
+                    </div>
+                </section>
             </div>
-          </div>
-        </section>
-
-        <!-- Preview kolom kanan -->
-        <section id="preview" class="col-lg-7 d-none" aria-hidden="true">
-          <div class="salary-slip" id="slip-a4" role="document" aria-label="Slip Gaji Preview">
-            <div class="slip-inner">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="d-flex gap-3">
-                  <div class="logo-circle" aria-hidden="true">
-                    <svg width="48" height="48" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="18" cy="18" r="18" fill="#0d6efd"/>
-                      <path d="M8 20h20l-10-8-10 8z" fill="#fff" opacity=".9"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h2 id="p_companyName" class="h5 fw-bold mb-1">PT. PUSAT CARA CARA</h2>
-                    <div id="p_companyAddress" class="small">Jl. Sekedar Contoh Saja No. 100</div>
-                    <div class="small">Tlp./Fax <span id="p_companyPhone">(012) 34567890</span></div>
-                    <div id="p_companyCity" class="small fw-semibold">Kota Sampel</div>
-                  </div>
-                </div>
-                <div class="text-end">
-                  <h2 class="h5 fw-bold mb-1">SLIP GAJI</h2>
-                  <div class="small" id="p_month">Periode</div>
-                  <div class="small" id="p_unit"></div>
-                </div>
-              </div>
-
-              <hr class="my-2">
-
-              <!-- Info Karyawan -->
-              <div class="row g-2 mb-2">
-                <div class="col-md-6">
-                  <div class="d-flex justify-content-between small"><span>NIK</span><span id="p_nik">QC001</span></div>
-                  <div class="d-flex justify-content-between small"><span>Nama Karyawan</span><span id="p_nama">FAIZAR KHAIRI</span></div>
-                </div>
-                <div class="col-md-6">
-                  <div class="d-flex justify-content-between small"><span>Jabatan</span><span id="p_jabatan">QUALITY CONTROL</span></div>
-                  <div class="d-flex justify-content-between small"><span>NPWP</span><span id="p_npwp">333444555666</span></div>
-                </div>
-              </div>
-
-              <!-- Tabel Pendapatan dan Potongan -->
-              <div class="row g-3 mt-2">
-                <div class="col-md-6">
-                  <div class="fw-semibold mb-1 small">PENDAPATAN</div>
-                  <table class="table table-sm table-borderless slip-table">
-                    <tbody id="income-table"></tbody>
-                  </table>
-                </div>
-                <div class="col-md-6">
-                  <div class="fw-semibold mb-1 small">POTONGAN</div>
-                  <table class="table table-sm table-borderless slip-table">
-                    <tbody id="deduction-table"></tbody>
-                  </table>
-                </div>
-              </div>
-
-              <hr class="my-2">
-              <!-- Total -->
-              <div class="row g-2 align-items-center mb-2">
-                <div class="col-md-6">
-                  <div class="d-flex justify-content-between">
-                    <span class="small fw-semibold">JUMLAH PENDAPATAN</span>
-                    <span id="total-income" class="small">Rp 0</span>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="d-flex justify-content-between">
-                    <span class="small fw-semibold">JUMLAH POTONGAN</span>
-                    <span id="total-deduction" class="small">Rp 0</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Gaji Bersih -->
-              <div class="net-box d-flex align-items-center justify-content-between my-3">
-                <div class="fw-semibold">GAJI BERSIH</div>
-                <div class="d-flex align-items-center gap-2">
-                  <span class="small text-muted">Rp</span>
-                  <div id="net-salary" class="fs-6 fw-bold">0</div>
-                </div>
-              </div>
-              <div id="terbilang" class="small fst-italic text-muted"># — Rupiah #</div>
-
-              <div class="row mt-4">
-                <div class="col text-end small">
-                  <div class="mb-5">Bendahara,</div>
-                  <div id="signatureName" class="fw-semibold">F.M. Fatih</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
+        </div>
     </main>
 
-    <!-- Gate info sebelum unit dipilih -->
-    <div id="gate-info" class="container">
-      <div class="alert alert-warning" role="alert">
-        Pilih menu <strong>Guru</strong> lalu pilih unit <strong>RA, MI, MTs, MA</strong>, atau <strong>MADIN</strong> untuk memulai pengisian slip gaji.
-      </div>
-    </div>
-
     <footer class="py-3 text-center text-muted small">
-      Dibuat dengan HTML • CSS • Bootstrap • JS — Generator Slip Gaji
+        Dibuat dengan HTML • CSS • Bootstrap • JS — Generator Slip Gaji
     </footer>
+
+    <!-- Modal: Tambah/Edit Guru -->
+    <div class="modal fade" id="guruModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="guruModalTitle">Tambah Guru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="guruForm">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Unit</label>
+                                <select id="f_unit" class="form-select">
+                                    <option>RA</option>
+                                    <option>MI</option>
+                                    <option>MTs</option>
+                                    <option>MA</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">NIK/NUPTK</label>
+                                <input id="f_nik" type="text" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Nama</label>
+                                <input id="f_nama" type="text" class="form-control">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">L/P</label>
+                                <select id="f_gender" class="form-select">
+                                    <option value="L">L</option>
+                                    <option value="P">P</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <label class="form-label">TTL</label>
+                                <input id="f_ttl" type="text" class="form-control" placeholder="Contoh: Kota, 1990">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Pendidikan</label>
+                                <input id="f_pendidikan" type="text" class="form-control" placeholder="Sarjana (S1)">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Password</label>
+                                <input id="f_password" type="text" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Wali Kelas</label>
+                                <select id="f_wali" class="form-select">
+                                    <option value="Ya">Ya</option>
+                                    <option value="Tidak">Tidak</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">JTM</label>
+                                <input id="f_jtm" type="number" class="form-control" min="0" value="18">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="guruSave" class="btn btn-primary">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Libraries / Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/app.js"></script>
-  </body>
+</body>
+
 </html>
