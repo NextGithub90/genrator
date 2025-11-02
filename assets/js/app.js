@@ -375,19 +375,28 @@ function initNavigation() {
   const mobileSidebarEl = document.getElementById("mobileSidebar");
   const mobileSidebar = mobileSidebarEl ? new bootstrap.Offcanvas(mobileSidebarEl) : null;
 
+  // Tabs tambahan untuk sidebar desktop
+  const tabDashboard = document.getElementById("tab-dashboard");
+  const tabProfil = document.getElementById("tab-profil");
+  const tabAset = document.getElementById("tab-aset");
+  const tabPendapatan = document.getElementById("tab-pendapatan");
+  const tabPengeluaran = document.getElementById("tab-pengeluaran");
+  const sidebar = document.querySelector(".sidebar-desktop");
+  const guruUnitList = document.getElementById("guru-unit-list");
+
   function showTab(which) {
+    // Pastikan hanya satu section tampil dengan memanfaatkan showSection
+    showSection(which);
+
+    // Update state tombol nav (legacy pill & mobile)
     if (which === "guru") {
-      tabSlip.classList.add("d-none");
-      tabGuru.classList.remove("d-none");
-      navGuru.classList.add("active");
-      navSlip.classList.remove("active");
+      navGuru?.classList.add("active");
+      navSlip?.classList.remove("active");
       mNavGuru?.classList.add("active");
       mNavSlip?.classList.remove("active");
     } else {
-      tabGuru.classList.add("d-none");
-      tabSlip.classList.remove("d-none");
-      navSlip.classList.add("active");
-      navGuru.classList.remove("active");
+      navSlip?.classList.add("active");
+      navGuru?.classList.remove("active");
       mNavSlip?.classList.add("active");
       mNavGuru?.classList.remove("active");
     }
@@ -395,10 +404,100 @@ function initNavigation() {
     mobileSidebar?.hide();
   }
 
+  // Navigasi generik untuk menu sidebar (Dashboard, Profil, Aset, Keuangan)
+  function showSection(which) {
+    const allTabs = [
+      { id: "slip", el: tabSlip },
+      { id: "guru", el: tabGuru },
+      { id: "dashboard", el: tabDashboard },
+      { id: "profil", el: tabProfil },
+      { id: "aset", el: tabAset },
+      { id: "pendapatan", el: tabPendapatan },
+      { id: "pengeluaran", el: tabPengeluaran },
+    ];
+    allTabs.forEach(t => t.el?.classList.add("d-none"));
+    const target = allTabs.find(t => t.id === which);
+    if (target?.el) target.el.classList.remove("d-none");
+
+    // Highlight nav mobile bila relevan
+    mNavSlip?.classList.toggle("active", which === "slip");
+    mNavGuru?.classList.toggle("active", which === "guru");
+
+    // Tutup sidebar mobile jika terbuka
+    mobileSidebar?.hide();
+  }
+
   navSlip?.addEventListener("click", () => showTab("slip"));
   navGuru?.addEventListener("click", () => showTab("guru"));
   mNavSlip?.addEventListener("click", () => showTab("slip"));
   mNavGuru?.addEventListener("click", () => showTab("guru"));
+
+  // Event untuk sidebar desktop
+  sidebar?.addEventListener('click', (e) => {
+    const link = e.target.closest('.nav-link');
+    if (!link) return;
+
+    const tab = link.dataset.tab;
+    const unit = link.dataset.unit;
+    const unitSlip = link.dataset.unitSlip;
+    const isCollapseToggle = link.getAttribute('data-bs-toggle') === 'collapse';
+    if (isCollapseToggle) return; // biarkan Bootstrap menangani toggle
+    e.preventDefault();
+
+    // Sub-menu Data Guru: filter unit dan tampilkan tab guru
+    if (unit && link.closest('#guru-submenu')) {
+      const btn = guruUnitList?.querySelector(`[data-unit="${unit}"]`);
+      btn?.click();
+      showSection('guru');
+      return;
+    }
+    // Sub-menu Slip Gaji: set unit di preview dan tampilkan slip
+    if (unitSlip && link.closest('#slip-submenu')) {
+      state.employee.unit = unitSlip;
+      updateEmployeePreview();
+      showSection('slip');
+      return;
+    }
+    // Link biasa: tampilkan section terkait
+    if (tab) {
+      showSection(tab);
+    }
+  });
+
+  // Event untuk sidebar mobile (offcanvas)
+  const mobileSidebarNav = document.querySelector('.mobile-sidebar');
+  mobileSidebarNav?.addEventListener('click', (e) => {
+    const link = e.target.closest('.nav-link');
+    if (!link) return;
+    const tab = link.dataset.tab;
+    const unit = link.dataset.unit;
+    const unitSlip = link.dataset.unitSlip;
+    const isCollapseToggle = link.getAttribute('data-bs-toggle') === 'collapse';
+    if (isCollapseToggle) return;
+    e.preventDefault();
+
+    // Sub-menu Data Guru: filter unit dan tampilkan tab guru
+    if (unit && link.closest('#m-guru-submenu')) {
+      const btn = guruUnitList?.querySelector(`[data-unit="${unit}"]`);
+      btn?.click();
+      showSection('guru');
+      return;
+    }
+    // Sub-menu Slip Gaji: set unit di preview dan tampilkan slip
+    if (unitSlip && link.closest('#m-slip-submenu')) {
+      state.employee.unit = unitSlip;
+      updateEmployeePreview();
+      showSection('slip');
+      return;
+    }
+    // Link biasa: tampilkan section terkait
+    if (tab) {
+      showSection(tab);
+    }
+  });
+
+  // Default awal: tampilkan Dashboard
+  showSection('dashboard');
 }
 
 function initGuruPage() {

@@ -73,3 +73,39 @@ body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helveti
 .btn-sidebar:hover, .btn-sidebar.active { background: rgba(255,255,255,.15); }
 
 /* Desktop-only nav pills and mobile toggler are handled in HTML classes */
+
+/* Desktop Sidebar styles */
+@media (min-width: 992px) {
+  .layout-with-sidebar { 
+    display: flex; 
+    align-items: flex-start; 
+    width: 100%;
+    min-height: calc(100vh - 72px); /* viewport height minus navbar */
+  }
+  .sidebar-desktop {
+    position: sticky; /* stick under navbar when scrolling */
+    top: 72px; /* match header height */
+    width: 260px;
+    flex: 0 0 260px;
+    border-right: 1px solid rgba(255,255,255,0.15);
+    background: #212529; /* ensure solid background */
+    z-index: 1040; /* layering safety */
+  }
+  .main-with-sidebar {
+    margin-left: 0; /* no offset, handled by flex */
+    flex: 1 1 auto;
+    padding-top: 0; /* content flows naturally below navbar */
+  }
+}
+
+.sidebar-desktop .sidebar-inner { padding: 8px 0; }
+.sidebar-desktop .nav-link {
+  display: block;
+  padding: 8px 12px;
+  color: #f8f9fa;
+  border-radius: .5rem;
+}
+.sidebar-desktop .nav-link:hover { background: rgba(255,255,255,.08); color: #fff; }
+.sidebar-desktop .nav-link.active { background: rgba(255,255,255,.18); color: #fff; }
+.sidebar-desktop .sub-link { font-size: .925rem; opacity: .9; }
+.sidebar-desktop .collapse { margin-top: 4px; }
