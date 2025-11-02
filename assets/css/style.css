@@ -57,3 +57,19 @@ body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helveti
 .avatar { display: inline-flex; width: 32px; height: 32px; border-radius: 50%; align-items: center; justify-content: center; font-weight: 600; }
 .bg-primary-subtle { background-color: #e6f0ff; }
 .table-responsive { overflow-x: auto; }
+
+/* Mobile sidebar styles */
+.mobile-sidebar { 
+  background: linear-gradient(180deg, #2a52be 0%, #3e6cf5 50%, #5a82ff 100%);
+}
+.mobile-sidebar .offcanvas-header { border-bottom: 1px solid rgba(255,255,255,.25); }
+.btn-sidebar {
+  background: transparent;
+  color: #fff;
+  border: 0;
+  padding: .6rem .75rem;
+  border-radius: .5rem;
+}
+.btn-sidebar:hover, .btn-sidebar.active { background: rgba(255,255,255,.15); }
+
+/* Desktop-only nav pills and mobile toggler are handled in HTML classes */

@@ -61,6 +61,12 @@ const state = {
     nama: "FAIZAR KHAIRI",
     jabatan: "QUALITY CONTROL",
     npwp: "333444555666",
+    gender: "L",
+    ttl: "",
+    pendidikan: "",
+    wali: "Tidak",
+    jtm: 0,
+    unit: "",
   },
   income: [
     { label: "GAJI POKOK", amount: 4750000 },
@@ -110,6 +116,13 @@ const el = {
   p_nama: document.getElementById("p_nama"),
   p_jabatan: document.getElementById("p_jabatan"),
   p_npwp: document.getElementById("p_npwp"),
+  // detail guru
+  p_gender: document.getElementById("p_gender"),
+  p_ttl: document.getElementById("p_ttl"),
+  p_pendidikan: document.getElementById("p_pendidikan"),
+  p_wali: document.getElementById("p_wali"),
+  p_jtm: document.getElementById("p_jtm"),
+  p_unit: document.getElementById("p_unit"),
   incomeTable: document.getElementById("income-table"),
   deductionTable: document.getElementById("deduction-table"),
   totalIncome: document.getElementById("total-income"),
@@ -176,6 +189,13 @@ function updateEmployeePreview() {
   el.p_nama.textContent = state.employee.nama;
   el.p_jabatan.textContent = state.employee.jabatan;
   el.p_npwp.textContent = state.employee.npwp;
+  // detail guru
+  el.p_gender.textContent = state.employee.gender || "-";
+  el.p_ttl.textContent = state.employee.ttl || "-";
+  el.p_pendidikan.textContent = state.employee.pendidikan || "-";
+  el.p_wali.textContent = state.employee.wali || "-";
+  el.p_jtm.textContent = (state.employee.jtm ?? "-");
+  el.p_unit.textContent = state.employee.unit || "-";
 }
 
 function recalc() {
@@ -295,7 +315,7 @@ function attachEvents() {
       state.company.phone = el.companyPhone.value = "(012) 34567890";
       state.company.city = el.companyCity.value = "Kota Sampel";
       initMonthDefault();
-      state.employee = { nik: "QC001", kode: "QC001", nama: "FAIZAR KHAIRI", jabatan: "QUALITY CONTROL", npwp: "333444555666" };
+      state.employee = { nik: "QC001", kode: "QC001", nama: "FAIZAR KHAIRI", jabatan: "QUALITY CONTROL", npwp: "333444555666", gender: "L", ttl: "", pendidikan: "", wali: "Tidak", jtm: 0, unit: "" };
       el.nik.value = state.employee.nik;
       el.kode.value = state.employee.kode;
       el.nama.value = state.employee.nama;
@@ -350,6 +370,10 @@ function initNavigation() {
   const navGuru = document.getElementById("nav-guru");
   const tabSlip = document.getElementById("tab-slip");
   const tabGuru = document.getElementById("tab-guru");
+  const mNavSlip = document.getElementById("m-nav-slip");
+  const mNavGuru = document.getElementById("m-nav-guru");
+  const mobileSidebarEl = document.getElementById("mobileSidebar");
+  const mobileSidebar = mobileSidebarEl ? new bootstrap.Offcanvas(mobileSidebarEl) : null;
 
   function showTab(which) {
     if (which === "guru") {
@@ -357,16 +381,24 @@ function initNavigation() {
       tabGuru.classList.remove("d-none");
       navGuru.classList.add("active");
       navSlip.classList.remove("active");
+      mNavGuru?.classList.add("active");
+      mNavSlip?.classList.remove("active");
     } else {
       tabGuru.classList.add("d-none");
       tabSlip.classList.remove("d-none");
       navSlip.classList.add("active");
       navGuru.classList.remove("active");
+      mNavSlip?.classList.add("active");
+      mNavGuru?.classList.remove("active");
     }
+    // Tutup sidebar setelah berpindah tab di mobile
+    mobileSidebar?.hide();
   }
 
   navSlip?.addEventListener("click", () => showTab("slip"));
   navGuru?.addEventListener("click", () => showTab("guru"));
+  mNavSlip?.addEventListener("click", () => showTab("slip"));
+  mNavGuru?.addEventListener("click", () => showTab("guru"));
 }
 
 function initGuruPage() {
@@ -397,6 +429,9 @@ function initGuruPage() {
     },
   };
 
+  // Kunci penyimpanan localStorage
+  const STORAGE_KEY = "guruData";
+
   const guru = {
     data: [
       { id: 1, unit: "MI", foto: "", nik: "1982370001", nama: "Ahmad Nailal", gender: "L", ttl: "Kota, 1990", pendidikan: "Sarjana (S1)", password: "******", wali: "Ya", jtm: 18 },
@@ -413,6 +448,30 @@ function initGuruPage() {
     pageSize: 10,
     editId: null,
   };
+
+  // Muat data dari localStorage jika ada
+  function loadGuruData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          guru.data = arr;
+        }
+      }
+    } catch (err) {
+      console.warn("Gagal memuat data guru dari localStorage", err);
+    }
+  }
+
+  // Simpan data saat ada perubahan
+  function persistGuruData() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(guru.data));
+    } catch (err) {
+      console.warn("Gagal menyimpan data guru ke localStorage", err);
+    }
+  }
 
   function filteredData() {
     let arr = guru.data.filter((it) => guru.filterUnit === "ALL" || it.unit === guru.filterUnit);
@@ -446,7 +505,11 @@ function initGuruPage() {
         <td>${it.password}</td>
         <td>${it.wali}</td>
         <td>${it.jtm}</td>
-        <td><button class="btn btn-sm btn-outline-primary me-1 edit-btn" data-id="${it.id}"><i class="bi bi-pencil-square"></i> Edit</button></td>
+        <td>
+          <button class="btn btn-sm btn-success me-1 use-btn" data-id="${it.id}"><i class="bi bi-filetype-pdf"></i> Gunakan</button>
+          <button class="btn btn-sm btn-outline-primary me-1 edit-btn" data-id="${it.id}"><i class="bi bi-pencil-square"></i> Edit</button>
+          <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${it.id}"><i class="bi bi-trash"></i> Delete</button>
+        </td>
       `;
       gEl.tbody.appendChild(tr);
     });
@@ -510,8 +573,28 @@ function initGuruPage() {
 
   gEl.add?.addEventListener("click", () => openModal("add"));
   gEl.table?.addEventListener("click", (e) => {
-    const btn = e.target.closest(".edit-btn");
-    if (btn) openModal("edit", Number(btn.dataset.id));
+    const editBtn = e.target.closest(".edit-btn");
+    if (editBtn) openModal("edit", Number(editBtn.dataset.id));
+    const useBtn = e.target.closest(".use-btn");
+    if (useBtn) {
+      const id = Number(useBtn.dataset.id);
+      const it = guru.data.find((d) => d.id === id);
+      if (it) applyGuruToSlip(it);
+    }
+    const delBtn = e.target.closest(".delete-btn");
+    if (delBtn) {
+      const id = Number(delBtn.dataset.id);
+      const it = guru.data.find((d) => d.id === id);
+      if (!it) return;
+      const ok = confirm(`Yakin hapus data guru: ${it.nama}?`);
+      if (!ok) return;
+      const idx = guru.data.findIndex((d) => d.id === id);
+      if (idx >= 0) {
+        guru.data.splice(idx, 1);
+        renderTable();
+        persistGuruData();
+      }
+    }
   });
 
   gEl.save?.addEventListener("click", () => {
@@ -535,6 +618,7 @@ function initGuruPage() {
       guru.data.push(item);
     }
     renderTable();
+    persistGuruData();
     bootstrap.Modal.getInstance(gEl.modal)?.hide();
   });
 
@@ -620,7 +704,39 @@ function initGuruPage() {
   });
 
   // Initial render
+  // Pastikan data yang dirender berasal dari localStorage bila tersedia
+  loadGuruData();
   renderTable();
+}
+
+// Terapkan data guru ke Slip Gaji dan pindah tab
+function applyGuruToSlip(it) {
+  // Map sederhana agar cocok dengan layout slip
+  state.employee.nik = it.nik;
+  state.employee.kode = it.nik; // gunakan NIK sebagai kode
+  state.employee.nama = it.nama;
+  state.employee.jabatan = it.wali === "Ya" ? "Guru (Wali Kelas)" : "Guru";
+  state.employee.npwp = state.employee.npwp || "-";
+  // detail guru tambahan
+  state.employee.gender = it.gender || "-";
+  state.employee.ttl = it.ttl || "-";
+  state.employee.pendidikan = it.pendidikan || "-";
+  state.employee.wali = it.wali || "Tidak";
+  state.employee.jtm = it.jtm ?? 0;
+  state.employee.unit = it.unit || "-";
+
+  // sinkronkan ke input form supaya preview ikut berubah
+  el.nik.value = state.employee.nik;
+  el.kode.value = state.employee.kode;
+  el.nama.value = state.employee.nama;
+  el.jabatan.value = state.employee.jabatan;
+  el.npwp.value = state.employee.npwp;
+  syncFromInputs();
+
+  // pindah ke tab slip dan fokus ke preview
+  document.getElementById("nav-slip")?.click();
+  document.getElementById("preview")?.scrollIntoView({ behavior: "smooth" });
+  alert("Data guru diterapkan ke Slip Gaji. Siap unduh PDF.");
 }
 
 document.addEventListener("DOMContentLoaded", () => {

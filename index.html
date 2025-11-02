@@ -55,13 +55,33 @@
                     <p class="text-muted mb-0 small">Modern • Elegan • Presisi • SEO-friendly</p>
                 </div>
             </div>
-            <a class="btn btn-outline-primary btn-sm" href="#preview" aria-label="Loncat ke Preview">Lihat Preview</a>
+            <div class="d-flex align-items-center gap-2">
+                <a class="btn btn-outline-primary btn-sm d-none d-lg-inline-flex" href="#preview" aria-label="Loncat ke Preview">Lihat Preview</a>
+                <button class="btn btn-primary btn-sm d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Buka Menu">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
         </div>
     </header>
 
+    <!-- Sidebar Mobile (Offcanvas) -->
+    <div class="offcanvas offcanvas-start text-white mobile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title fw-bold" id="mobileSidebarLabel">ADIPTA</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="small text-white-50 mb-2">Menu</div>
+            <div class="d-grid gap-2">
+                <button id="m-nav-slip" class="btn btn-sidebar text-start active"><i class="bi bi-file-earmark-text me-2"></i> Slip Gaji</button>
+                <button id="m-nav-guru" class="btn btn-sidebar text-start"><i class="bi bi-people me-2"></i> Data Guru</button>
+            </div>
+        </div>
+    </div>
+
     <main class="container my-4">
         <!-- Navigasi utama: Slip Gaji / Data Guru -->
-        <ul class="nav nav-pills mb-3" id="main-nav" role="tablist" aria-label="Navigasi Utama">
+        <ul class="nav nav-pills mb-3 d-none d-lg-flex" id="main-nav" role="tablist" aria-label="Navigasi Utama">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="nav-slip" type="button">Slip Gaji</button>
             </li>
@@ -195,6 +215,20 @@
                                         id="p_jabatan">QUALITY CONTROL</span></div>
                                 <div class="d-flex justify-content-between small"><span>NPWP</span><span
                                         id="p_npwp">333444555666</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Detail Guru (otomatis dari Data Guru) -->
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between small"><span>TTL</span><span id="p_ttl">-</span></div>
+                                <div class="d-flex justify-content-between small"><span>Pendidikan</span><span id="p_pendidikan">-</span></div>
+                                <div class="d-flex justify-content-between small"><span>Unit</span><span id="p_unit">-</span></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between small"><span>L/P</span><span id="p_gender">-</span></div>
+                                <div class="d-flex justify-content-between small"><span>Wali Kelas</span><span id="p_wali">-</span></div>
+                                <div class="d-flex justify-content-between small"><span>JTM</span><span id="p_jtm">-</span></div>
                             </div>
                         </div>
 
