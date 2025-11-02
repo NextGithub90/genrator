@@ -44,12 +44,7 @@
         <div class="container d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
                 <div class="logo-circle" aria-hidden="true">
-                    <!-- Simple inline logo -->
-                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"
-                        role="img" aria-label="Logo">
-                        <circle cx="18" cy="18" r="18" fill="#0d6efd" />
-                        <path d="M8 20h20l-10-8-10 8z" fill="#fff" opacity=".9" />
-                    </svg>
+                    <img src="assets/images/logo.jpeg" alt="Logo">
                 </div>
                 <div>
                     <h1 class="h4 mb-0 fw-bold">Generator Slip Gaji PDF</h1>
@@ -69,7 +64,7 @@
 
     <div class="layout-with-sidebar d-lg-flex">
         <!-- Sidebar Desktop (Left, collapsible) -->
-        <aside class="sidebar-desktop bg-dark text-white d-none d-lg-flex">
+        <aside class="sidebar-desktop text-white d-none d-lg-flex">
             <div class="sidebar-inner w-100">
                 <div class="small text-white-50 mx-3 my-2">Menu</div>
                 <ul class="sidebar-nav list-unstyled m-0 px-2">
@@ -127,7 +122,7 @@
         <div class="offcanvas offcanvas-start text-white mobile-sidebar" tabindex="-1" id="mobileSidebar"
             aria-labelledby="mobileSidebarLabel">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title fw-bold" id="mobileSidebarLabel">ADIPTA</h5>
+                <h5 class="offcanvas-title fw-bold" id="mobileSidebarLabel">YAYASAN RIBHUL ULUM</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
                     aria-label="Close"></button>
             </div>
@@ -203,7 +198,62 @@
                 </div>
             </div>
             <div id="tab-profil" class="d-none">
-                <h2>Profil Yayasan</h2>
+                <section class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h2 class="h5 fw-semibold mb-3">Profil Yayasan</h2>
+                                <h3 class="h6 text-primary mt-2">Data Perusahaan</h3>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Nama Perusahaan</label>
+                                        <input id="companyName" form="payroll-form" type="text" class="form-control" value="YAYASAN RIBHUL ULUM">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Alamat</label>
+                                        <input id="companyAddress" form="payroll-form" type="text" class="form-control" value="Jl. Sekedar Contoh Saja No. 100">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Telepon/Fax</label>
+                                        <input id="companyPhone" form="payroll-form" type="text" class="form-control" value="(012) 34567890">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Kota</label>
+                                        <input id="companyCity" form="payroll-form" type="text" class="form-control" value="Kota Sampel">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Periode (bulan)</label>
+                                        <input id="payrollMonth" form="payroll-form" type="month" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="goToSlip">Buka Slip Gaji</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h2 class="h5 fw-semibold mb-3">Struktur Organisasi</h2>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Pengurus</label>
+                                        <textarea id="orgPengurus" form="payroll-form" class="form-control" rows="4" placeholder="Tulis: Nama — Jabatan, satu per baris"></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Pembina</label>
+                                        <textarea id="orgPembina" form="payroll-form" class="form-control" rows="3" placeholder="Tulis: Nama — Jabatan"></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Pengawas</label>
+                                        <textarea id="orgPengawas" form="payroll-form" class="form-control" rows="3" placeholder="Tulis: Nama — Jabatan"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
             <div id="tab-aset" class="d-none">
                 <h2>Aset</h2>
@@ -233,33 +283,7 @@
                             <div class="card-body">
                                 <h2 class="h5 fw-semibold mb-3">Isi Data</h2>
                                 <form id="payroll-form" autocomplete="off">
-                                    <h3 class="h6 text-primary mt-2">Data Perusahaan</h3>
-                                    <div class="row g-3">
-                                        <div class="col-12">
-                                            <label class="form-label">Nama Perusahaan</label>
-                                            <input id="companyName" type="text" class="form-control"
-                                                value="PT. PUSAT CARA CARA">
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Alamat</label>
-                                            <input id="companyAddress" type="text" class="form-control"
-                                                value="Jl. Sekedar Contoh Saja No. 100">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Telepon/Fax</label>
-                                            <input id="companyPhone" type="text" class="form-control"
-                                                value="(012) 34567890">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Kota</label>
-                                            <input id="companyCity" type="text" class="form-control"
-                                                value="Kota Sampel">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Periode (bulan)</label>
-                                            <input id="payrollMonth" type="month" class="form-control">
-                                        </div>
-                                    </div>
+                                    <!-- Data Perusahaan dipindah ke tab Profil Yayasan -->
 
                                     <h3 class="h6 text-primary mt-4">Data Karyawan</h3>
                                     <div class="row g-3">
@@ -318,14 +342,10 @@
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div class="d-flex gap-3">
                                         <div class="logo-circle" aria-hidden="true">
-                                            <svg width="48" height="48" viewBox="0 0 36 36" fill="none"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <circle cx="18" cy="18" r="18" fill="#0d6efd" />
-                                                <path d="M8 20h20l-10-8-10 8z" fill="#fff" opacity=".9" />
-                                            </svg>
+                                            <img src="assets/images/logo.jpeg" alt="Logo">
                                         </div>
                                         <div>
-                                            <h2 id="p_companyName" class="h5 fw-bold mb-1">PT. PUSAT CARA CARA</h2>
+                                            <h2 id="p_companyName" class="h5 fw-bold mb-1">YAYASAN RIBHUL ULUM</h2>
                                             <div id="p_companyAddress" class="small">Jl. Sekedar Contoh Saja No. 100
                                             </div>
                                             <div class="small">Tlp./Fax <span id="p_companyPhone">(012) 34567890</span>
@@ -377,6 +397,22 @@
                                     </div>
                                 </div>
 
+                                <!-- Struktur Organisasi (dirender dari Profil Yayasan) -->
+                                <div class="row g-3 mb-3" id="org-section">
+                                    <div class="col-md-4">
+                                        <div class="fw-semibold small">Pengurus</div>
+                                        <ul id="p_orgPengurus" class="small m-0 ps-3"></ul>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="fw-semibold small">Pembina</div>
+                                        <ul id="p_orgPembina" class="small m-0 ps-3"></ul>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="fw-semibold small">Pengawas</div>
+                                        <ul id="p_orgPengawas" class="small m-0 ps-3"></ul>
+                                    </div>
+                                </div>
+
                                 <!-- Tabel Pendapatan dan Potongan -->
                                 <div class="row g-3 mt-2">
                                     <div class="col-md-6">
@@ -421,7 +457,7 @@
                                 <div id="terbilang" class="small fst-italic text-muted"># — Rupiah #</div>
 
                                 <div class="row mt-4">
-                                    <div class="col text-end small">
+                                    <div class="col text-end small" style="margin-right: 10rem;">
                                         <div class="mb-5">Bendahara,</div>
                                         <div id="signatureName" class="fw-semibold">F.M. Fatih</div>
                                     </div>

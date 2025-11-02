@@ -16,7 +16,8 @@ function terbilang(n) {
   n = Math.floor(parseIDR(n));
   if (n === 0) return "nol Rupiah";
   const angka = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan"];
-  const tingkat = ["", "puluh", "ratus", "ribu", "juta", "milyar", "triliun"];
+  // Skala ribuan (per 3 digit)
+  const tingkat = ["", "ribu", "juta", "milyar", "triliun"];
   const chunk = (num) => {
     let str = "";
     const ratus = Math.floor(num / 100);
@@ -25,8 +26,9 @@ function terbilang(n) {
     if (ratus) str += ratus === 1 ? "seratus" : angka[ratus] + " ratus";
     if (puluh) str += (str ? " " : "") + (puluh === 1 ? "sepuluh" : angka[puluh] + " puluh");
     if (satuan) {
-      if (puluh === 1 && satuan === 1) str = (str ? " " : "") + "sebelas";
-      else if (puluh === 1 && satuan > 1) str = (str ? " " : "") + angka[satuan] + " belas";
+      // 11-19 harus menggunakan 'belas' tanpa menghapus bagian ratus sebelumnya
+      if (puluh === 1 && satuan === 1) str += (str ? " " : "") + "sebelas";
+      else if (puluh === 1 && satuan > 1) str += (str ? " " : "") + angka[satuan] + " belas";
       else str += (str ? " " : "") + (satuan === 1 && !puluh && !ratus ? "satu" : angka[satuan]);
     }
     return str;
@@ -37,7 +39,7 @@ function terbilang(n) {
     const part = n % 1000;
     if (part) {
       let partStr = chunk(part);
-      if (i === 1 && part === 1) partStr = "seribu";
+      if (i === 1 && part === 1) partStr = "seribu"; // 1000 -> seribu
       words = partStr + (tingkat[i] && part ? " " + tingkat[i] : "") + (words ? " " + words : "");
     }
     n = Math.floor(n / 1000);
@@ -49,7 +51,7 @@ function terbilang(n) {
 // State
 const state = {
   company: {
-    name: "PT. PUSAT CARA CARA",
+    name: "YAYASAN RIBHUL ULUM",
     address: "Jl. Sekedar Contoh Saja No. 100",
     phone: "(012) 34567890",
     city: "Kota Sampel",
@@ -67,6 +69,11 @@ const state = {
     wali: "Tidak",
     jtm: 0,
     unit: "",
+  },
+  org: {
+    pengurus: "",
+    pembina: "",
+    pengawas: "",
   },
   income: [
     { label: "GAJI POKOK", amount: 4750000 },
@@ -129,6 +136,14 @@ const el = {
   totalDeduction: document.getElementById("total-deduction"),
   netSalary: document.getElementById("net-salary"),
   terbilang: document.getElementById("terbilang"),
+  // organisasi inputs
+  orgPengurus: document.getElementById("orgPengurus"),
+  orgPembina: document.getElementById("orgPembina"),
+  orgPengawas: document.getElementById("orgPengawas"),
+  // organisasi preview lists
+  p_orgPengurus: document.getElementById("p_orgPengurus"),
+  p_orgPembina: document.getElementById("p_orgPembina"),
+  p_orgPengawas: document.getElementById("p_orgPengawas"),
 };
 
 function monthLabel(val) {
@@ -194,8 +209,27 @@ function updateEmployeePreview() {
   el.p_ttl.textContent = state.employee.ttl || "-";
   el.p_pendidikan.textContent = state.employee.pendidikan || "-";
   el.p_wali.textContent = state.employee.wali || "-";
-  el.p_jtm.textContent = (state.employee.jtm ?? "-");
+  el.p_jtm.textContent = state.employee.jtm ?? "-";
   el.p_unit.textContent = state.employee.unit || "-";
+}
+
+function renderOrgPreview() {
+  const toList = (str) => str
+    .split(/\r?\n/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  const renderUL = (ulEl, arr) => {
+    if (!ulEl) return;
+    ulEl.innerHTML = "";
+    arr.forEach((line) => {
+      const li = document.createElement("li");
+      li.textContent = line;
+      ulEl.appendChild(li);
+    });
+  };
+  renderUL(el.p_orgPengurus, toList(state.org.pengurus));
+  renderUL(el.p_orgPembina, toList(state.org.pembina));
+  renderUL(el.p_orgPengawas, toList(state.org.pengawas));
 }
 
 function recalc() {
@@ -221,8 +255,14 @@ function syncFromInputs() {
   state.employee.jabatan = el.jabatan.value.trim();
   state.employee.npwp = el.npwp.value.trim();
 
+  // organisasi
+  if (el.orgPengurus) state.org.pengurus = el.orgPengurus.value;
+  if (el.orgPembina) state.org.pembina = el.orgPembina.value;
+  if (el.orgPengawas) state.org.pengawas = el.orgPengawas.value;
+
   updateCompanyPreview();
   updateEmployeePreview();
+  renderOrgPreview();
   renderSlipTables();
   recalc();
 }
@@ -265,7 +305,7 @@ function exportPDF() {
 
 function attachEvents() {
   // Inputs company/employee
-  ["companyName", "companyAddress", "companyPhone", "companyCity", "payrollMonth", "nik", "kode", "nama", "jabatan", "npwp"].forEach((id) => document.getElementById(id).addEventListener("input", syncFromInputs));
+  ["companyName", "companyAddress", "companyPhone", "companyCity", "payrollMonth", "nik", "kode", "nama", "jabatan", "npwp", "orgPengurus", "orgPembina", "orgPengawas"].forEach((id) => document.getElementById(id)?.addEventListener("input", syncFromInputs));
 
   // Delegation for item edit/remove
   el.incomeItems.addEventListener("input", (e) => {
@@ -310,7 +350,7 @@ function attachEvents() {
     setTimeout(() => {
       // wait for browser reset
       // Re-sync defaults from inputs
-      state.company.name = el.companyName.value = "PT. PUSAT CARA CARA";
+      state.company.name = el.companyName.value = "YAYASAN RIBHUL ULUM";
       state.company.address = el.companyAddress.value = "Jl. Sekedar Contoh Saja No. 100";
       state.company.phone = el.companyPhone.value = "(012) 34567890";
       state.company.city = el.companyCity.value = "Kota Sampel";
@@ -335,6 +375,11 @@ function attachEvents() {
         { label: "KOPERASI", amount: 90000 },
         { label: "", amount: 1250000 },
       ];
+      // reset organisasi
+      state.org = { pengurus: "", pembina: "", pengawas: "" };
+      if (el.orgPengurus) el.orgPengurus.value = "";
+      if (el.orgPembina) el.orgPembina.value = "";
+      if (el.orgPengawas) el.orgPengawas.value = "";
       renderItemRows("income");
       renderItemRows("deduction");
       syncFromInputs();
@@ -355,6 +400,11 @@ function init() {
   el.nama.value = state.employee.nama;
   el.jabatan.value = state.employee.jabatan;
   el.npwp.value = state.employee.npwp;
+
+  // Prefill organisasi
+  if (el.orgPengurus) el.orgPengurus.value = state.org.pengurus;
+  if (el.orgPembina) el.orgPembina.value = state.org.pembina;
+  if (el.orgPengawas) el.orgPengawas.value = state.org.pengawas;
 
   renderItemRows("income");
   renderItemRows("deduction");
@@ -415,8 +465,8 @@ function initNavigation() {
       { id: "pendapatan", el: tabPendapatan },
       { id: "pengeluaran", el: tabPengeluaran },
     ];
-    allTabs.forEach(t => t.el?.classList.add("d-none"));
-    const target = allTabs.find(t => t.id === which);
+    allTabs.forEach((t) => t.el?.classList.add("d-none"));
+    const target = allTabs.find((t) => t.id === which);
     if (target?.el) target.el.classList.remove("d-none");
 
     // Highlight nav mobile bila relevan
@@ -433,29 +483,29 @@ function initNavigation() {
   mNavGuru?.addEventListener("click", () => showTab("guru"));
 
   // Event untuk sidebar desktop
-  sidebar?.addEventListener('click', (e) => {
-    const link = e.target.closest('.nav-link');
+  sidebar?.addEventListener("click", (e) => {
+    const link = e.target.closest(".nav-link");
     if (!link) return;
 
     const tab = link.dataset.tab;
     const unit = link.dataset.unit;
     const unitSlip = link.dataset.unitSlip;
-    const isCollapseToggle = link.getAttribute('data-bs-toggle') === 'collapse';
+    const isCollapseToggle = link.getAttribute("data-bs-toggle") === "collapse";
     if (isCollapseToggle) return; // biarkan Bootstrap menangani toggle
     e.preventDefault();
 
     // Sub-menu Data Guru: filter unit dan tampilkan tab guru
-    if (unit && link.closest('#guru-submenu')) {
+    if (unit && link.closest("#guru-submenu")) {
       const btn = guruUnitList?.querySelector(`[data-unit="${unit}"]`);
       btn?.click();
-      showSection('guru');
+      showSection("guru");
       return;
     }
     // Sub-menu Slip Gaji: set unit di preview dan tampilkan slip
-    if (unitSlip && link.closest('#slip-submenu')) {
+    if (unitSlip && link.closest("#slip-submenu")) {
       state.employee.unit = unitSlip;
       updateEmployeePreview();
-      showSection('slip');
+      showSection("slip");
       return;
     }
     // Link biasa: tampilkan section terkait
@@ -465,29 +515,29 @@ function initNavigation() {
   });
 
   // Event untuk sidebar mobile (offcanvas)
-  const mobileSidebarNav = document.querySelector('.mobile-sidebar');
-  mobileSidebarNav?.addEventListener('click', (e) => {
-    const link = e.target.closest('.nav-link');
+  const mobileSidebarNav = document.querySelector(".mobile-sidebar");
+  mobileSidebarNav?.addEventListener("click", (e) => {
+    const link = e.target.closest(".nav-link");
     if (!link) return;
     const tab = link.dataset.tab;
     const unit = link.dataset.unit;
     const unitSlip = link.dataset.unitSlip;
-    const isCollapseToggle = link.getAttribute('data-bs-toggle') === 'collapse';
+    const isCollapseToggle = link.getAttribute("data-bs-toggle") === "collapse";
     if (isCollapseToggle) return;
     e.preventDefault();
 
     // Sub-menu Data Guru: filter unit dan tampilkan tab guru
-    if (unit && link.closest('#m-guru-submenu')) {
+    if (unit && link.closest("#m-guru-submenu")) {
       const btn = guruUnitList?.querySelector(`[data-unit="${unit}"]`);
       btn?.click();
-      showSection('guru');
+      showSection("guru");
       return;
     }
     // Sub-menu Slip Gaji: set unit di preview dan tampilkan slip
-    if (unitSlip && link.closest('#m-slip-submenu')) {
+    if (unitSlip && link.closest("#m-slip-submenu")) {
       state.employee.unit = unitSlip;
       updateEmployeePreview();
-      showSection('slip');
+      showSection("slip");
       return;
     }
     // Link biasa: tampilkan section terkait
@@ -496,8 +546,15 @@ function initNavigation() {
     }
   });
 
+  // Navigasi dari Profil Yayasan ke Slip Gaji
+  const goToSlipBtn = document.getElementById("goToSlip");
+  goToSlipBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    showSection("slip");
+  });
+
   // Default awal: tampilkan Dashboard
-  showSection('dashboard');
+  showSection("dashboard");
 }
 
 function initGuruPage() {
@@ -576,13 +633,7 @@ function initGuruPage() {
     let arr = guru.data.filter((it) => guru.filterUnit === "ALL" || it.unit === guru.filterUnit);
     const s = guru.search.toLowerCase();
     if (s) {
-      arr = arr.filter(
-        (it) =>
-          it.nik.toLowerCase().includes(s) ||
-          it.nama.toLowerCase().includes(s) ||
-          it.pendidikan.toLowerCase().includes(s) ||
-          it.ttl.toLowerCase().includes(s)
-      );
+      arr = arr.filter((it) => it.nik.toLowerCase().includes(s) || it.nama.toLowerCase().includes(s) || it.pendidikan.toLowerCase().includes(s) || it.ttl.toLowerCase().includes(s));
     }
     return arr;
   }
@@ -724,22 +775,8 @@ function initGuruPage() {
   // Copy / Print / Excel (CSV)
   gEl.copy?.addEventListener("click", () => {
     const arr = filteredData();
-    const header = [
-      "No",
-      "NIK/NUPTK",
-      "Nama",
-      "L/P",
-      "TTL",
-      "Pendidikan",
-      "Password",
-      "Wali Kelas",
-      "JTM",
-      "Unit",
-    ];
-    const rows = arr.map(
-      (it, i) =>
-        [i + 1, it.nik, it.nama, it.gender, it.ttl, it.pendidikan, it.password, it.wali, it.jtm, it.unit].join("\t")
-    );
+    const header = ["No", "NIK/NUPTK", "Nama", "L/P", "TTL", "Pendidikan", "Password", "Wali Kelas", "JTM", "Unit"];
+    const rows = arr.map((it, i) => [i + 1, it.nik, it.nama, it.gender, it.ttl, it.pendidikan, it.password, it.wali, it.jtm, it.unit].join("\t"));
     const text = header.join("\t") + "\n" + rows.join("\n");
     navigator.clipboard
       .writeText(text)
@@ -749,9 +786,7 @@ function initGuruPage() {
 
   gEl.print?.addEventListener("click", () => {
     const w = window.open("", "_blank");
-    w.document.write(
-      `<!doctype html><html><head><title>Data Guru</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"></head><body class="p-3">`
-    );
+    w.document.write(`<!doctype html><html><head><title>Data Guru</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"></head><body class="p-3">`);
     w.document.write(`<h5>Data Guru</h5>`);
     w.document.write(document.getElementById("guruTable").outerHTML);
     w.document.write("</body></html>");
@@ -763,35 +798,10 @@ function initGuruPage() {
 
   gEl.excel?.addEventListener("click", () => {
     const arr = filteredData();
-    const header = [
-      "No",
-      "NIK/NUPTK",
-      "Nama",
-      "L/P",
-      "TTL",
-      "Pendidikan",
-      "Password",
-      "Wali Kelas",
-      "JTM",
-      "Unit",
-    ];
+    const header = ["No", "NIK/NUPTK", "Nama", "L/P", "TTL", "Pendidikan", "Password", "Wali Kelas", "JTM", "Unit"];
     const csv = [
       header.join(","),
-      ...arr.map(
-        (it, i) =>
-          [
-            i + 1,
-            it.nik,
-            it.nama,
-            it.gender,
-            `"${it.ttl.replace(/"/g, '""')}"`,
-            `"${it.pendidikan.replace(/"/g, '""')}"`,
-            `"${String(it.password).replace(/"/g, '""')}"`,
-            it.wali,
-            it.jtm,
-            it.unit,
-          ].join(",")
-      ),
+      ...arr.map((it, i) => [i + 1, it.nik, it.nama, it.gender, `"${it.ttl.replace(/"/g, '""')}"`, `"${it.pendidikan.replace(/"/g, '""')}"`, `"${String(it.password).replace(/"/g, '""')}"`, it.wali, it.jtm, it.unit].join(",")),
     ].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
