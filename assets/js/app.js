@@ -591,6 +591,11 @@ function initNavigation() {
     mNavSlip?.classList.toggle("active", which === "slip");
     mNavGuru?.classList.toggle("active", which === "guru");
 
+    // Render ulang Dashboard saat ditampilkan agar metriknya selalu terbaru
+    if (which === "dashboard") {
+      try { renderDashboard(); } catch {}
+    }
+
     // Tutup sidebar mobile jika terbuka
     mobileSidebar?.hide();
   }
@@ -964,8 +969,424 @@ function applyGuruToSlip(it) {
   alert("Data guru diterapkan ke Slip Gaji. Siap unduh PDF.");
 }
 
+// ===================== Keuangan (Pendapatan/Pengeluaran) per unit =====================
+const KEU_STORAGE_KEY = "KEUANGAN_DATA";
+let keuData = [];
+let keuEditId = null;
+const keuCtx = { unitIn: "ALL", unitOut: "ALL", searchIn: "", searchOut: "" };
+
+function loadKeuData() {
+  try {
+    const raw = localStorage.getItem(KEU_STORAGE_KEY);
+    keuData = raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    keuData = [];
+  }
+}
+function persistKeuData() {
+  localStorage.setItem(KEU_STORAGE_KEY, JSON.stringify(keuData));
+}
+
+function renderKeu(kind) {
+  const isIn = kind === "pendapatan";
+  const tableId = isIn ? "keuIn_table" : "keuOut_table";
+  const infoId = isIn ? "keuIn_info" : "keuOut_info";
+  const unitFilter = isIn ? keuCtx.unitIn : keuCtx.unitOut;
+  const search = isIn ? keuCtx.searchIn : keuCtx.searchOut;
+
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  const info = document.getElementById(infoId);
+  if (!tbody) return;
+
+  const rows = keuData
+    .filter((d) => d.jenis === kind)
+    .filter((d) => (unitFilter === "ALL" ? true : d.unit === unitFilter))
+    .filter((d) => {
+      if (!search) return true;
+      const s = search.toLowerCase();
+      return (
+        String(d.tahun).includes(s) ||
+        (d.sumber || "").toLowerCase().includes(s) ||
+        (d.ket || "").toLowerCase().includes(s) ||
+        (d.unit || "").toLowerCase().includes(s)
+      );
+    });
+
+  tbody.innerHTML = rows
+    .map((d) => {
+      return `<tr data-id="${d.id}">
+          <td class="small">${d.tahun || ""}</td>
+          <td class="small">${d.sumber || ""}</td>
+          <td class="small">${formatIDR(d.jumlah || 0)}</td>
+          <td class="small">${d.ket || ""}</td>
+          <td class="small">
+            <button class="btn btn-light btn-sm me-1" data-action="edit"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-light btn-sm" data-action="del"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>`;
+    })
+    .join("");
+
+  if (info) info.textContent = `Showing ${rows.length} entries`;
+
+  tbody.querySelectorAll("button[data-action]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const tr = e.currentTarget.closest("tr");
+      const id = tr ? tr.getAttribute("data-id") : null;
+      const action = e.currentTarget.getAttribute("data-action");
+      if (!id) return;
+      if (action === "edit") {
+        openKeuModal(kind, id);
+      } else if (action === "del") {
+        deleteKeu(id);
+        renderKeu(kind);
+      }
+    });
+  });
+}
+
+function openKeuModal(kind, id = null) {
+  keuEditId = id;
+  const title = document.getElementById("keuModalTitle");
+  const unit = document.getElementById("keu_unit");
+  const tahun = document.getElementById("keu_tahun");
+  const sumber = document.getElementById("keu_sumber");
+  const jumlah = document.getElementById("keu_jumlah");
+  const ket = document.getElementById("keu_ket");
+
+  if (id) {
+    const d = keuData.find((x) => x.id === id);
+    if (!d) return;
+    title.textContent = "Edit Data";
+    unit.value = d.unit || "RA";
+    tahun.value = d.tahun || new Date().getFullYear();
+    sumber.value = d.sumber || "";
+    jumlah.value = formatIDR(d.jumlah || 0);
+    ket.value = d.ket || "";
+  } else {
+    title.textContent = "Tambah Data";
+    unit.value = "RA";
+    tahun.value = new Date().getFullYear();
+    sumber.value = "";
+    jumlah.value = "";
+    ket.value = "";
+  }
+
+  const modalEl = document.getElementById("keuModal");
+  if (modalEl) {
+    modalEl.setAttribute("data-kind", kind);
+    const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+    m.show();
+  }
+}
+
+function saveKeuFromModal() {
+  const modalEl = document.getElementById("keuModal");
+  const kind = modalEl ? modalEl.getAttribute("data-kind") : "pendapatan";
+  const unit = document.getElementById("keu_unit").value;
+  const tahun = Number(document.getElementById("keu_tahun").value);
+  const sumber = document.getElementById("keu_sumber").value.trim();
+  const jumlah = parseIDR(document.getElementById("keu_jumlah").value);
+  const ket = document.getElementById("keu_ket").value.trim();
+
+  if (keuEditId) {
+    const idx = keuData.findIndex((x) => x.id === keuEditId);
+    if (idx >= 0) {
+      keuData[idx] = { ...keuData[idx], unit, tahun, sumber, jumlah, ket };
+    }
+  } else {
+    const id = `keu_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    keuData.push({ id, jenis: kind, unit, tahun, sumber, jumlah, ket });
+  }
+  persistKeuData();
+  keuEditId = null;
+  const m = bootstrap.Modal.getInstance(modalEl);
+  if (m) m.hide();
+  renderKeu(kind);
+  renderDashboard();
+}
+
+function deleteKeu(id) {
+  keuData = keuData.filter((x) => x.id !== id);
+  persistKeuData();
+  renderDashboard();
+}
+
+function initKeu() {
+  loadKeuData();
+  // Pendapatan controls
+  const inAdd = document.getElementById("keuIn_add");
+  const inUnitList = document.getElementById("keuIn_unitList");
+  const inSearch = document.getElementById("keuIn_search");
+  inAdd?.addEventListener("click", () => openKeuModal("pendapatan"));
+  inUnitList?.querySelectorAll(".list-group-item").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      inUnitList.querySelectorAll(".list-group-item").forEach((b) => b.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+      keuCtx.unitIn = e.currentTarget.getAttribute("data-unit") || "ALL";
+      renderKeu("pendapatan");
+    });
+  });
+  inSearch?.addEventListener("input", (e) => { keuCtx.searchIn = e.target.value; renderKeu("pendapatan"); });
+
+  // Pengeluaran controls
+  const outAdd = document.getElementById("keuOut_add");
+  const outUnitList = document.getElementById("keuOut_unitList");
+  const outSearch = document.getElementById("keuOut_search");
+  outAdd?.addEventListener("click", () => openKeuModal("pengeluaran"));
+  outUnitList?.querySelectorAll(".list-group-item").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      outUnitList.querySelectorAll(".list-group-item").forEach((b) => b.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+      keuCtx.unitOut = e.currentTarget.getAttribute("data-unit") || "ALL";
+      renderKeu("pengeluaran");
+    });
+  });
+  outSearch?.addEventListener("input", (e) => { keuCtx.searchOut = e.target.value; renderKeu("pengeluaran"); });
+
+  // Modal save
+  document.getElementById("keuSave")?.addEventListener("click", saveKeuFromModal);
+
+  // Initial render
+  renderKeu("pendapatan");
+  renderKeu("pengeluaran");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   init();
+  // Muat statistik dashboard lebih awal supaya tampil saat default showSection('dashboard')
+  try { loadDashboardStats(); } catch {}
   initNavigation();
   initGuruPage();
+  initKeu();
+  initAset();
 });
+
+// ===================== Aset (Inventaris) =====================
+const ASET_STORAGE_KEY = "ASET_DATA";
+let aset = { data: [], search: "", editId: null };
+
+function loadAsetData() {
+  try {
+    const raw = localStorage.getItem(ASET_STORAGE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    aset.data = Array.isArray(arr) ? arr : [];
+  } catch (e) {
+    aset.data = [];
+  }
+}
+function persistAsetData() {
+  localStorage.setItem(ASET_STORAGE_KEY, JSON.stringify(aset.data));
+}
+
+function filteredAset() {
+  const s = (aset.search || "").toLowerCase();
+  if (!s) return aset.data;
+  return aset.data.filter((it) =>
+    (it.nama || "").toLowerCase().includes(s) ||
+    (it.lokasi || "").toLowerCase().includes(s)
+  );
+}
+
+function renderAsetTable() {
+  const tbody = document.getElementById("asetTbody");
+  const info = document.getElementById("asetInfo");
+  if (!tbody) return;
+  const arr = filteredAset();
+  tbody.innerHTML = "";
+  arr.forEach((it, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="small">${idx + 1}</td>
+      <td class="small">${it.nama || "-"}</td>
+      <td class="small">${it.luas || "-"}</td>
+      <td class="small">${it.lokasi || "-"}</td>
+      <td class="small">${it.bukti || "-"}</td>
+      <td class="small">
+        <button class="btn btn-sm btn-outline-primary me-1 aset-edit" data-id="${it.id}"><i class="bi bi-pencil-square"></i> Edit</button>
+        <button class="btn btn-sm btn-outline-danger aset-del" data-id="${it.id}"><i class="bi bi-trash"></i> Hapus</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  if (info) info.textContent = `Showing ${arr.length} entries`;
+}
+
+function openAsetModal(mode = "add", id = null) {
+  aset.editId = mode === "edit" ? id : null;
+  const title = document.getElementById("asetModalTitle");
+  const nama = document.getElementById("aset_nama");
+  const luas = document.getElementById("aset_luas");
+  const lokasi = document.getElementById("aset_lokasi");
+  const bukti = document.getElementById("aset_bukti");
+  if (mode === "edit" && id) {
+    const it = aset.data.find((d) => d.id === id);
+    if (!it) return;
+    title.textContent = "Edit Aset";
+    nama.value = it.nama || "";
+    luas.value = it.luas || "";
+    lokasi.value = it.lokasi || "";
+    bukti.value = it.bukti || "";
+  } else {
+    title.textContent = "Tambah Aset";
+    nama.value = "";
+    luas.value = "";
+    lokasi.value = "";
+    bukti.value = "";
+  }
+  const modalEl = document.getElementById("asetModal");
+  if (modalEl) {
+    const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+    m.show();
+  }
+}
+
+function saveAsetFromModal() {
+  const nama = document.getElementById("aset_nama").value.trim();
+  const luas = document.getElementById("aset_luas").value.trim();
+  const lokasi = document.getElementById("aset_lokasi").value.trim();
+  const bukti = document.getElementById("aset_bukti").value.trim();
+  if (!nama) return;
+  if (aset.editId) {
+    const idx = aset.data.findIndex((d) => d.id === aset.editId);
+    if (idx >= 0) aset.data[idx] = { ...aset.data[idx], nama, luas, lokasi, bukti };
+  } else {
+    const id = `aset_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    aset.data.push({ id, nama, luas, lokasi, bukti });
+  }
+  persistAsetData();
+  const modalEl = document.getElementById("asetModal");
+  const m = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+  m?.hide();
+  renderAsetTable();
+  renderDashboard();
+}
+
+function deleteAset(id) {
+  const it = aset.data.find((d) => d.id === id);
+  if (!it) return;
+  const ok = confirm(`Yakin hapus aset: ${it.nama}?`);
+  if (!ok) return;
+  aset.data = aset.data.filter((d) => d.id !== id);
+  persistAsetData();
+  renderAsetTable();
+  renderDashboard();
+}
+
+function initAset() {
+  loadAsetData();
+  renderAsetTable();
+  document.getElementById("asetAdd")?.addEventListener("click", () => openAsetModal("add"));
+  document.getElementById("asetSearch")?.addEventListener("input", (e) => { aset.search = e.target.value; renderAsetTable(); });
+  document.getElementById("asetSave")?.addEventListener("click", saveAsetFromModal);
+  document.getElementById("asetTable")?.addEventListener("click", (e) => {
+    const editBtn = e.target.closest(".aset-edit");
+    const delBtn = e.target.closest(".aset-del");
+    if (editBtn) openAsetModal("edit", editBtn.dataset.id);
+    if (delBtn) deleteAset(delBtn.dataset.id);
+  });
+  renderDashboard();
+}
+
+// ===================== Dashboard Render =====================
+function sumKeu(kind) {
+  try {
+    return keuData.filter((d) => d.jenis === kind).reduce((acc, d) => acc + (Number(d.jumlah) || 0), 0);
+  } catch { return 0; }
+}
+
+function renderDashboardMetrics() {
+  const gCountEl = document.getElementById("cardGuruCount");
+  const sCountEl = document.getElementById("cardSiswaCount");
+  const kCountEl = document.getElementById("cardKelasCount");
+  const inEl = document.getElementById("cardPendapatanTotal");
+  const outEl = document.getElementById("cardPengeluaranTotal");
+  const saldoEl = document.getElementById("cardSaldo");
+  const guruCount = (window.gEl && Array.isArray(window.guru?.data)) ? window.guru.data.length : (typeof guru !== 'undefined' ? guru.data.length : 0);
+  const totalIn = sumKeu("pendapatan");
+  const totalOut = sumKeu("pengeluaran");
+  const saldo = totalIn - totalOut;
+  if (gCountEl) gCountEl.textContent = String(guruCount);
+  if (sCountEl) sCountEl.textContent = String(Number(dashboardStats?.siswaCount || 0));
+  if (kCountEl) kCountEl.textContent = String(Number(dashboardStats?.kelasCount || 0));
+  if (inEl) inEl.textContent = formatIDR(totalIn);
+  if (outEl) outEl.textContent = formatIDR(totalOut);
+  if (saldoEl) saldoEl.textContent = formatIDR(saldo);
+}
+
+function renderDashboardAsetTable() {
+  const tbody = document.getElementById("dashAsetTbody");
+  const info = document.getElementById("dashAsetInfo");
+  if (!tbody) return;
+  const arr = (aset?.data || []).slice(0, 5);
+  tbody.innerHTML = "";
+  arr.forEach((it, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="small">${idx + 1}</td>
+      <td class="small">${it.nama || "-"}</td>
+      <td class="small">${it.luas || "-"}</td>
+      <td class="small">${it.lokasi || "-"}</td>
+      <td class="small">${it.bukti || "-"}</td>
+      <td class="small">
+        <button class="btn btn-sm btn-outline-primary me-1 dash-aset-edit" data-id="${it.id}"><i class="bi bi-pencil-square"></i> Edit</button>
+        <button class="btn btn-sm btn-outline-danger dash-aset-del" data-id="${it.id}"><i class="bi bi-trash"></i> Hapus</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  if (info) info.textContent = `Menampilkan ${arr.length} entri`;
+}
+
+function renderDashboard() {
+  renderDashboardMetrics();
+  renderDashboardAsetTable();
+}
+
+// Hook Dashboard actions
+document.getElementById("dashStatsEdit")?.addEventListener("click", () => openDashStatsModal());
+document.getElementById("dashStatsSave")?.addEventListener("click", () => saveDashStatsFromModal());
+document.getElementById("dashAsetAdd")?.addEventListener("click", () => openAsetModal("add"));
+document.getElementById("dashAsetTable")?.addEventListener("click", (e) => {
+  const editBtn = e.target.closest(".dash-aset-edit");
+  const delBtn = e.target.closest(".dash-aset-del");
+  if (editBtn) openAsetModal("edit", editBtn.dataset.id);
+  if (delBtn) deleteAset(delBtn.dataset.id);
+});
+
+// ===================== Dashboard Stats (Siswa & Kelas) =====================
+const DASHBOARD_STORAGE_KEY = "DASHBOARD_STATS";
+let dashboardStats = { siswaCount: 0, kelasCount: 0 };
+function loadDashboardStats() {
+  try {
+    const raw = localStorage.getItem(DASHBOARD_STORAGE_KEY);
+    const obj = raw ? JSON.parse(raw) : null;
+    if (obj && typeof obj === 'object') {
+      dashboardStats = {
+        siswaCount: Number(obj.siswaCount) || 0,
+        kelasCount: Number(obj.kelasCount) || 0,
+      };
+    }
+  } catch {}
+}
+function persistDashboardStats() {
+  try { localStorage.setItem(DASHBOARD_STORAGE_KEY, JSON.stringify(dashboardStats)); } catch {}
+}
+function openDashStatsModal() {
+  const mEl = document.getElementById("dashStatsModal");
+  if (!mEl) return;
+  const siswaInput = document.getElementById("dash_siswa");
+  const kelasInput = document.getElementById("dash_kelas");
+  if (siswaInput) siswaInput.value = String(dashboardStats.siswaCount || 0);
+  if (kelasInput) kelasInput.value = String(dashboardStats.kelasCount || 0);
+  const m = new bootstrap.Modal(mEl);
+  m.show();
+}
+function saveDashStatsFromModal() {
+  const siswa = Number(document.getElementById("dash_siswa")?.value || 0);
+  const kelas = Number(document.getElementById("dash_kelas")?.value || 0);
+  dashboardStats.siswaCount = isNaN(siswa) ? 0 : siswa;
+  dashboardStats.kelasCount = isNaN(kelas) ? 0 : kelas;
+  persistDashboardStats();
+  const mEl = document.getElementById("dashStatsModal");
+  try { bootstrap.Modal.getInstance(mEl)?.hide(); } catch {}
+  renderDashboard();
+}

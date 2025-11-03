@@ -182,18 +182,85 @@
         <main class="container my-4 main-with-sidebar">
             <!-- Tabs tambahan untuk menu sidebar -->
             <div id="tab-dashboard" class="d-none">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="card bg-primary text-white p-3">GURU</div>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="fw-semibold small text-muted">Ringkasan</div>
+                    <button id="dashStatsEdit" class="btn btn-outline-secondary btn-sm ms-auto"><i
+                            class="bi bi-gear"></i> Edit Statistik</button>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="small text-muted">Total Guru</div>
+                                <div id="cardGuruCount" class="h4 m-0">0</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card bg-success text-white p-3">SISWA</div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="small text-muted">Total Siswa</div>
+                                <div id="cardSiswaCount" class="h4 m-0">0</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card bg-danger text-white p-3">KELAS</div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="small text-muted">Total Kelas</div>
+                                <div id="cardKelasCount" class="h4 m-0">0</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-12">
-                        <div class="card bg-warning text-white p-3">Info RDM</div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="small text-muted">Total Pendapatan</div>
+                                <div id="cardPendapatanTotal" class="h4 m-0">Rp 0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="small text-muted">Total Pengeluaran</div>
+                                <div id="cardPengeluaranTotal" class="h4 m-0">Rp 0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="small text-muted">Sisa Anggaran</div>
+                                <div id="cardSaldo" class="h4 m-0">Rp 0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <h5 class="card-title m-0">Ringkasan Aset</h5>
+                            <button id="dashAsetAdd" class="btn btn-primary btn-sm ms-auto"><i
+                                    class="bi bi-plus-lg"></i> Tambah Aset</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="dashAsetTable" class="table table-sm align-middle">
+                                <thead class="table-info">
+                                    <tr>
+                                        <th class="small" style="width:60px;">No</th>
+                                        <th class="small">Aset</th>
+                                        <th class="small">Luas</th>
+                                        <th class="small">Lokasi</th>
+                                        <th class="small">Bukti Fisik</th>
+                                        <th class="small" style="width:140px;">Opsi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashAsetTbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="small text-muted" id="dashAsetInfo">Menampilkan 0 entri</div>
                     </div>
                 </div>
             </div>
@@ -207,19 +274,23 @@
                                 <div class="row g-3">
                                     <div class="col-12">
                                         <label class="form-label">Nama Perusahaan</label>
-                                        <input id="companyName" form="payroll-form" type="text" class="form-control" value="YAYASAN RIBHUL ULUM">
+                                        <input id="companyName" form="payroll-form" type="text" class="form-control"
+                                            value="YAYASAN RIBHUL ULUM">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Alamat</label>
-                                        <input id="companyAddress" form="payroll-form" type="text" class="form-control" value="Jl. Sekedar Contoh Saja No. 100">
+                                        <input id="companyAddress" form="payroll-form" type="text" class="form-control"
+                                            value="Jl. Sekedar Contoh Saja No. 100">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Telepon/Fax</label>
-                                        <input id="companyPhone" form="payroll-form" type="text" class="form-control" value="(012) 34567890">
+                                        <input id="companyPhone" form="payroll-form" type="text" class="form-control"
+                                            value="(012) 34567890">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Kota</label>
-                                        <input id="companyCity" form="payroll-form" type="text" class="form-control" value="Kota Sampel">
+                                        <input id="companyCity" form="payroll-form" type="text" class="form-control"
+                                            value="Kota Sampel">
                                     </div>
                                 </div>
                             </div>
@@ -230,25 +301,30 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h2 class="h5 fw-semibold mb-0">Struktur Organisasi</h2>
-                                    <button id="orgAdd" type="button" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Tambah</button>
+                                    <button id="orgAdd" type="button" class="btn btn-primary btn-sm"><i
+                                            class="bi bi-plus-lg"></i> Tambah</button>
                                 </div>
                                 <div class="row g-3">
                                     <!-- Pengurus -->
                                     <div class="col-12">
                                         <label class="form-label">Pengurus</label>
                                         <!-- textarea disembunyikan, dipakai untuk sinkron ke PDF -->
-                                        <textarea id="orgPengurus" form="payroll-form" class="form-control d-none" rows="4"></textarea>
+                                        <textarea id="orgPengurus" form="payroll-form" class="form-control d-none"
+                                            rows="4"></textarea>
                                         <div class="row g-2 align-items-end">
                                             <div class="col-md-5">
                                                 <label class="form-label small">Nama</label>
-                                                <input id="orgPengurusNama" type="text" class="form-control" placeholder="Nama">
+                                                <input id="orgPengurusNama" type="text" class="form-control"
+                                                    placeholder="Nama">
                                             </div>
                                             <div class="col-md-5">
                                                 <label class="form-label small">Jabatan</label>
-                                                <input id="orgPengurusJabatan" type="text" class="form-control" placeholder="Jabatan">
+                                                <input id="orgPengurusJabatan" type="text" class="form-control"
+                                                    placeholder="Jabatan">
                                             </div>
                                             <div class="col-md-2">
-                                                <button id="addOrgPengurus" type="button" class="btn btn-outline-primary w-100">Tambah</button>
+                                                <button id="addOrgPengurus" type="button"
+                                                    class="btn btn-outline-primary w-100">Tambah</button>
                                             </div>
                                         </div>
                                         <div id="orgPengurusList" class="mt-2"></div>
@@ -257,18 +333,22 @@
                                     <!-- Pembina -->
                                     <div class="col-12">
                                         <label class="form-label">Pembina</label>
-                                        <textarea id="orgPembina" form="payroll-form" class="form-control d-none" rows="3"></textarea>
+                                        <textarea id="orgPembina" form="payroll-form" class="form-control d-none"
+                                            rows="3"></textarea>
                                         <div class="row g-2 align-items-end">
                                             <div class="col-md-5">
                                                 <label class="form-label small">Nama</label>
-                                                <input id="orgPembinaNama" type="text" class="form-control" placeholder="Nama">
+                                                <input id="orgPembinaNama" type="text" class="form-control"
+                                                    placeholder="Nama">
                                             </div>
                                             <div class="col-md-5">
                                                 <label class="form-label small">Jabatan</label>
-                                                <input id="orgPembinaJabatan" type="text" class="form-control" placeholder="Jabatan">
+                                                <input id="orgPembinaJabatan" type="text" class="form-control"
+                                                    placeholder="Jabatan">
                                             </div>
                                             <div class="col-md-2">
-                                                <button id="addOrgPembina" type="button" class="btn btn-outline-primary w-100">Tambah</button>
+                                                <button id="addOrgPembina" type="button"
+                                                    class="btn btn-outline-primary w-100">Tambah</button>
                                             </div>
                                         </div>
                                         <div id="orgPembinaList" class="mt-2"></div>
@@ -277,18 +357,22 @@
                                     <!-- Pengawas -->
                                     <div class="col-12">
                                         <label class="form-label">Pengawas</label>
-                                        <textarea id="orgPengawas" form="payroll-form" class="form-control d-none" rows="3"></textarea>
+                                        <textarea id="orgPengawas" form="payroll-form" class="form-control d-none"
+                                            rows="3"></textarea>
                                         <div class="row g-2 align-items-end">
                                             <div class="col-md-5">
                                                 <label class="form-label small">Nama</label>
-                                                <input id="orgPengawasNama" type="text" class="form-control" placeholder="Nama">
+                                                <input id="orgPengawasNama" type="text" class="form-control"
+                                                    placeholder="Nama">
                                             </div>
                                             <div class="col-md-5">
                                                 <label class="form-label small">Jabatan</label>
-                                                <input id="orgPengawasJabatan" type="text" class="form-control" placeholder="Jabatan">
+                                                <input id="orgPengawasJabatan" type="text" class="form-control"
+                                                    placeholder="Jabatan">
                                             </div>
                                             <div class="col-md-2">
-                                                <button id="addOrgPengawas" type="button" class="btn btn-outline-primary w-100">Tambah</button>
+                                                <button id="addOrgPengawas" type="button"
+                                                    class="btn btn-outline-primary w-100">Tambah</button>
                                             </div>
                                         </div>
                                         <div id="orgPengawasList" class="mt-2"></div>
@@ -300,13 +384,236 @@
                 </section>
             </div>
             <div id="tab-aset" class="d-none">
-                <h2>Aset</h2>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <button id="asetAdd" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Tambah
+                                Aset</button>
+                            <div class="ms-auto d-flex align-items-center gap-2" style="min-width:280px;">
+                                <input id="asetSearch" type="text" class="form-control form-control-sm"
+                                    placeholder="Cari aset/lokasi..">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="asetTable" class="table table-sm align-middle">
+                                <thead class="table-info">
+                                    <tr>
+                                        <th class="small" style="width:60px;">No</th>
+                                        <th class="small">Aset</th>
+                                        <th class="small">Luas</th>
+                                        <th class="small">Lokasi</th>
+                                        <th class="small">Bukti Fisik</th>
+                                        <th class="small" style="width:140px;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="asetTbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="small text-muted" id="asetInfo">Showing 0 entries</div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Modal: Tambah/Edit Aset -->
+            <div class="modal fade" id="asetModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="asetModalTitle">Tambah Aset</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="asetForm">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Aset</label>
+                                        <input id="aset_nama" type="text" class="form-control"
+                                            placeholder="Contoh: Tanah, Gedung, Ruang Kelas" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Luas</label>
+                                        <input id="aset_luas" type="text" class="form-control"
+                                            placeholder="Contoh: 280 km² / 333 ha / 500 m²">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Lokasi</label>
+                                        <input id="aset_lokasi" type="text" class="form-control"
+                                            placeholder="Alamat atau deskripsi lokasi">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Bukti Fisik</label>
+                                        <input id="aset_bukti" type="text" class="form-control"
+                                            placeholder="Contoh: Sertifikat, Foto, Nota, Inventaris">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" id="asetSave" class="btn btn-primary">Simpan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Tab: Keuangan - Pendapatan -->
             <div id="tab-pendapatan" class="d-none">
-                <h2>Pendapatan</h2>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <button id="keuIn_add" class="btn btn-success btn-sm"><i class="bi bi-plus-lg"></i>
+                                Tambah</button>
+                            <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-upload"></i> Import
+                                Indikatif</button>
+                            <button id="keuIn_log" class="btn btn-outline-secondary btn-sm"><i
+                                    class="bi bi-clock-history"></i> Log</button>
+                            <div class="ms-auto d-flex align-items-center gap-2" style="min-width:280px;">
+                                <input id="keuIn_search" type="text" class="form-control form-control-sm"
+                                    placeholder="Cari..">
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-2">
+                            <div class="col-md-3">
+                                <div id="keuIn_unitList" class="list-group list-group-sm">
+                                    <button type="button" class="list-group-item list-group-item-action active"
+                                        data-unit="ALL">Semua Unit</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="RA">RA</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MI">MI</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MTs">MTs</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MA">MA</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MADIN">MADIN</button>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="table-responsive">
+                                    <table id="keuIn_table" class="table table-sm align-middle">
+                                        <thead class="table-success">
+                                            <tr>
+                                                <th class="small">Tahun</th>
+                                                <th class="small">Sumber Dana</th>
+                                                <th class="small">Jumlah</th>
+                                                <th class="small">Keterangan</th>
+                                                <th class="small">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="small text-muted" id="keuIn_info">Showing 0 entries</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Tab: Keuangan - Pengeluaran -->
             <div id="tab-pengeluaran" class="d-none">
-                <h2>Pengeluaran</h2>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <button id="keuOut_add" class="btn btn-danger btn-sm"><i class="bi bi-plus-lg"></i>
+                                Tambah</button>
+                            <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-upload"></i> Import
+                                Indikatif</button>
+                            <button id="keuOut_log" class="btn btn-outline-secondary btn-sm"><i
+                                    class="bi bi-clock-history"></i> Log</button>
+                            <div class="ms-auto d-flex align-items-center gap-2" style="min-width:280px;">
+                                <input id="keuOut_search" type="text" class="form-control form-control-sm"
+                                    placeholder="Cari..">
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-2">
+                            <div class="col-md-3">
+                                <div id="keuOut_unitList" class="list-group list-group-sm">
+                                    <button type="button" class="list-group-item list-group-item-action active"
+                                        data-unit="ALL">Semua Unit</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="RA">RA</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MI">MI</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MTs">MTs</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MA">MA</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MADIN">MADIN</button>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="table-responsive">
+                                    <table id="keuOut_table" class="table table-sm align-middle">
+                                        <thead class="table-danger">
+                                            <tr>
+                                                <th class="small">Tahun</th>
+                                                <th class="small">Sumber Dana</th>
+                                                <th class="small">Jumlah</th>
+                                                <th class="small">Keterangan</th>
+                                                <th class="small">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="small text-muted" id="keuOut_info">Showing 0 entries</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal: Tambah/Edit Keuangan -->
+            <div class="modal fade" id="keuModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="keuModalTitle">Tambah Data</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="keuForm">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Unit</label>
+                                        <select id="keu_unit" class="form-select">
+                                            <option value="RA">RA</option>
+                                            <option value="MI">MI</option>
+                                            <option value="MTs">MTs</option>
+                                            <option value="MA">MA</option>
+                                            <option value="MADIN">MADIN</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tahun</label>
+                                        <input id="keu_tahun" type="number" class="form-control" min="2000" max="2100"
+                                            value="2025">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Sumber Dana</label>
+                                        <input id="keu_sumber" type="text" class="form-control"
+                                            placeholder="APBN - BOS Tahap 1">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Jumlah</label>
+                                        <input id="keu_jumlah" type="text" class="form-control" placeholder="Rp 0">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Keterangan</label>
+                                        <textarea id="keu_ket" class="form-control" rows="2"
+                                            placeholder="Catatan singkat"></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" id="keuSave" class="btn btn-primary">Simpan</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- Navigasi utama: Slip Gaji / Data Guru -->
             <ul class="nav nav-pills mb-3 d-none" id="main-nav" role="tablist" aria-label="Navigasi Utama">
@@ -334,7 +641,8 @@
                                             <input id="payrollMonth" type="month" class="form-control">
                                         </div>
                                         <div class="col-md-6 d-flex align-items-end">
-                                            <button type="button" class="btn btn-outline-primary btn-sm" id="goToSlip">Buka Slip Gaji</button>
+                                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                                id="goToSlip">Buka Slip Gaji</button>
                                         </div>
                                     </div>
 
@@ -455,15 +763,12 @@
                                 <!-- Struktur Organisasi (dirender dari Profil Yayasan) -->
                                 <div class="row g-3 mb-3" id="org-section">
                                     <div class="col-md-4">
-                                        <div class="fw-semibold small">Pengurus</div>
                                         <ul id="p_orgPengurus" class="small m-0 ps-3"></ul>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="fw-semibold small">Pembina</div>
                                         <ul id="p_orgPembina" class="small m-0 ps-3"></ul>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="fw-semibold small">Pengawas</div>
                                         <ul id="p_orgPengawas" class="small m-0 ps-3"></ul>
                                     </div>
                                 </div>
@@ -529,8 +834,8 @@
 
                     <!-- Data Guru Table -->
                     <section class="col-lg-9">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
+                        <div class="card shadow-sm" style="width: max-content;">
+                            <div class="card-body" style="width: max-content;">
                                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                                     <div class="btn-group" role="group" aria-label="Ekspor">
                                         <button id="guruCopy" class="btn btn-outline-secondary btn-sm"><i
@@ -638,7 +943,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Wali Kelas</label>
-                                <input id="f_wali" type="text" class="form-control" placeholder="Contoh: 5A atau kosong jika bukan wali">
+                                <input id="f_wali" type="text" class="form-control"
+                                    placeholder="Contoh: 5A atau kosong jika bukan wali">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">JTM</label>
@@ -650,6 +956,32 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" id="guruSave" class="btn btn-primary">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Statistik Dashboard (Siswa & Kelas) -->
+    <div class="modal fade" id="dashStatsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Statistik Dashboard</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Total Siswa</label>
+                        <input id="dash_siswa" type="number" class="form-control" min="0" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Total Kelas</label>
+                        <input id="dash_kelas" type="number" class="form-control" min="0" value="0">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="dashStatsSave" class="btn btn-primary">Simpan</button>
                 </div>
             </div>
         </div>
@@ -680,7 +1012,8 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Jabatan</label>
-                                <input id="orgJabatan" type="text" class="form-control" placeholder="Contoh: Ketua / Sekretaris">
+                                <input id="orgJabatan" type="text" class="form-control"
+                                    placeholder="Contoh: Ketua / Sekretaris">
                             </div>
                         </div>
                     </form>
