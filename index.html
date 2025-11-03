@@ -221,13 +221,6 @@
                                         <label class="form-label">Kota</label>
                                         <input id="companyCity" form="payroll-form" type="text" class="form-control" value="Kota Sampel">
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Periode (bulan)</label>
-                                        <input id="payrollMonth" form="payroll-form" type="month" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <button type="button" class="btn btn-outline-primary btn-sm" id="goToSlip">Buka Slip Gaji</button>
                                 </div>
                             </div>
                         </div>
@@ -240,29 +233,65 @@
                                     <button id="orgAdd" type="button" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Tambah</button>
                                 </div>
                                 <div class="row g-3">
+                                    <!-- Pengurus -->
                                     <div class="col-12">
                                         <label class="form-label">Pengurus</label>
-                                        <textarea id="orgPengurus" form="payroll-form" class="form-control" rows="4" placeholder="Tulis: Nama — Jabatan, satu per baris"></textarea>
-                                        <div class="input-group input-group-sm mt-2">
-                                            <input id="orgPengurusNew" type="text" class="form-control" placeholder="Nama — Jabatan">
-                                            <button id="addOrgPengurus" type="button" class="btn btn-outline-primary">Tambah</button>
+                                        <!-- textarea disembunyikan, dipakai untuk sinkron ke PDF -->
+                                        <textarea id="orgPengurus" form="payroll-form" class="form-control d-none" rows="4"></textarea>
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-md-5">
+                                                <label class="form-label small">Nama</label>
+                                                <input id="orgPengurusNama" type="text" class="form-control" placeholder="Nama">
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label class="form-label small">Jabatan</label>
+                                                <input id="orgPengurusJabatan" type="text" class="form-control" placeholder="Jabatan">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button id="addOrgPengurus" type="button" class="btn btn-outline-primary w-100">Tambah</button>
+                                            </div>
                                         </div>
+                                        <div id="orgPengurusList" class="mt-2"></div>
                                     </div>
+
+                                    <!-- Pembina -->
                                     <div class="col-12">
                                         <label class="form-label">Pembina</label>
-                                        <textarea id="orgPembina" form="payroll-form" class="form-control" rows="3" placeholder="Tulis: Nama — Jabatan"></textarea>
-                                        <div class="input-group input-group-sm mt-2">
-                                            <input id="orgPembinaNew" type="text" class="form-control" placeholder="Nama — Jabatan">
-                                            <button id="addOrgPembina" type="button" class="btn btn-outline-primary">Tambah</button>
+                                        <textarea id="orgPembina" form="payroll-form" class="form-control d-none" rows="3"></textarea>
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-md-5">
+                                                <label class="form-label small">Nama</label>
+                                                <input id="orgPembinaNama" type="text" class="form-control" placeholder="Nama">
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label class="form-label small">Jabatan</label>
+                                                <input id="orgPembinaJabatan" type="text" class="form-control" placeholder="Jabatan">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button id="addOrgPembina" type="button" class="btn btn-outline-primary w-100">Tambah</button>
+                                            </div>
                                         </div>
+                                        <div id="orgPembinaList" class="mt-2"></div>
                                     </div>
+
+                                    <!-- Pengawas -->
                                     <div class="col-12">
                                         <label class="form-label">Pengawas</label>
-                                        <textarea id="orgPengawas" form="payroll-form" class="form-control" rows="3" placeholder="Tulis: Nama — Jabatan"></textarea>
-                                        <div class="input-group input-group-sm mt-2">
-                                            <input id="orgPengawasNew" type="text" class="form-control" placeholder="Nama — Jabatan">
-                                            <button id="addOrgPengawas" type="button" class="btn btn-outline-primary">Tambah</button>
+                                        <textarea id="orgPengawas" form="payroll-form" class="form-control d-none" rows="3"></textarea>
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-md-5">
+                                                <label class="form-label small">Nama</label>
+                                                <input id="orgPengawasNama" type="text" class="form-control" placeholder="Nama">
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label class="form-label small">Jabatan</label>
+                                                <input id="orgPengawasJabatan" type="text" class="form-control" placeholder="Jabatan">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button id="addOrgPengawas" type="button" class="btn btn-outline-primary w-100">Tambah</button>
+                                            </div>
                                         </div>
+                                        <div id="orgPengawasList" class="mt-2"></div>
                                     </div>
                                 </div>
                             </div>
@@ -298,6 +327,17 @@
                             <div class="card-body">
                                 <h2 class="h5 fw-semibold mb-3">Isi Data</h2>
                                 <form id="payroll-form" autocomplete="off">
+                                    <!-- Periode (bulan) dipindah ke sini -->
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Periode (bulan)</label>
+                                            <input id="payrollMonth" type="month" class="form-control">
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-end">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" id="goToSlip">Buka Slip Gaji</button>
+                                        </div>
+                                    </div>
+
                                     <!-- Data Perusahaan dipindah ke tab Profil Yayasan -->
 
                                     <h3 class="h6 text-primary mt-4">Data Karyawan</h3>

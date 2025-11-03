@@ -263,6 +263,7 @@ function syncFromInputs() {
   updateCompanyPreview();
   updateEmployeePreview();
   renderOrgPreview();
+  renderOrgBoxes();
   renderSlipTables();
   recalc();
 }
@@ -388,27 +389,39 @@ function attachEvents() {
 
   // Quick add for Struktur Organisasi
   document.getElementById("addOrgPengurus")?.addEventListener("click", () => {
-    const inp = document.getElementById("orgPengurusNew");
-    const val = inp.value.trim();
+    const nama = (document.getElementById("orgPengurusNama")?.value || "").trim();
+    const jabatan = (document.getElementById("orgPengurusJabatan")?.value || "").trim();
+    const single = (document.getElementById("orgPengurusNew")?.value || "").trim();
+    const val = single || (nama && jabatan ? `${nama} — ${jabatan}` : "");
     if (!val) return;
     el.orgPengurus.value = (el.orgPengurus.value ? el.orgPengurus.value + "\n" : "") + val;
-    inp.value = "";
+    if (document.getElementById("orgPengurusNama")) document.getElementById("orgPengurusNama").value = "";
+    if (document.getElementById("orgPengurusJabatan")) document.getElementById("orgPengurusJabatan").value = "";
+    if (document.getElementById("orgPengurusNew")) document.getElementById("orgPengurusNew").value = "";
     syncFromInputs();
   });
   document.getElementById("addOrgPembina")?.addEventListener("click", () => {
-    const inp = document.getElementById("orgPembinaNew");
-    const val = inp.value.trim();
+    const nama = (document.getElementById("orgPembinaNama")?.value || "").trim();
+    const jabatan = (document.getElementById("orgPembinaJabatan")?.value || "").trim();
+    const single = (document.getElementById("orgPembinaNew")?.value || "").trim();
+    const val = single || (nama && jabatan ? `${nama} — ${jabatan}` : "");
     if (!val) return;
     el.orgPembina.value = (el.orgPembina.value ? el.orgPembina.value + "\n" : "") + val;
-    inp.value = "";
+    if (document.getElementById("orgPembinaNama")) document.getElementById("orgPembinaNama").value = "";
+    if (document.getElementById("orgPembinaJabatan")) document.getElementById("orgPembinaJabatan").value = "";
+    if (document.getElementById("orgPembinaNew")) document.getElementById("orgPembinaNew").value = "";
     syncFromInputs();
   });
   document.getElementById("addOrgPengawas")?.addEventListener("click", () => {
-    const inp = document.getElementById("orgPengawasNew");
-    const val = inp.value.trim();
+    const nama = (document.getElementById("orgPengawasNama")?.value || "").trim();
+    const jabatan = (document.getElementById("orgPengawasJabatan")?.value || "").trim();
+    const single = (document.getElementById("orgPengawasNew")?.value || "").trim();
+    const val = single || (nama && jabatan ? `${nama} — ${jabatan}` : "");
     if (!val) return;
     el.orgPengawas.value = (el.orgPengawas.value ? el.orgPengawas.value + "\n" : "") + val;
-    inp.value = "";
+    if (document.getElementById("orgPengawasNama")) document.getElementById("orgPengawasNama").value = "";
+    if (document.getElementById("orgPengawasJabatan")) document.getElementById("orgPengawasJabatan").value = "";
+    if (document.getElementById("orgPengawasNew")) document.getElementById("orgPengawasNew").value = "";
     syncFromInputs();
   });
 
@@ -475,6 +488,47 @@ function init() {
   syncFromInputs();
   attachEvents();
 }
+
+// Tampilkan daftar org sebagai kartu dengan tombol hapus
+function renderOrgBoxes() {
+  const build = (containerId, str, role) => {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = "";
+    const lines = str.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    lines.forEach((line, idx) => {
+      const div = document.createElement("div");
+      div.className = "border rounded p-2 mb-2 d-flex justify-content-between align-items-center";
+      div.innerHTML = `<span>${line}</span><button class="btn btn-sm btn-outline-danger org-del" data-role="${role}" data-index="${idx}"><i class="bi bi-x-lg"></i></button>`;
+      container.appendChild(div);
+    });
+  };
+  build("orgPengurusList", state.org.pengurus || "", "pengurus");
+  build("orgPembinaList", state.org.pembina || "", "pembina");
+  build("orgPengawasList", state.org.pengawas || "", "pengawas");
+}
+
+// Delegasi hapus item organisasi
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".org-del");
+  if (!btn) return;
+  const role = btn.dataset.role;
+  const idx = Number(btn.dataset.index);
+  const getStr = () => role === "pembina" ? state.org.pembina : role === "pengawas" ? state.org.pengawas : state.org.pengurus;
+  const setStr = (val) => {
+    if (role === "pembina") state.org.pembina = val; else if (role === "pengawas") state.org.pengawas = val; else state.org.pengurus = val;
+  };
+  const arr = (getStr() || "").split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  arr.splice(idx, 1);
+  const joined = arr.join("\n");
+  setStr(joined);
+  // sinkron ke textarea hidden
+  if (role === "pembina") document.getElementById("orgPembina").value = joined;
+  else if (role === "pengawas") document.getElementById("orgPengawas").value = joined;
+  else document.getElementById("orgPengurus").value = joined;
+  renderOrgBoxes();
+  renderOrgPreview();
+});
 
 // -----------------------
 // Navigasi & Halaman Data Guru
