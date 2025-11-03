@@ -385,6 +385,70 @@ function attachEvents() {
       syncFromInputs();
     }, 50);
   });
+
+  // Quick add for Struktur Organisasi
+  document.getElementById("addOrgPengurus")?.addEventListener("click", () => {
+    const inp = document.getElementById("orgPengurusNew");
+    const val = inp.value.trim();
+    if (!val) return;
+    el.orgPengurus.value = (el.orgPengurus.value ? el.orgPengurus.value + "\n" : "") + val;
+    inp.value = "";
+    syncFromInputs();
+  });
+  document.getElementById("addOrgPembina")?.addEventListener("click", () => {
+    const inp = document.getElementById("orgPembinaNew");
+    const val = inp.value.trim();
+    if (!val) return;
+    el.orgPembina.value = (el.orgPembina.value ? el.orgPembina.value + "\n" : "") + val;
+    inp.value = "";
+    syncFromInputs();
+  });
+  document.getElementById("addOrgPengawas")?.addEventListener("click", () => {
+    const inp = document.getElementById("orgPengawasNew");
+    const val = inp.value.trim();
+    if (!val) return;
+    el.orgPengawas.value = (el.orgPengawas.value ? el.orgPengawas.value + "\n" : "") + val;
+    inp.value = "";
+    syncFromInputs();
+  });
+
+  // Modal Tambah Struktur Organisasi (serupa flow Data Guru)
+  const orgAddBtn = document.getElementById("orgAdd");
+  const orgModalEl = document.getElementById("orgModal");
+  const orgCategory = document.getElementById("orgCategory");
+  const orgNama = document.getElementById("orgNama");
+  const orgJabatan = document.getElementById("orgJabatan");
+  const orgSave = document.getElementById("orgSave");
+  let orgModalInstance = null;
+
+  if (orgModalEl && window.bootstrap) {
+    try {
+      orgModalInstance = new bootstrap.Modal(orgModalEl);
+    } catch (err) {
+      orgModalInstance = null;
+    }
+  }
+
+  orgAddBtn?.addEventListener("click", () => {
+    if (orgCategory) orgCategory.value = "pengurus";
+    if (orgNama) orgNama.value = "";
+    if (orgJabatan) orgJabatan.value = "";
+    if (orgModalInstance) orgModalInstance.show();
+  });
+
+  orgSave?.addEventListener("click", () => {
+    const kategori = (orgCategory?.value || "pengurus");
+    const nama = (orgNama?.value || "").trim();
+    const jabatan = (orgJabatan?.value || "").trim();
+    if (!nama || !jabatan) return;
+    const line = `${nama} — ${jabatan}`;
+    let ta = el.orgPengurus;
+    if (kategori === "pembina") ta = el.orgPembina;
+    else if (kategori === "pengawas") ta = el.orgPengawas;
+    ta.value = (ta.value ? ta.value + "\n" : "") + line;
+    if (orgModalInstance) orgModalInstance.hide();
+    syncFromInputs();
+  });
 }
 
 function init() {
@@ -575,11 +639,11 @@ function initGuruPage() {
     form: {
       unit: document.getElementById("f_unit"),
       nik: document.getElementById("f_nik"),
+      nuptk: document.getElementById("f_nuptk"),
       nama: document.getElementById("f_nama"),
       gender: document.getElementById("f_gender"),
       ttl: document.getElementById("f_ttl"),
       pendidikan: document.getElementById("f_pendidikan"),
-      password: document.getElementById("f_password"),
       wali: document.getElementById("f_wali"),
       jtm: document.getElementById("f_jtm"),
     },
@@ -590,14 +654,14 @@ function initGuruPage() {
 
   const guru = {
     data: [
-      { id: 1, unit: "MI", foto: "", nik: "1982370001", nama: "Ahmad Nailal", gender: "L", ttl: "Kota, 1990", pendidikan: "Sarjana (S1)", password: "******", wali: "Ya", jtm: 18 },
-      { id: 2, unit: "RA", foto: "", nik: "1982370002", nama: "Siti Rahma", gender: "P", ttl: "Kota, 1992", pendidikan: "Sarjana (S1)", password: "******", wali: "Tidak", jtm: 20 },
-      { id: 3, unit: "MTs", foto: "", nik: "1982370003", nama: "Budi Santoso", gender: "L", ttl: "Kota, 1989", pendidikan: "Magister (S2)", password: "******", wali: "Ya", jtm: 24 },
-      { id: 4, unit: "MA", foto: "", nik: "1982370004", nama: "Dewi Lestari", gender: "P", ttl: "Kota, 1991", pendidikan: "Sarjana (S1)", password: "******", wali: "Tidak", jtm: 16 },
-      { id: 5, unit: "MI", foto: "", nik: "1982370005", nama: "Fajar Pratama", gender: "L", ttl: "Kota, 1993", pendidikan: "Sarjana (S1)", password: "******", wali: "Ya", jtm: 18 },
-      { id: 6, unit: "RA", foto: "", nik: "1982370006", nama: "Nur Aini", gender: "P", ttl: "Kota, 1994", pendidikan: "Diploma (D3)", password: "******", wali: "Tidak", jtm: 14 },
-      { id: 7, unit: "MTs", foto: "", nik: "1982370007", nama: "Rizky Ramadhan", gender: "L", ttl: "Kota, 1988", pendidikan: "Sarjana (S1)", password: "******", wali: "Ya", jtm: 22 },
-      { id: 8, unit: "MA", foto: "", nik: "1982370008", nama: "Laila Oktaviani", gender: "P", ttl: "Kota, 1995", pendidikan: "Sarjana (S1)", password: "******", wali: "Tidak", jtm: 12 },
+      { id: 1, unit: "MI", nik: "1982370001", nuptk: "PEG001", nama: "Ahmad Nailal", gender: "L", ttl: "Kota, 1990", pendidikan: "Sarjana (S1)", wali: "Ya", jtm: 18 },
+      { id: 2, unit: "RA", nik: "1982370002", nuptk: "PEG002", nama: "Siti Rahma", gender: "P", ttl: "Kota, 1992", pendidikan: "Sarjana (S1)", wali: "Tidak", jtm: 20 },
+      { id: 3, unit: "MTs", nik: "1982370003", nuptk: "PEG003", nama: "Budi Santoso", gender: "L", ttl: "Kota, 1989", pendidikan: "Magister (S2)", wali: "Ya", jtm: 24 },
+      { id: 4, unit: "MA", nik: "1982370004", nuptk: "PEG004", nama: "Dewi Lestari", gender: "P", ttl: "Kota, 1991", pendidikan: "Sarjana (S1)", wali: "Tidak", jtm: 16 },
+      { id: 5, unit: "MI", nik: "1982370005", nuptk: "PEG005", nama: "Fajar Pratama", gender: "L", ttl: "Kota, 1993", pendidikan: "Sarjana (S1)", wali: "Ya", jtm: 18 },
+      { id: 6, unit: "RA", nik: "1982370006", nuptk: "PEG006", nama: "Nur Aini", gender: "P", ttl: "Kota, 1994", pendidikan: "Diploma (D3)", wali: "Tidak", jtm: 14 },
+      { id: 7, unit: "MTs", nik: "1982370007", nuptk: "PEG007", nama: "Rizky Ramadhan", gender: "L", ttl: "Kota, 1988", pendidikan: "Sarjana (S1)", wali: "Ya", jtm: 22 },
+      { id: 8, unit: "MA", nik: "1982370008", nuptk: "PEG008", nama: "Laila Oktaviani", gender: "P", ttl: "Kota, 1995", pendidikan: "Sarjana (S1)", wali: "Tidak", jtm: 12 },
     ],
     filterUnit: "ALL",
     search: "",
@@ -633,7 +697,7 @@ function initGuruPage() {
     let arr = guru.data.filter((it) => guru.filterUnit === "ALL" || it.unit === guru.filterUnit);
     const s = guru.search.toLowerCase();
     if (s) {
-      arr = arr.filter((it) => it.nik.toLowerCase().includes(s) || it.nama.toLowerCase().includes(s) || it.pendidikan.toLowerCase().includes(s) || it.ttl.toLowerCase().includes(s));
+      arr = arr.filter((it) => it.nik.toLowerCase().includes(s) || (it.nuptk || "").toLowerCase().includes(s) || it.nama.toLowerCase().includes(s) || it.pendidikan.toLowerCase().includes(s) || it.ttl.toLowerCase().includes(s));
     }
     return arr;
   }
@@ -646,13 +710,12 @@ function initGuruPage() {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${idx + 1}</td>
-        <td><span class="avatar bg-primary-subtle text-primary">${(it.nama || "").charAt(0).toUpperCase()}</span></td>
         <td>${it.nik}</td>
+        <td>${it.nuptk || "-"}</td>
         <td>${it.nama}</td>
         <td>${it.gender}</td>
         <td>${it.ttl}</td>
         <td>${it.pendidikan}</td>
-        <td>${it.password}</td>
         <td>${it.wali}</td>
         <td>${it.jtm}</td>
         <td>
@@ -694,12 +757,12 @@ function initGuruPage() {
     // default values
     gEl.form.unit.value = "MI";
     gEl.form.nik.value = "";
+    gEl.form.nuptk.value = "";
     gEl.form.nama.value = "";
     gEl.form.gender.value = "L";
     gEl.form.ttl.value = "";
     gEl.form.pendidikan.value = "Sarjana (S1)";
-    gEl.form.password.value = "";
-    gEl.form.wali.value = "Tidak";
+    gEl.form.wali.value = "";
     gEl.form.jtm.value = 18;
 
     if (mode === "edit" && id != null) {
@@ -708,11 +771,11 @@ function initGuruPage() {
         guru.editId = id;
         gEl.form.unit.value = it.unit;
         gEl.form.nik.value = it.nik;
+        gEl.form.nuptk.value = it.nuptk || "";
         gEl.form.nama.value = it.nama;
         gEl.form.gender.value = it.gender;
         gEl.form.ttl.value = it.ttl;
         gEl.form.pendidikan.value = it.pendidikan;
-        gEl.form.password.value = it.password;
         gEl.form.wali.value = it.wali;
         gEl.form.jtm.value = it.jtm;
       }
@@ -751,13 +814,12 @@ function initGuruPage() {
     const item = {
       id: guru.editId || Math.max(0, ...guru.data.map((d) => d.id)) + 1,
       unit: gEl.form.unit.value,
-      foto: "",
       nik: gEl.form.nik.value.trim(),
+      nuptk: gEl.form.nuptk.value.trim(),
       nama: gEl.form.nama.value.trim(),
       gender: gEl.form.gender.value,
       ttl: gEl.form.ttl.value.trim(),
       pendidikan: gEl.form.pendidikan.value.trim(),
-      password: gEl.form.password.value.trim(),
       wali: gEl.form.wali.value,
       jtm: Number(gEl.form.jtm.value || 0),
     };
@@ -775,8 +837,8 @@ function initGuruPage() {
   // Copy / Print / Excel (CSV)
   gEl.copy?.addEventListener("click", () => {
     const arr = filteredData();
-    const header = ["No", "NIK/NUPTK", "Nama", "L/P", "TTL", "Pendidikan", "Password", "Wali Kelas", "JTM", "Unit"];
-    const rows = arr.map((it, i) => [i + 1, it.nik, it.nama, it.gender, it.ttl, it.pendidikan, it.password, it.wali, it.jtm, it.unit].join("\t"));
+    const header = ["No", "NIK", "NUPTK/PegID", "Nama", "L/P", "TTL", "Pendidikan", "Wali Kelas", "JTM", "Unit"];
+    const rows = arr.map((it, i) => [i + 1, it.nik, it.nuptk || "", it.nama, it.gender, it.ttl, it.pendidikan, it.wali, it.jtm, it.unit].join("\t"));
     const text = header.join("\t") + "\n" + rows.join("\n");
     navigator.clipboard
       .writeText(text)
@@ -798,10 +860,10 @@ function initGuruPage() {
 
   gEl.excel?.addEventListener("click", () => {
     const arr = filteredData();
-    const header = ["No", "NIK/NUPTK", "Nama", "L/P", "TTL", "Pendidikan", "Password", "Wali Kelas", "JTM", "Unit"];
+    const header = ["No", "NIK", "NUPTK/PegID", "Nama", "L/P", "TTL", "Pendidikan", "Wali Kelas", "JTM", "Unit"];
     const csv = [
       header.join(","),
-      ...arr.map((it, i) => [i + 1, it.nik, it.nama, it.gender, `"${it.ttl.replace(/"/g, '""')}"`, `"${it.pendidikan.replace(/"/g, '""')}"`, `"${String(it.password).replace(/"/g, '""')}"`, it.wali, it.jtm, it.unit].join(",")),
+      ...arr.map((it, i) => [i + 1, it.nik, it.nuptk || "", it.nama, it.gender, `"${it.ttl.replace(/"/g, '""')}"`, `"${it.pendidikan.replace(/"/g, '""')}"`, it.wali, it.jtm, it.unit].join(",")),
     ].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -824,13 +886,13 @@ function applyGuruToSlip(it) {
   state.employee.nik = it.nik;
   state.employee.kode = it.nik; // gunakan NIK sebagai kode
   state.employee.nama = it.nama;
-  state.employee.jabatan = it.wali === "Ya" ? "Guru (Wali Kelas)" : "Guru";
+  state.employee.jabatan = "Guru";
   state.employee.npwp = state.employee.npwp || "-";
   // detail guru tambahan
   state.employee.gender = it.gender || "-";
   state.employee.ttl = it.ttl || "-";
   state.employee.pendidikan = it.pendidikan || "-";
-  state.employee.wali = it.wali || "Tidak";
+  state.employee.wali = it.wali || "-";
   state.employee.jtm = it.jtm ?? 0;
   state.employee.unit = it.unit || "-";
 
