@@ -91,6 +91,36 @@ const state = {
   ],
 };
 
+// -----------------------
+// Struktur Organisasi storage (TTL & Pendidikan)
+// -----------------------
+const ORG_STORAGE_KEY = "ORG_DETAILS";
+let orgDetails = { pengurus: [], pembina: [], pengawas: [] };
+
+function loadOrgDetails() {
+  try {
+    const raw = localStorage.getItem(ORG_STORAGE_KEY);
+    if (raw) {
+      orgDetails = JSON.parse(raw) || orgDetails;
+      return;
+    }
+  } catch (err) {}
+  // jika belum ada di storage, seed dari textarea (state.org)
+  const toArr = (str) => (str || "").split(/\r?\n/).map(s => s.trim()).filter(Boolean).map(line => {
+    const m = line.split("—");
+    const nama = (m[0] || line).trim();
+    const jabatan = (m[1] || "").trim();
+    return { nama, jabatan, ttl: "", pendidikan: "" };
+  });
+  orgDetails.pengurus = toArr(state.org.pengurus);
+  orgDetails.pembina = toArr(state.org.pembina);
+  orgDetails.pengawas = toArr(state.org.pengawas);
+}
+
+function persistOrgDetails() {
+  try { localStorage.setItem(ORG_STORAGE_KEY, JSON.stringify(orgDetails)); } catch (err) {}
+}
+
 // Elements
 const el = {
   form: document.getElementById("payroll-form"),
@@ -431,6 +461,8 @@ function attachEvents() {
   const orgCategory = document.getElementById("orgCategory");
   const orgNama = document.getElementById("orgNama");
   const orgJabatan = document.getElementById("orgJabatan");
+  const orgTTL = document.getElementById("orgTTL");
+  const orgPendidikan = document.getElementById("orgPendidikan");
   const orgSave = document.getElementById("orgSave");
   let orgModalInstance = null;
 
@@ -446,6 +478,8 @@ function attachEvents() {
     if (orgCategory) orgCategory.value = "pengurus";
     if (orgNama) orgNama.value = "";
     if (orgJabatan) orgJabatan.value = "";
+    if (orgTTL) orgTTL.value = "";
+    if (orgPendidikan) orgPendidikan.value = "";
     if (orgModalInstance) orgModalInstance.show();
   });
 
@@ -453,14 +487,24 @@ function attachEvents() {
     const kategori = (orgCategory?.value || "pengurus");
     const nama = (orgNama?.value || "").trim();
     const jabatan = (orgJabatan?.value || "").trim();
+    const ttl = (orgTTL?.value || "").trim();
+    const pendidikan = (orgPendidikan?.value || "").trim();
     if (!nama || !jabatan) return;
-    const line = `${nama} — ${jabatan}`;
+    // simpan ke orgDetails
+    orgDetails[kategori] = orgDetails[kategori] || [];
+    orgDetails[kategori].push({ nama, jabatan, ttl, pendidikan });
+    persistOrgDetails();
+    // sinkron ke textarea untuk PDF
     let ta = el.orgPengurus;
     if (kategori === "pembina") ta = el.orgPembina;
     else if (kategori === "pengawas") ta = el.orgPengawas;
+    const line = `${nama} — ${jabatan}`;
     ta.value = (ta.value ? ta.value + "\n" : "") + line;
+    state.org[kategori] = ta.value;
+    // rerender tabel + preview
+    renderOrgBoxes();
+    renderOrgPreview();
     if (orgModalInstance) orgModalInstance.hide();
-    syncFromInputs();
   });
 }
 
@@ -482,6 +526,8 @@ function init() {
   if (el.orgPengurus) el.orgPengurus.value = state.org.pengurus;
   if (el.orgPembina) el.orgPembina.value = state.org.pembina;
   if (el.orgPengawas) el.orgPengawas.value = state.org.pengawas;
+  // load struktur organisasi tabel
+  loadOrgDetails();
 
   renderItemRows("income");
   renderItemRows("deduction");
@@ -491,21 +537,28 @@ function init() {
 
 // Tampilkan daftar org sebagai kartu dengan tombol hapus
 function renderOrgBoxes() {
-  const build = (containerId, str, role) => {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    container.innerHTML = "";
-    const lines = str.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-    lines.forEach((line, idx) => {
-      const div = document.createElement("div");
-      div.className = "border rounded p-2 mb-2 d-flex justify-content-between align-items-center";
-      div.innerHTML = `<span>${line}</span><button class="btn btn-sm btn-outline-danger org-del" data-role="${role}" data-index="${idx}"><i class="bi bi-x-lg"></i></button>`;
-      container.appendChild(div);
+  const rowsFor = (role) => {
+    const tbody = document.getElementById(role === "pembina" ? "orgPembinaList" : role === "pengawas" ? "orgPengawasList" : "orgPengurusList");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    const list = orgDetails[role] || [];
+    list.forEach((it, idx) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td>${it.nama}</td>
+        <td>${it.jabatan}</td>
+        <td>${it.ttl || "-"}</td>
+        <td>${it.pendidikan || "-"}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger org-del" data-role="${role}" data-index="${idx}">Hapus</button>
+        </td>`;
+      tbody.appendChild(tr);
     });
   };
-  build("orgPengurusList", state.org.pengurus || "", "pengurus");
-  build("orgPembinaList", state.org.pembina || "", "pembina");
-  build("orgPengawasList", state.org.pengawas || "", "pengawas");
+  rowsFor("pengurus");
+  rowsFor("pembina");
+  rowsFor("pengawas");
 }
 
 // Delegasi hapus item organisasi
@@ -514,18 +567,16 @@ document.addEventListener("click", (e) => {
   if (!btn) return;
   const role = btn.dataset.role;
   const idx = Number(btn.dataset.index);
-  const getStr = () => role === "pembina" ? state.org.pembina : role === "pengawas" ? state.org.pengawas : state.org.pengurus;
-  const setStr = (val) => {
-    if (role === "pembina") state.org.pembina = val; else if (role === "pengawas") state.org.pengawas = val; else state.org.pengurus = val;
-  };
-  const arr = (getStr() || "").split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-  arr.splice(idx, 1);
-  const joined = arr.join("\n");
-  setStr(joined);
-  // sinkron ke textarea hidden
+  // hapus dari orgDetails
+  if (!orgDetails[role]) return;
+  orgDetails[role].splice(idx, 1);
+  persistOrgDetails();
+  // sinkron ke textarea hidden untuk PDF
+  const joined = orgDetails[role].map(it => `${it.nama} — ${it.jabatan}`).join("\n");
   if (role === "pembina") document.getElementById("orgPembina").value = joined;
   else if (role === "pengawas") document.getElementById("orgPengawas").value = joined;
   else document.getElementById("orgPengurus").value = joined;
+  state.org[role] = joined;
   renderOrgBoxes();
   renderOrgPreview();
 });

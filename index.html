@@ -283,7 +283,7 @@
                                             value="Jl. Sekedar Contoh Saja No. 100">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Telepon/Fax</label>
+                                        <label class="form-label">Telepon</label>
                                         <input id="companyPhone" form="payroll-form" type="text" class="form-control"
                                             value="(012) 34567890">
                                     </div>
@@ -301,8 +301,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h2 class="h5 fw-semibold mb-0">Struktur Organisasi</h2>
-                                    <button id="orgAdd" type="button" class="btn btn-primary btn-sm"><i
-                                            class="bi bi-plus-lg"></i> Tambah</button>
+                                    <button id="orgAdd" type="button" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Tambah</button>
                                 </div>
                                 <div class="row g-3">
                                     <!-- Pengurus -->
@@ -311,23 +310,21 @@
                                         <!-- textarea disembunyikan, dipakai untuk sinkron ke PDF -->
                                         <textarea id="orgPengurus" form="payroll-form" class="form-control d-none"
                                             rows="4"></textarea>
-                                        <div class="row g-2 align-items-end">
-                                            <div class="col-md-5">
-                                                <label class="form-label small">Nama</label>
-                                                <input id="orgPengurusNama" type="text" class="form-control"
-                                                    placeholder="Nama">
-                                            </div>
-                                            <div class="col-md-5">
-                                                <label class="form-label small">Jabatan</label>
-                                                <input id="orgPengurusJabatan" type="text" class="form-control"
-                                                    placeholder="Jabatan">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <button id="addOrgPengurus" type="button"
-                                                    class="btn btn-outline-primary w-100">Tambah</button>
-                                            </div>
+                                        <div class="table-responsive mt-2">
+                                            <table class="table table-sm table-striped align-middle">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="small" style="width:60px;">No</th>
+                                                        <th class="small">Nama</th>
+                                                        <th class="small">Jabatan</th>
+                                                        <th class="small">TTL</th>
+                                                        <th class="small">Pendidikan</th>
+                                                        <th class="small" style="width:120px;">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="orgPengurusList"></tbody>
+                                            </table>
                                         </div>
-                                        <div id="orgPengurusList" class="mt-2"></div>
                                     </div>
 
                                     <!-- Pembina -->
@@ -335,23 +332,21 @@
                                         <label class="form-label">Pembina</label>
                                         <textarea id="orgPembina" form="payroll-form" class="form-control d-none"
                                             rows="3"></textarea>
-                                        <div class="row g-2 align-items-end">
-                                            <div class="col-md-5">
-                                                <label class="form-label small">Nama</label>
-                                                <input id="orgPembinaNama" type="text" class="form-control"
-                                                    placeholder="Nama">
-                                            </div>
-                                            <div class="col-md-5">
-                                                <label class="form-label small">Jabatan</label>
-                                                <input id="orgPembinaJabatan" type="text" class="form-control"
-                                                    placeholder="Jabatan">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <button id="addOrgPembina" type="button"
-                                                    class="btn btn-outline-primary w-100">Tambah</button>
-                                            </div>
+                                        <div class="table-responsive mt-2">
+                                            <table class="table table-sm table-striped align-middle">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="small" style="width:60px;">No</th>
+                                                        <th class="small">Nama</th>
+                                                        <th class="small">Jabatan</th>
+                                                        <th class="small">TTL</th>
+                                                        <th class="small">Pendidikan</th>
+                                                        <th class="small" style="width:120px;">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="orgPembinaList"></tbody>
+                                            </table>
                                         </div>
-                                        <div id="orgPembinaList" class="mt-2"></div>
                                     </div>
 
                                     <!-- Pengawas -->
@@ -359,23 +354,21 @@
                                         <label class="form-label">Pengawas</label>
                                         <textarea id="orgPengawas" form="payroll-form" class="form-control d-none"
                                             rows="3"></textarea>
-                                        <div class="row g-2 align-items-end">
-                                            <div class="col-md-5">
-                                                <label class="form-label small">Nama</label>
-                                                <input id="orgPengawasNama" type="text" class="form-control"
-                                                    placeholder="Nama">
-                                            </div>
-                                            <div class="col-md-5">
-                                                <label class="form-label small">Jabatan</label>
-                                                <input id="orgPengawasJabatan" type="text" class="form-control"
-                                                    placeholder="Jabatan">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <button id="addOrgPengawas" type="button"
-                                                    class="btn btn-outline-primary w-100">Tambah</button>
-                                            </div>
+                                        <div class="table-responsive mt-2">
+                                            <table class="table table-sm table-striped align-middle">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="small" style="width:60px;">No</th>
+                                                        <th class="small">Nama</th>
+                                                        <th class="small">Jabatan</th>
+                                                        <th class="small">TTL</th>
+                                                        <th class="small">Pendidikan</th>
+                                                        <th class="small" style="width:120px;">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="orgPengawasList"></tbody>
+                                            </table>
                                         </div>
-                                        <div id="orgPengawasList" class="mt-2"></div>
                                     </div>
                                 </div>
                             </div>
@@ -711,7 +704,7 @@
                                             <h2 id="p_companyName" class="h5 fw-bold mb-1">YAYASAN RIBHUL ULUM</h2>
                                             <div id="p_companyAddress" class="small">Jl. Sekedar Contoh Saja No. 100
                                             </div>
-                                            <div class="small">Tlp./Fax <span id="p_companyPhone">(012) 34567890</span>
+                                            <div class="small">Tlp <span id="p_companyPhone">(012) 34567890</span>
                                             </div>
                                             <div id="p_companyCity" class="small fw-semibold">Kota Sampel</div>
                                         </div>
@@ -1020,6 +1013,16 @@
                                 <label class="form-label">Jabatan</label>
                                 <input id="orgJabatan" type="text" class="form-control"
                                     placeholder="Contoh: Ketua / Sekretaris">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">TTL</label>
+                                <input id="orgTTL" type="text" class="form-control"
+                                    placeholder="Contoh: Kota, 12 Mei 1990">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Pendidikan</label>
+                                <input id="orgPendidikan" type="text" class="form-control"
+                                    placeholder="Contoh: S1, S2, dll">
                             </div>
                         </div>
                     </form>
