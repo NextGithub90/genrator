@@ -143,6 +143,7 @@ const el = {
   addDeduction: document.getElementById("addDeduction"),
   resetForm: document.getElementById("resetForm"),
   downloadPdf: document.getElementById("downloadPdf"),
+  recordToExpense: document.getElementById("recordToExpense"),
   // preview
   p_companyName: document.getElementById("p_companyName"),
   p_companyAddress: document.getElementById("p_companyAddress"),
@@ -403,6 +404,16 @@ function attachEvents() {
   el.addIncome.addEventListener("click", () => addItem("income"));
   el.addDeduction.addEventListener("click", () => addItem("deduction"));
   el.downloadPdf.addEventListener("click", exportPDF);
+  // Catat ke Pengeluaran tanpa perlu mengunduh PDF
+  el.recordToExpense?.addEventListener("click", () => {
+    try {
+      addPayrollExpenseFromSlip();
+      alert("Slip gaji dicatat ke Pengeluaran.");
+    } catch (e) {
+      console.error(e);
+      alert("Gagal mencatat ke Pengeluaran. Periksa data slip.");
+    }
+  });
   el.resetForm.addEventListener("click", () => {
     setTimeout(() => {
       // wait for browser reset
@@ -1277,6 +1288,16 @@ function exportKeuInReportPDF(withUnitTotals = false) {
 }
 
 // ===== Laporan Pengeluaran (format khusus per unit) =====
+function mapOutCategoryLabel(sumber = "", ket = "") {
+  const s = String(sumber || "").toLowerCase();
+  const k = String(ket || "").toLowerCase();
+  if (s.includes("atk") || k.includes("atk") || s.includes("alat tulis")) return "ATK";
+  if (s.includes("peralatan") || s.includes("inventaris") || s.includes("perlengkapan") || k.includes("peralatan")) return "Peralatan";
+  if (s.includes("gaji") || s.includes("slip gaji") || s.includes("beban gaji") || k.includes("gaji")) return "Beban Gaji";
+  if (s.includes("utang") || s.includes("hutang") || s.includes("pinjaman") || s.includes("cicilan") || k.includes("utang") || k.includes("hutang")) return "Beban Utang";
+  return "Lain-lain";
+}
+
 function renderKeuOutReport(withUnitTotals = false) {
   let grand = 0;
   const dateEl = document.getElementById("rptOut-date");
@@ -1288,14 +1309,26 @@ function renderKeuOutReport(withUnitTotals = false) {
     const items = (keuData || []).filter((d) => d.jenis === "pengeluaran" && d.unit === u);
     let total = 0;
     listEl.innerHTML = "";
-    items.forEach((d, i) => {
-      total += Number(d.jumlah) || 0;
+    // Hitung total per kategori sesuai permintaan (ATK, Peralatan, Beban Gaji, Beban Utang, dll)
+    const buckets = ["ATK", "Peralatan", "Beban Gaji", "Beban Utang", "Lain-lain"];
+    const byCat = Object.fromEntries(buckets.map((b) => [b, 0]));
+    items.forEach((d) => {
+      const amt = Number(d.jumlah) || 0;
+      total += amt;
+      const cat = mapOutCategoryLabel(d.sumber, d.ket);
+      byCat[cat] = (byCat[cat] || 0) + amt;
+    });
+    // Render satu baris per kategori yang terpakai
+    let rowNo = 1;
+    buckets.forEach((b) => {
+      const val = byCat[b] || 0;
+      if (!val) return; // skip kategori nol
       const tr = document.createElement("tr");
       const tdNo = document.createElement("td");
-      tdNo.textContent = `${i + 1}.`;
+      tdNo.textContent = `${rowNo++}.`;
       tdNo.style.width = "24px";
       const tdDesc = document.createElement("td");
-      tdDesc.textContent = `${d.sumber || "-"} — ${formatIDR(Number(d.jumlah)||0)}${d.ket ? " — " + d.ket : ""}`;
+      tdDesc.textContent = `${b} — ${formatIDR(val)}`;
       const tdBlank = document.createElement("td");
       tdBlank.textContent = "";
       tr.appendChild(tdNo);
