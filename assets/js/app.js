@@ -540,6 +540,44 @@ function attachEvents() {
     renderOrgPreview();
     if (orgModalInstance) orgModalInstance.hide();
   });
+
+  // Delegasi tombol Gunakan / Edit / Delete untuk Struktur Organisasi (dipindah ke sini agar akses openOrgModal tersedia)
+  document.addEventListener("click", (e) => {
+    const useBtn = e.target.closest(".org-use");
+    const editBtn = e.target.closest(".org-edit");
+    const delBtn = e.target.closest(".org-del");
+    if (useBtn) {
+      const role = useBtn.dataset.role;
+      const idx = Number(useBtn.dataset.index);
+      const list = orgDetails[role] || [];
+      const it = list[idx];
+      if (!it) return;
+      applyOrgToSlip(it);
+      return;
+    }
+    if (editBtn) {
+      openOrgModal("edit", editBtn.dataset.role, Number(editBtn.dataset.index));
+      return;
+    }
+    if (delBtn) {
+      const role = delBtn.dataset.role;
+      const idx = Number(delBtn.dataset.index);
+      const list = orgDetails[role] || [];
+      const it = list[idx];
+      if (!it) return;
+      const ok = confirm(`Yakin hapus data: ${it.nama} (${it.jabatan})?`);
+      if (!ok) return;
+      orgDetails[role].splice(idx, 1);
+      persistOrgDetails();
+      // sinkronisasi ke textarea dan preview
+      const joined = orgDetails[role].map(v => `${v.nama} — ${v.jabatan}`).join("\n");
+      if (role === "pembina") document.getElementById("orgPembina").value = joined; else if (role === "pengawas") document.getElementById("orgPengawas").value = joined; else document.getElementById("orgPengurus").value = joined;
+      state.org[role] = joined;
+      renderOrgBoxes();
+      renderOrgPreview();
+      return;
+    }
+  });
 }
 
 function init() {
@@ -597,43 +635,7 @@ function renderOrgBoxes() {
   rowsFor("pengawas");
 }
 
-// Delegasi hapus item organisasi
-document.addEventListener("click", (e) => {
-  const useBtn = e.target.closest(".org-use");
-  const editBtn = e.target.closest(".org-edit");
-  const delBtn = e.target.closest(".org-del");
-  if (useBtn) {
-    const role = useBtn.dataset.role;
-    const idx = Number(useBtn.dataset.index);
-    const list = orgDetails[role] || [];
-    const it = list[idx];
-    if (!it) return;
-    applyOrgToSlip(it);
-    return;
-  }
-  if (editBtn) {
-    openOrgModal("edit", editBtn.dataset.role, Number(editBtn.dataset.index));
-    return;
-  }
-  if (delBtn) {
-    const role = delBtn.dataset.role;
-    const idx = Number(delBtn.dataset.index);
-    const list = orgDetails[role] || [];
-    const it = list[idx];
-    if (!it) return;
-    const ok = confirm(`Yakin hapus data: ${it.nama} (${it.jabatan})?`);
-    if (!ok) return;
-    orgDetails[role].splice(idx, 1);
-    persistOrgDetails();
-    // sinkronisasi ke textarea dan preview
-    const joined = orgDetails[role].map(v => `${v.nama} — ${v.jabatan}`).join("\n");
-    if (role === "pembina") document.getElementById("orgPembina").value = joined; else if (role === "pengawas") document.getElementById("orgPengawas").value = joined; else document.getElementById("orgPengurus").value = joined;
-    state.org[role] = joined;
-    renderOrgBoxes();
-    renderOrgPreview();
-    return;
-  }
-});
+// (Delegasi org-use/org-edit/org-del dipindahkan ke attachEvents)
 
 // Terapkan data organisasi ke Slip Gaji (nama/jabatan/TTL/pendidikan)
 function applyOrgToSlip(it) {
@@ -1018,7 +1020,7 @@ function initGuruPage() {
   // Copy / Print / Excel (CSV)
   gEl.copy?.addEventListener("click", () => {
     const arr = filteredData();
-    const header = ["No", "NIK", "NUPTK/PegID", "Nama", "L/P", "TTL", "Pendidikan", "Wali Kelas", "JTM", "Unit"];
+    const header = ["No", "NIK", "NUPTK/PegID", "Nama", "L/P", "Tempat, Tanggal Lahir", "Pendidikan", "Wali Kelas", "JTM", "Unit"];
     const rows = arr.map((it, i) => [i + 1, it.nik, it.nuptk || "", it.nama, it.gender, it.ttl, it.pendidikan, it.wali, it.jtm, it.unit].join("\t"));
     const text = header.join("\t") + "\n" + rows.join("\n");
     navigator.clipboard
@@ -1041,7 +1043,7 @@ function initGuruPage() {
 
   gEl.excel?.addEventListener("click", () => {
     const arr = filteredData();
-    const header = ["No", "NIK", "NUPTK/PegID", "Nama", "L/P", "TTL", "Pendidikan", "Wali Kelas", "JTM", "Unit"];
+    const header = ["No", "NIK", "NUPTK/PegID", "Nama", "L/P", "Tempat, Tanggal Lahir", "Pendidikan", "Wali Kelas", "JTM", "Unit"];
     const csv = [
       header.join(","),
       ...arr.map((it, i) => [i + 1, it.nik, it.nuptk || "", it.nama, it.gender, `"${it.ttl.replace(/"/g, '""')}"`, `"${it.pendidikan.replace(/"/g, '""')}"`, it.wali, it.jtm, it.unit].join(",")),
