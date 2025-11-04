@@ -458,6 +458,7 @@ function attachEvents() {
   // Modal Tambah Struktur Organisasi (serupa flow Data Guru)
   const orgAddBtn = document.getElementById("orgAdd");
   const orgModalEl = document.getElementById("orgModal");
+  const orgModalTitle = document.getElementById("orgModalTitle");
   const orgCategory = document.getElementById("orgCategory");
   const orgNama = document.getElementById("orgNama");
   const orgJabatan = document.getElementById("orgJabatan");
@@ -465,6 +466,8 @@ function attachEvents() {
   const orgPendidikan = document.getElementById("orgPendidikan");
   const orgSave = document.getElementById("orgSave");
   let orgModalInstance = null;
+  let orgEditRole = null;
+  let orgEditIndex = null;
 
   if (orgModalEl && window.bootstrap) {
     try {
@@ -474,14 +477,36 @@ function attachEvents() {
     }
   }
 
-  orgAddBtn?.addEventListener("click", () => {
-    if (orgCategory) orgCategory.value = "pengurus";
-    if (orgNama) orgNama.value = "";
-    if (orgJabatan) orgJabatan.value = "";
-    if (orgTTL) orgTTL.value = "";
-    if (orgPendidikan) orgPendidikan.value = "";
+  function openOrgModal(mode = "add", role = "pengurus", index = null) {
+    orgEditRole = mode === "edit" ? role : null;
+    orgEditIndex = mode === "edit" ? index : null;
+    if (orgModalTitle) orgModalTitle.textContent = mode === "edit" ? "Edit Struktur Organisasi" : "Tambah Struktur Organisasi";
+    if (orgCategory) orgCategory.value = role || "pengurus";
+    if (mode === "edit" && orgDetails[role] && orgDetails[role][index]) {
+      const it = orgDetails[role][index];
+      if (orgNama) orgNama.value = it.nama || "";
+      if (orgJabatan) orgJabatan.value = it.jabatan || "";
+      if (orgTTL) orgTTL.value = it.ttl || "";
+      if (orgPendidikan) orgPendidikan.value = it.pendidikan || "";
+    } else {
+      if (orgNama) orgNama.value = "";
+      if (orgJabatan) orgJabatan.value = "";
+      if (orgTTL) orgTTL.value = "";
+      if (orgPendidikan) orgPendidikan.value = "";
+    }
     if (orgModalInstance) orgModalInstance.show();
-  });
+  }
+
+  orgAddBtn?.addEventListener("click", () => openOrgModal("add", "pengurus"));
+
+  function syncOrgText(role) {
+    const joined = (orgDetails[role] || []).map(it => `${it.nama} — ${it.jabatan}`).join("\n");
+    let ta = el.orgPengurus;
+    if (role === "pembina") ta = el.orgPembina;
+    else if (role === "pengawas") ta = el.orgPengawas;
+    ta.value = joined;
+    state.org[role] = joined;
+  }
 
   orgSave?.addEventListener("click", () => {
     const kategori = (orgCategory?.value || "pengurus");
@@ -490,18 +515,27 @@ function attachEvents() {
     const ttl = (orgTTL?.value || "").trim();
     const pendidikan = (orgPendidikan?.value || "").trim();
     if (!nama || !jabatan) return;
-    // simpan ke orgDetails
     orgDetails[kategori] = orgDetails[kategori] || [];
-    orgDetails[kategori].push({ nama, jabatan, ttl, pendidikan });
+    if (orgEditRole !== null && orgEditIndex !== null) {
+      // update item, pindahkan kategori bila berubah
+      const oldRole = orgEditRole;
+      const item = { nama, jabatan, ttl, pendidikan };
+      if (oldRole === kategori) {
+        if (orgDetails[oldRole][orgEditIndex]) orgDetails[oldRole][orgEditIndex] = item;
+      } else {
+        // hapus dari role lama, tambahkan ke role baru
+        if (orgDetails[oldRole][orgEditIndex]) orgDetails[oldRole].splice(orgEditIndex, 1);
+        orgDetails[kategori].push(item);
+        syncOrgText(oldRole);
+      }
+      orgEditRole = null;
+      orgEditIndex = null;
+    } else {
+      // tambah baru
+      orgDetails[kategori].push({ nama, jabatan, ttl, pendidikan });
+    }
     persistOrgDetails();
-    // sinkron ke textarea untuk PDF
-    let ta = el.orgPengurus;
-    if (kategori === "pembina") ta = el.orgPembina;
-    else if (kategori === "pengawas") ta = el.orgPengawas;
-    const line = `${nama} — ${jabatan}`;
-    ta.value = (ta.value ? ta.value + "\n" : "") + line;
-    state.org[kategori] = ta.value;
-    // rerender tabel + preview
+    syncOrgText(kategori);
     renderOrgBoxes();
     renderOrgPreview();
     if (orgModalInstance) orgModalInstance.hide();
@@ -551,7 +585,9 @@ function renderOrgBoxes() {
         <td>${it.ttl || "-"}</td>
         <td>${it.pendidikan || "-"}</td>
         <td>
-          <button class="btn btn-sm btn-outline-danger org-del" data-role="${role}" data-index="${idx}">Hapus</button>
+          <button class="btn btn-sm btn-success me-1 org-use" data-role="${role}" data-index="${idx}"><i class="bi bi-filetype-pdf"></i> Gunakan</button>
+          <button class="btn btn-sm btn-outline-primary me-1 org-edit" data-role="${role}" data-index="${idx}"><i class="bi bi-pencil-square"></i> Edit</button>
+          <button class="btn btn-sm btn-outline-danger org-del" data-role="${role}" data-index="${idx}"><i class="bi bi-trash"></i> Delete</button>
         </td>`;
       tbody.appendChild(tr);
     });
@@ -563,23 +599,58 @@ function renderOrgBoxes() {
 
 // Delegasi hapus item organisasi
 document.addEventListener("click", (e) => {
-  const btn = e.target.closest(".org-del");
-  if (!btn) return;
-  const role = btn.dataset.role;
-  const idx = Number(btn.dataset.index);
-  // hapus dari orgDetails
-  if (!orgDetails[role]) return;
-  orgDetails[role].splice(idx, 1);
-  persistOrgDetails();
-  // sinkron ke textarea hidden untuk PDF
-  const joined = orgDetails[role].map(it => `${it.nama} — ${it.jabatan}`).join("\n");
-  if (role === "pembina") document.getElementById("orgPembina").value = joined;
-  else if (role === "pengawas") document.getElementById("orgPengawas").value = joined;
-  else document.getElementById("orgPengurus").value = joined;
-  state.org[role] = joined;
-  renderOrgBoxes();
-  renderOrgPreview();
+  const useBtn = e.target.closest(".org-use");
+  const editBtn = e.target.closest(".org-edit");
+  const delBtn = e.target.closest(".org-del");
+  if (useBtn) {
+    const role = useBtn.dataset.role;
+    const idx = Number(useBtn.dataset.index);
+    const list = orgDetails[role] || [];
+    const it = list[idx];
+    if (!it) return;
+    applyOrgToSlip(it);
+    return;
+  }
+  if (editBtn) {
+    openOrgModal("edit", editBtn.dataset.role, Number(editBtn.dataset.index));
+    return;
+  }
+  if (delBtn) {
+    const role = delBtn.dataset.role;
+    const idx = Number(delBtn.dataset.index);
+    const list = orgDetails[role] || [];
+    const it = list[idx];
+    if (!it) return;
+    const ok = confirm(`Yakin hapus data: ${it.nama} (${it.jabatan})?`);
+    if (!ok) return;
+    orgDetails[role].splice(idx, 1);
+    persistOrgDetails();
+    // sinkronisasi ke textarea dan preview
+    const joined = orgDetails[role].map(v => `${v.nama} — ${v.jabatan}`).join("\n");
+    if (role === "pembina") document.getElementById("orgPembina").value = joined; else if (role === "pengawas") document.getElementById("orgPengawas").value = joined; else document.getElementById("orgPengurus").value = joined;
+    state.org[role] = joined;
+    renderOrgBoxes();
+    renderOrgPreview();
+    return;
+  }
 });
+
+// Terapkan data organisasi ke Slip Gaji (nama/jabatan/TTL/pendidikan)
+function applyOrgToSlip(it) {
+  state.employee.nama = it.nama || state.employee.nama;
+  state.employee.jabatan = it.jabatan || state.employee.jabatan;
+  state.employee.ttl = it.ttl || state.employee.ttl;
+  state.employee.pendidikan = it.pendidikan || state.employee.pendidikan;
+  // sinkron ke input
+  el.nama.value = state.employee.nama;
+  el.jabatan.value = state.employee.jabatan;
+  // TTL & Pendidikan preview akan ikut melalui updateEmployeePreview()
+  syncFromInputs();
+  // pindah ke tab slip dan fokus
+  document.getElementById("nav-slip")?.click();
+  document.getElementById("preview")?.scrollIntoView({ behavior: "smooth" });
+  alert("Data organisasi diterapkan ke Slip Gaji.");
+}
 
 // -----------------------
 // Navigasi & Halaman Data Guru
