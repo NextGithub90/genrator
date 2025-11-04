@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Generator Slip Gaji PDF — Modern & Elegan</title>
-    <meta name="description" content="Buat dan unduh Slip Gaji PDF yang modern, elegan, dan presisi. Masukkan data perusahaan, karyawan, pendapatan,
+    <meta name="description" content="Bua 
+        """ t dan unduh Slip Gaji PDF yang modern, elegan, dan presisi. Masukkan data perusahaan, karyawan, pendapatan,
         potongan, lalu ekspor ke PDF.">
     <meta name="keywords" content="slip gaji, generator slip gaji, pdf slip gaji, payroll, indonesia, bootstrap">
     <meta name="author" content="Generator Slip Gaji">
@@ -43,7 +44,7 @@
         <div class="container d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
                 <div class="logo-circle" aria-hidden="true">
-                    <img src="assets/images/logo.jpeg" alt="Logo">
+                    <img src="assets/images/logo.jpeg" alt="Logo" data-app-logo>
                 </div>
                 <div>
                     <h1 class="h4 mb-0 fw-bold">Generator Slip Gaji PDF</h1>
@@ -266,30 +267,43 @@
             <div id="tab-profil" class="d-none">
                 <section class="row g-4">
                     <div class="col-lg-4">
+                        <!-- Logo di atas Profil Yayasan -->
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-body text-center">
+                                <div class="logo-circle mx-auto mb-2">
+                                    <img src="assets/images/logo.jpeg" alt="Logo" data-app-logo>
+                                </div>
+                                <button id="logoEditBtn" type="button" class="btn btn-outline-primary btn-sm">Edit Logo</button>
+                                <input id="logoFileInput" type="file" accept="image/*" class="d-none">
+                            </div>
+                        </div>
                         <div class="card shadow-sm">
                             <div class="card-body">
                                 <h2 class="h5 fw-semibold mb-3">Profil Yayasan</h2>
+                                <div class="text-end mb-2">
+                                  <div class="btn-group btn-group-sm" role="group" aria-label="Edit Profil Yayasan">
+                                    <button id="companyEditBtn" type="button" class="btn btn-outline-primary">Edit</button>
+                                    <button id="companySaveBtn" type="button" class="btn btn-primary d-none">Simpan</button>
+                                    <button id="companyCancelBtn" type="button" class="btn btn-secondary d-none">Batal</button>
+                                  </div>
+                                </div>
                                 <h3 class="h6 text-primary mt-2">Data Perusahaan</h3>
                                 <div class="row g-3">
                                     <div class="col-12">
                                         <label class="form-label">Nama Perusahaan</label>
-                                        <input id="companyName" form="payroll-form" type="text" class="form-control"
-                                            value="YAYASAN RIBHUL ULUM">
+                                        <input id="companyName" form="payroll-form" type="text" class="form-control" value="YAYASAN RIBHUL ULUM" disabled>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Alamat</label>
-                                        <input id="companyAddress" form="payroll-form" type="text" class="form-control"
-                                            value="Jl. Sekedar Contoh Saja No. 100">
+                                        <input id="companyAddress" form="payroll-form" type="text" class="form-control" value="Jl. Sekedar Contoh Saja No. 100" disabled>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Telepon</label>
-                                        <input id="companyPhone" form="payroll-form" type="text" class="form-control"
-                                            value="(012) 34567890">
+                                        <input id="companyPhone" form="payroll-form" type="text" class="form-control" value="(012) 34567890" disabled>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Kota</label>
-                                        <input id="companyCity" form="payroll-form" type="text" class="form-control"
-                                            value="Kota Sampel">
+                                        <input id="companyCity" form="payroll-form" type="text" class="form-control" value="Kota Sampel" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -698,7 +712,7 @@
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div class="d-flex gap-3">
                                         <div class="logo-circle" aria-hidden="true">
-                                            <img src="assets/images/logo.jpeg" alt="Logo">
+                                            <img src="assets/images/logo.jpeg" alt="Logo" data-app-logo>
                                         </div>
                                         <div>
                                             <h2 id="p_companyName" class="h5 fw-bold mb-1">YAYASAN RIBHUL ULUM</h2>
@@ -736,8 +750,8 @@
                                 <!-- Detail Guru (otomatis dari Data Guru) -->
                                 <div class="row g-2 mb-2">
                                     <div class="col-md-6">
-                                        <div class="d-flex justify-content-between small"><span>Tempat, Tanggal
-                                                Lahir</span><span id="p_ttl">-</span></div>
+                                        <div class="d-flex justify-content-between small"><span>Tempat, Tanggal Lahir</span><span
+                                                id="p_ttl">-</span></div>
                                         <div class="d-flex justify-content-between small"><span>Pendidikan</span><span
                                                 id="p_pendidikan">-</span></div>
                                         <div class="d-flex justify-content-between small"><span>Unit</span><span

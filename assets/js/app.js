@@ -95,6 +95,7 @@ const state = {
 // Struktur Organisasi storage (TTL & Pendidikan)
 // -----------------------
 const ORG_STORAGE_KEY = "ORG_DETAILS";
+const LOGO_STORAGE_KEY = "APP_LOGO_SRC";
 let orgDetails = { pengurus: [], pembina: [], pengawas: [] };
 
 function loadOrgDetails() {
@@ -578,6 +579,64 @@ function attachEvents() {
       return;
     }
   });
+
+  // Edit Profil Yayasan: toggle Edit/Save/Cancel
+  const companyEditBtn = document.getElementById("companyEditBtn");
+  const companySaveBtn = document.getElementById("companySaveBtn");
+  const companyCancelBtn = document.getElementById("companyCancelBtn");
+  const companyInputs = [el.companyName, el.companyAddress, el.companyPhone, el.companyCity];
+
+  function setCompanyEditMode(on) {
+    companyInputs.forEach((inp) => {
+      if (!inp) return;
+      inp.disabled = !on;
+    });
+    companyEditBtn?.classList.toggle("d-none", on);
+    companySaveBtn?.classList.toggle("d-none", !on);
+    companyCancelBtn?.classList.toggle("d-none", !on);
+  }
+
+  companyEditBtn?.addEventListener("click", () => setCompanyEditMode(true));
+  companyCancelBtn?.addEventListener("click", () => {
+    if (el.companyName) el.companyName.value = state.company.name;
+    if (el.companyAddress) el.companyAddress.value = state.company.address;
+    if (el.companyPhone) el.companyPhone.value = state.company.phone;
+    if (el.companyCity) el.companyCity.value = state.company.city;
+    setCompanyEditMode(false);
+  });
+  companySaveBtn?.addEventListener("click", () => {
+    syncFromInputs();
+    setCompanyEditMode(false);
+    alert("Profil Yayasan diperbarui.");
+  });
+
+  // Edit Logo: upload dan apply ke seluruh logo bertanda data-app-logo
+  const logoEditBtn = document.getElementById("logoEditBtn");
+  const logoFileInput = document.getElementById("logoFileInput");
+
+  function applyLogo(src) {
+    document.querySelectorAll("img[data-app-logo]").forEach((img) => {
+      if (src) img.src = src;
+    });
+  }
+
+  logoEditBtn?.addEventListener("click", () => logoFileInput?.click());
+  logoFileInput?.addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!(file.type || "").startsWith("image/")) {
+      alert("Silakan pilih file gambar yang valid.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const src = reader.result;
+      applyLogo(src);
+      try { localStorage.setItem(LOGO_STORAGE_KEY, src); } catch {}
+      alert("Logo diperbarui.");
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function init() {
@@ -587,6 +646,16 @@ function init() {
   el.companyAddress.value = state.company.address;
   el.companyPhone.value = state.company.phone;
   el.companyCity.value = state.company.city;
+
+  // Muat logo tersimpan (jika ada)
+  try {
+    const savedLogo = localStorage.getItem(LOGO_STORAGE_KEY);
+    if (savedLogo) {
+      document.querySelectorAll("img[data-app-logo]").forEach((img) => {
+        img.src = savedLogo;
+      });
+    }
+  } catch {}
 
   el.nik.value = state.employee.nik;
   el.kode.value = state.employee.kode;
