@@ -66,10 +66,14 @@
         <!-- Sidebar Desktop (Left, collapsible) -->
         <aside class="sidebar-desktop text-white d-none d-lg-flex">
             <div class="sidebar-inner w-100">
+                <div class="sidebar-brand">
+                  <img src="assets/images/logo.jpeg" alt="Logo" data-app-logo>
+                </div>
+
                 <div class="small text-white-50 mx-3 my-2">Menu</div>
                 <ul class="sidebar-nav list-unstyled m-0 px-2">
                     <li class="mb-1"><a href="#" class="nav-link text-white active" data-tab="dashboard"><i
-                                class="bi bi-house-door me-2"></i> Dashboard</a></li>
+                                class="bi bi-house-door me-2"></i> Beranda</a></li>
                     <li class="mb-1"><a href="#" class="nav-link text-white" data-tab="profil"><i
                                 class="bi bi-person-badge me-2"></i> Profil Yayasan</a></li>
                     <li class="mb-1">
@@ -127,10 +131,13 @@
                     aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
+                <div class="sidebar-brand text-center mb-3">
+                  <img src="assets/images/logo.jpeg" alt="Logo" data-app-logo>
+                </div>
                 <div class="small text-white-50 mb-2">Menu</div>
                 <ul class="sidebar-nav list-unstyled m-0">
                     <li class="mb-1"><a href="#" class="nav-link text-white active" data-tab="dashboard"><i
-                                class="bi bi-house-door me-2"></i> Dashboard</a></li>
+                                class="bi bi-house-door me-2"></i> Beranda</a></li>
                     <li class="mb-1"><a href="#" class="nav-link text-white" data-tab="profil"><i
                                 class="bi bi-person-badge me-2"></i> Profil Yayasan</a></li>
                     <li class="mb-1">
@@ -273,7 +280,8 @@
                                 <div class="logo-circle mx-auto mb-2">
                                     <img src="assets/images/logo.jpeg" alt="Logo" data-app-logo>
                                 </div>
-                                <button id="logoEditBtn" type="button" class="btn btn-outline-primary btn-sm">Edit Logo</button>
+                                <button id="logoEditBtn" type="button" class="btn btn-outline-primary btn-sm">Edit
+                                    Logo</button>
                                 <input id="logoFileInput" type="file" accept="image/*" class="d-none">
                             </div>
                         </div>
@@ -281,29 +289,36 @@
                             <div class="card-body">
                                 <h2 class="h5 fw-semibold mb-3">Profil Yayasan</h2>
                                 <div class="text-end mb-2">
-                                  <div class="btn-group btn-group-sm" role="group" aria-label="Edit Profil Yayasan">
-                                    <button id="companyEditBtn" type="button" class="btn btn-outline-primary">Edit</button>
-                                    <button id="companySaveBtn" type="button" class="btn btn-primary d-none">Simpan</button>
-                                    <button id="companyCancelBtn" type="button" class="btn btn-secondary d-none">Batal</button>
-                                  </div>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Edit Profil Yayasan">
+                                        <button id="companyEditBtn" type="button"
+                                            class="btn btn-outline-primary">Edit</button>
+                                        <button id="companySaveBtn" type="button"
+                                            class="btn btn-primary d-none">Simpan</button>
+                                        <button id="companyCancelBtn" type="button"
+                                            class="btn btn-secondary d-none">Batal</button>
+                                    </div>
                                 </div>
                                 <h3 class="h6 text-primary mt-2">Data Perusahaan</h3>
                                 <div class="row g-3">
                                     <div class="col-12">
                                         <label class="form-label">Nama Perusahaan</label>
-                                        <input id="companyName" form="payroll-form" type="text" class="form-control" value="YAYASAN RIBHUL ULUM" disabled>
+                                        <input id="companyName" form="payroll-form" type="text" class="form-control"
+                                            value="YAYASAN RIBHUL ULUM" disabled>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Alamat</label>
-                                        <input id="companyAddress" form="payroll-form" type="text" class="form-control" value="Jl. Sekedar Contoh Saja No. 100" disabled>
+                                        <input id="companyAddress" form="payroll-form" type="text" class="form-control"
+                                            value="Jl. Sekedar Contoh Saja No. 100" disabled>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Telepon</label>
-                                        <input id="companyPhone" form="payroll-form" type="text" class="form-control" value="(012) 34567890" disabled>
+                                        <input id="companyPhone" form="payroll-form" type="text" class="form-control"
+                                            value="(012) 34567890" disabled>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Kota</label>
-                                        <input id="companyCity" form="payroll-form" type="text" class="form-control" value="Kota Sampel" disabled>
+                                        <input id="companyCity" form="payroll-form" type="text" class="form-control"
+                                            value="Kota Sampel" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -469,10 +484,7 @@
                         <div class="d-flex align-items-center gap-2 mb-3">
                             <button id="keuIn_add" class="btn btn-success btn-sm"><i class="bi bi-plus-lg"></i>
                                 Tambah</button>
-                            <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-upload"></i> Import
-                                Indikatif</button>
-                            <button id="keuIn_log" class="btn btn-outline-secondary btn-sm"><i
-                                    class="bi bi-clock-history"></i> Log</button>
+                            <button id="keuIn_report" class="btn btn-primary btn-sm"><i class="bi bi-filetype-pdf"></i> Laporan</button>
                             <div class="ms-auto d-flex align-items-center gap-2" style="min-width:280px;">
                                 <input id="keuIn_search" type="text" class="form-control form-control-sm"
                                     placeholder="Cari..">
@@ -524,10 +536,7 @@
                         <div class="d-flex align-items-center gap-2 mb-3">
                             <button id="keuOut_add" class="btn btn-danger btn-sm"><i class="bi bi-plus-lg"></i>
                                 Tambah</button>
-                            <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-upload"></i> Import
-                                Indikatif</button>
-                            <button id="keuOut_log" class="btn btn-outline-secondary btn-sm"><i
-                                    class="bi bi-clock-history"></i> Log</button>
+                            <button id="keuOut_report" class="btn btn-primary btn-sm"><i class="bi bi-filetype-pdf"></i> Laporan</button>
                             <div class="ms-auto d-flex align-items-center gap-2" style="min-width:280px;">
                                 <input id="keuOut_search" type="text" class="form-control form-control-sm"
                                     placeholder="Cari..">
@@ -750,8 +759,8 @@
                                 <!-- Detail Guru (otomatis dari Data Guru) -->
                                 <div class="row g-2 mb-2">
                                     <div class="col-md-6">
-                                        <div class="d-flex justify-content-between small"><span>Tempat, Tanggal Lahir</span><span
-                                                id="p_ttl">-</span></div>
+                                        <div class="d-flex justify-content-between small"><span>Tempat, Tanggal
+                                                Lahir</span><span id="p_ttl">-</span></div>
                                         <div class="d-flex justify-content-between small"><span>Pendidikan</span><span
                                                 id="p_pendidikan">-</span></div>
                                         <div class="d-flex justify-content-between small"><span>Unit</span><span

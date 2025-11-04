@@ -95,7 +95,6 @@ const state = {
 // Struktur Organisasi storage (TTL & Pendidikan)
 // -----------------------
 const ORG_STORAGE_KEY = "ORG_DETAILS";
-const LOGO_STORAGE_KEY = "APP_LOGO_SRC";
 let orgDetails = { pengurus: [], pembina: [], pengawas: [] };
 
 function loadOrgDetails() {
@@ -541,102 +540,6 @@ function attachEvents() {
     renderOrgPreview();
     if (orgModalInstance) orgModalInstance.hide();
   });
-
-  // Delegasi tombol Gunakan / Edit / Delete untuk Struktur Organisasi (dipindah ke sini agar akses openOrgModal tersedia)
-  document.addEventListener("click", (e) => {
-    const useBtn = e.target.closest(".org-use");
-    const editBtn = e.target.closest(".org-edit");
-    const delBtn = e.target.closest(".org-del");
-    if (useBtn) {
-      const role = useBtn.dataset.role;
-      const idx = Number(useBtn.dataset.index);
-      const list = orgDetails[role] || [];
-      const it = list[idx];
-      if (!it) return;
-      applyOrgToSlip(it);
-      return;
-    }
-    if (editBtn) {
-      openOrgModal("edit", editBtn.dataset.role, Number(editBtn.dataset.index));
-      return;
-    }
-    if (delBtn) {
-      const role = delBtn.dataset.role;
-      const idx = Number(delBtn.dataset.index);
-      const list = orgDetails[role] || [];
-      const it = list[idx];
-      if (!it) return;
-      const ok = confirm(`Yakin hapus data: ${it.nama} (${it.jabatan})?`);
-      if (!ok) return;
-      orgDetails[role].splice(idx, 1);
-      persistOrgDetails();
-      // sinkronisasi ke textarea dan preview
-      const joined = orgDetails[role].map(v => `${v.nama} — ${v.jabatan}`).join("\n");
-      if (role === "pembina") document.getElementById("orgPembina").value = joined; else if (role === "pengawas") document.getElementById("orgPengawas").value = joined; else document.getElementById("orgPengurus").value = joined;
-      state.org[role] = joined;
-      renderOrgBoxes();
-      renderOrgPreview();
-      return;
-    }
-  });
-
-  // Edit Profil Yayasan: toggle Edit/Save/Cancel
-  const companyEditBtn = document.getElementById("companyEditBtn");
-  const companySaveBtn = document.getElementById("companySaveBtn");
-  const companyCancelBtn = document.getElementById("companyCancelBtn");
-  const companyInputs = [el.companyName, el.companyAddress, el.companyPhone, el.companyCity];
-
-  function setCompanyEditMode(on) {
-    companyInputs.forEach((inp) => {
-      if (!inp) return;
-      inp.disabled = !on;
-    });
-    companyEditBtn?.classList.toggle("d-none", on);
-    companySaveBtn?.classList.toggle("d-none", !on);
-    companyCancelBtn?.classList.toggle("d-none", !on);
-  }
-
-  companyEditBtn?.addEventListener("click", () => setCompanyEditMode(true));
-  companyCancelBtn?.addEventListener("click", () => {
-    if (el.companyName) el.companyName.value = state.company.name;
-    if (el.companyAddress) el.companyAddress.value = state.company.address;
-    if (el.companyPhone) el.companyPhone.value = state.company.phone;
-    if (el.companyCity) el.companyCity.value = state.company.city;
-    setCompanyEditMode(false);
-  });
-  companySaveBtn?.addEventListener("click", () => {
-    syncFromInputs();
-    setCompanyEditMode(false);
-    alert("Profil Yayasan diperbarui.");
-  });
-
-  // Edit Logo: upload dan apply ke seluruh logo bertanda data-app-logo
-  const logoEditBtn = document.getElementById("logoEditBtn");
-  const logoFileInput = document.getElementById("logoFileInput");
-
-  function applyLogo(src) {
-    document.querySelectorAll("img[data-app-logo]").forEach((img) => {
-      if (src) img.src = src;
-    });
-  }
-
-  logoEditBtn?.addEventListener("click", () => logoFileInput?.click());
-  logoFileInput?.addEventListener("change", (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    if (!(file.type || "").startsWith("image/")) {
-      alert("Silakan pilih file gambar yang valid.");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const src = reader.result;
-      applyLogo(src);
-      try { localStorage.setItem(LOGO_STORAGE_KEY, src); } catch {}
-      alert("Logo diperbarui.");
-    };
-    reader.readAsDataURL(file);
-  });
 }
 
 function init() {
@@ -646,16 +549,6 @@ function init() {
   el.companyAddress.value = state.company.address;
   el.companyPhone.value = state.company.phone;
   el.companyCity.value = state.company.city;
-
-  // Muat logo tersimpan (jika ada)
-  try {
-    const savedLogo = localStorage.getItem(LOGO_STORAGE_KEY);
-    if (savedLogo) {
-      document.querySelectorAll("img[data-app-logo]").forEach((img) => {
-        img.src = savedLogo;
-      });
-    }
-  } catch {}
 
   el.nik.value = state.employee.nik;
   el.kode.value = state.employee.kode;
@@ -704,7 +597,43 @@ function renderOrgBoxes() {
   rowsFor("pengawas");
 }
 
-// (Delegasi org-use/org-edit/org-del dipindahkan ke attachEvents)
+// Delegasi hapus item organisasi
+document.addEventListener("click", (e) => {
+  const useBtn = e.target.closest(".org-use");
+  const editBtn = e.target.closest(".org-edit");
+  const delBtn = e.target.closest(".org-del");
+  if (useBtn) {
+    const role = useBtn.dataset.role;
+    const idx = Number(useBtn.dataset.index);
+    const list = orgDetails[role] || [];
+    const it = list[idx];
+    if (!it) return;
+    applyOrgToSlip(it);
+    return;
+  }
+  if (editBtn) {
+    openOrgModal("edit", editBtn.dataset.role, Number(editBtn.dataset.index));
+    return;
+  }
+  if (delBtn) {
+    const role = delBtn.dataset.role;
+    const idx = Number(delBtn.dataset.index);
+    const list = orgDetails[role] || [];
+    const it = list[idx];
+    if (!it) return;
+    const ok = confirm(`Yakin hapus data: ${it.nama} (${it.jabatan})?`);
+    if (!ok) return;
+    orgDetails[role].splice(idx, 1);
+    persistOrgDetails();
+    // sinkronisasi ke textarea dan preview
+    const joined = orgDetails[role].map(v => `${v.nama} — ${v.jabatan}`).join("\n");
+    if (role === "pembina") document.getElementById("orgPembina").value = joined; else if (role === "pengawas") document.getElementById("orgPengawas").value = joined; else document.getElementById("orgPengurus").value = joined;
+    state.org[role] = joined;
+    renderOrgBoxes();
+    renderOrgPreview();
+    return;
+  }
+});
 
 // Terapkan data organisasi ke Slip Gaji (nama/jabatan/TTL/pendidikan)
 function applyOrgToSlip(it) {
@@ -1089,7 +1018,7 @@ function initGuruPage() {
   // Copy / Print / Excel (CSV)
   gEl.copy?.addEventListener("click", () => {
     const arr = filteredData();
-    const header = ["No", "NIK", "NUPTK/PegID", "Nama", "L/P", "Tempat, Tanggal Lahir", "Pendidikan", "Wali Kelas", "JTM", "Unit"];
+    const header = ["No", "NIK", "NUPTK/PegID", "Nama", "L/P", "TTL", "Pendidikan", "Wali Kelas", "JTM", "Unit"];
     const rows = arr.map((it, i) => [i + 1, it.nik, it.nuptk || "", it.nama, it.gender, it.ttl, it.pendidikan, it.wali, it.jtm, it.unit].join("\t"));
     const text = header.join("\t") + "\n" + rows.join("\n");
     navigator.clipboard
@@ -1112,7 +1041,7 @@ function initGuruPage() {
 
   gEl.excel?.addEventListener("click", () => {
     const arr = filteredData();
-    const header = ["No", "NIK", "NUPTK/PegID", "Nama", "L/P", "Tempat, Tanggal Lahir", "Pendidikan", "Wali Kelas", "JTM", "Unit"];
+    const header = ["No", "NIK", "NUPTK/PegID", "Nama", "L/P", "TTL", "Pendidikan", "Wali Kelas", "JTM", "Unit"];
     const csv = [
       header.join(","),
       ...arr.map((it, i) => [i + 1, it.nik, it.nuptk || "", it.nama, it.gender, `"${it.ttl.replace(/"/g, '""')}"`, `"${it.pendidikan.replace(/"/g, '""')}"`, it.wali, it.jtm, it.unit].join(",")),
@@ -1311,6 +1240,7 @@ function initKeu() {
   const inAdd = document.getElementById("keuIn_add");
   const inUnitList = document.getElementById("keuIn_unitList");
   const inSearch = document.getElementById("keuIn_search");
+  const inReport = document.getElementById("keuIn_report");
   inAdd?.addEventListener("click", () => openKeuModal("pendapatan"));
   inUnitList?.querySelectorAll(".list-group-item").forEach((btn) => {
     btn.addEventListener("click", (e) => {
@@ -1321,11 +1251,13 @@ function initKeu() {
     });
   });
   inSearch?.addEventListener("input", (e) => { keuCtx.searchIn = e.target.value; renderKeu("pendapatan"); });
+  inReport?.addEventListener("click", () => generateKeuReport("pendapatan"));
 
   // Pengeluaran controls
   const outAdd = document.getElementById("keuOut_add");
   const outUnitList = document.getElementById("keuOut_unitList");
   const outSearch = document.getElementById("keuOut_search");
+  const outReport = document.getElementById("keuOut_report");
   outAdd?.addEventListener("click", () => openKeuModal("pengeluaran"));
   outUnitList?.querySelectorAll(".list-group-item").forEach((btn) => {
     btn.addEventListener("click", (e) => {
@@ -1336,6 +1268,7 @@ function initKeu() {
     });
   });
   outSearch?.addEventListener("input", (e) => { keuCtx.searchOut = e.target.value; renderKeu("pengeluaran"); });
+  outReport?.addEventListener("click", () => generateKeuReport("pengeluaran"));
 
   // Modal save
   document.getElementById("keuSave")?.addEventListener("click", saveKeuFromModal);
@@ -1343,6 +1276,74 @@ function initKeu() {
   // Initial render
   renderKeu("pendapatan");
   renderKeu("pengeluaran");
+}
+
+// Generate PDF report for all transactions (Pendapatan/Pengeluaran)
+function generateKeuReport(kind) {
+  try {
+    const title = kind === "pendapatan" ? "Laporan Pendapatan" : "Laporan Pengeluaran";
+    const now = new Date();
+    const arr = (keuData || []).filter((d) => d.jenis === kind).sort((a, b) => {
+      // sort by tahun desc, then unit
+      const t = (Number(b.tahun) || 0) - (Number(a.tahun) || 0);
+      if (t !== 0) return t;
+      return String(a.unit || "").localeCompare(String(b.unit || ""));
+    });
+    const total = arr.reduce((acc, d) => acc + (Number(d.jumlah) || 0), 0);
+
+    // Build printable container
+    const container = document.createElement("div");
+    container.style.padding = "16px";
+    container.style.fontFamily = "Inter, Arial, sans-serif";
+    container.innerHTML = `
+      <div>
+        <h3 style="margin:0 0 8px 0;">${title}</h3>
+        <div style="font-size:12px;color:#555;">Dibuat: ${now.toLocaleString("id-ID")}</div>
+        <hr style="margin:8px 0;"/>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr>
+              <th style="border:1px solid #ddd;padding:6px;text-align:left;">Tahun</th>
+              <th style="border:1px solid #ddd;padding:6px;text-align:left;">Unit</th>
+              <th style="border:1px solid #ddd;padding:6px;text-align:left;">Sumber Dana</th>
+              <th style="border:1px solid #ddd;padding:6px;text-align:right;">Jumlah</th>
+              <th style="border:1px solid #ddd;padding:6px;text-align:left;">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${arr.map(d => `
+              <tr>
+                <td style="border:1px solid #ddd;padding:6px;">${d.tahun || "-"}</td>
+                <td style="border:1px solid #ddd;padding:6px;">${d.unit || "-"}</td>
+                <td style="border:1px solid #ddd;padding:6px;">${(d.sumber || "").replace(/</g, "&lt;")}</td>
+                <td style="border:1px solid #ddd;padding:6px;text-align:right;">${formatIDR(Number(d.jumlah)||0)}</td>
+                <td style="border:1px solid #ddd;padding:6px;">${(d.ket || "").replace(/</g, "&lt;")}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+        <div style="margin-top:8px;font-weight:600;">TOTAL: ${formatIDR(total)}</div>
+      </div>
+    `;
+
+    document.body.appendChild(container);
+    const opt = {
+      margin: 10,
+      filename: `${title.replace(/\s+/g, "_")}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    };
+    html2pdf().from(container).set(opt).save().then(() => {
+      container.remove();
+    }).catch(() => {
+      container.remove();
+      alert("Gagal membuat PDF laporan.");
+    });
+  } catch (err) {
+    alert("Terjadi error saat membuat laporan.");
+    console.error(err);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {

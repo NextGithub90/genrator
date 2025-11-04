@@ -113,8 +113,8 @@ body {
 
 /* Mobile sidebar styles */
 .mobile-sidebar {
-  background: #040c9e;
-  border-right: 1px solid #040c9e;
+  background: #0f3b4b;
+  border-right: 1px solid #0f3b4b;
 }
 .mobile-sidebar .offcanvas-header {
   border-bottom: 1px solid #1f2937;
@@ -173,7 +173,7 @@ body {
     top: 72px; /* match header height */
     width: 260px;
     flex: 0 0 260px;
-    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
     background: #040c9e; /* custom solid background */
     z-index: 1040; /* layering safety */
   }
@@ -187,14 +187,26 @@ body {
 .sidebar-desktop .sidebar-inner {
   padding: 8px 0;
 }
+.sidebar-desktop .sidebar-brand {
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sidebar-desktop .sidebar-brand img {
+  width: 140px;
+  height: auto;
+  object-fit: contain;
+}
 .sidebar-desktop .nav-link {
   display: block;
-  padding: 8px 12px;
-  color: #f8f9fa;
+  padding: 10px 12px;
+  color: #d1d5db; /* gray-300 */
   border-radius: 0.5rem;
 }
 .sidebar-desktop .nav-link:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
@@ -204,4 +216,19 @@ body {
 }
 .sidebar-desktop .collapse {
   margin-top: 4px;
+}
+
+/* Active pill style */
+.sidebar-desktop .nav-link.active,
+.sidebar-desktop .nav-link.active:hover {
+  color: #0f3b4b;
+  box-shadow: inset 4px 0 0 #8bc34a;
+}
+
+/* Mobile active state */
+.mobile-sidebar .sidebar-nav .nav-link.active,
+.mobile-sidebar .sidebar-nav .nav-link.active:hover {
+  background-color: #f3f4f6;
+  color: #0f3b4b;
+  box-shadow: inset 4px 0 0 #8bc34a;
 }
