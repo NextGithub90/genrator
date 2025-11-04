@@ -66,9 +66,7 @@
         <!-- Sidebar Desktop (Left, collapsible) -->
         <aside class="sidebar-desktop text-white d-none d-lg-flex">
             <div class="sidebar-inner w-100">
-                <div class="sidebar-brand">
-                  <img src="assets/images/logo.jpeg" alt="Logo" data-app-logo>
-                </div>
+
 
                 <div class="small text-white-50 mx-3 my-2">Menu</div>
                 <ul class="sidebar-nav list-unstyled m-0 px-2">
@@ -132,7 +130,7 @@
             </div>
             <div class="offcanvas-body">
                 <div class="sidebar-brand text-center mb-3">
-                  <img src="assets/images/logo.jpeg" alt="Logo" data-app-logo>
+                    <img src="assets/images/logo.jpeg" alt="Logo" data-app-logo>
                 </div>
                 <div class="small text-white-50 mb-2">Menu</div>
                 <ul class="sidebar-nav list-unstyled m-0">
@@ -238,7 +236,7 @@
                     <div class="col-md-3">
                         <div class="card border-0 shadow-sm">
                             <div class="card-body">
-                                <div class="small text-muted">Sisa Anggaran</div>
+                                <div class="small text-muted">Saldo</div>
                                 <div id="cardSaldo" class="h4 m-0">Rp 0</div>
                             </div>
                         </div>
@@ -425,6 +423,7 @@
                                         <th class="small">Luas</th>
                                         <th class="small">Lokasi</th>
                                         <th class="small">Bukti Fisik</th>
+                                        <th class="small">Sertifikat</th>
                                         <th class="small" style="width:140px;">Aksi</th>
                                     </tr>
                                 </thead>
@@ -467,6 +466,11 @@
                                         <input id="aset_bukti" type="text" class="form-control"
                                             placeholder="Contoh: Sertifikat, Foto, Nota, Inventaris">
                                     </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Sertifikat</label>
+                                        <input id="aset_sertifikat" type="text" class="form-control"
+                                            placeholder="Contoh: SHM, HGB, AJB, dll">
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -484,7 +488,13 @@
                         <div class="d-flex align-items-center gap-2 mb-3">
                             <button id="keuIn_add" class="btn btn-success btn-sm"><i class="bi bi-plus-lg"></i>
                                 Tambah</button>
-                            <button id="keuIn_report" class="btn btn-primary btn-sm"><i class="bi bi-filetype-pdf"></i> Laporan</button>
+
+                            <button id="keuIn_reportA4Total" class="btn btn-outline-primary btn-sm"><i
+                                    class="bi bi-filetype-pdf"></i>
+                                Laporan A4 </button>
+                            <button id="keuIn_reportTable" class="btn btn-outline-primary btn-sm"><i
+                                    class="bi bi-table"></i>
+                                Laporan Tabel</button>
                             <div class="ms-auto d-flex align-items-center gap-2" style="min-width:280px;">
                                 <input id="keuIn_search" type="text" class="form-control form-control-sm"
                                     placeholder="Cari..">
@@ -513,6 +523,8 @@
                                         <thead class="table-success">
                                             <tr>
                                                 <th class="small">Tahun</th>
+                                                <th class="small">Unit</th>
+                                                <th class="small">Tanggal</th>
                                                 <th class="small">Sumber Dana</th>
                                                 <th class="small">Jumlah</th>
                                                 <th class="small">Keterangan</th>
@@ -523,10 +535,107 @@
                                     </table>
                                 </div>
                                 <div class="small text-muted" id="keuIn_info">Showing 0 entries</div>
+                                <div class="small" id="keuIn_meta"></div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Template A4: Laporan Pendapatan (PDF) -->
+            <div id="keuIn_a4" class="d-none">
+                <section class="p-4" style="width:210mm; background:#fff; color:#000;">
+                    <div class="text-center mb-3">
+                        <div id="rpt-title" class="fw-bold">LAPORAN PENDAPATAN</div>
+                        <div id="rpt-org" class="small">YAYASAN RIBHUL ULUM</div>
+                    </div>
+                    <div class="text-end small mb-2">Dibuat: <span id="rpt-date"></span></div>
+                    <!-- RA -->
+                    <div id="rpt-sec-RA" class="my-2">
+                        <div class="fw-semibold">RA</div>
+                        <table class="small" style="width:100%;border-collapse:collapse;">
+                            <tbody id="rpt-list-RA"></tbody>
+                        </table>
+                    </div>
+                    <!-- MI -->
+                    <div id="rpt-sec-MI" class="my-2">
+                        <div class="fw-semibold">MI</div>
+                        <table class="small" style="width:100%;border-collapse:collapse;">
+                            <tbody id="rpt-list-MI"></tbody>
+                        </table>
+                    </div>
+                    <!-- MTs -->
+                    <div id="rpt-sec-MTs" class="my-2">
+                        <div class="fw-semibold">MTs</div>
+                        <table class="small" style="width:100%;border-collapse:collapse;">
+                            <tbody id="rpt-list-MTs"></tbody>
+                        </table>
+                    </div>
+                    <!-- MA -->
+                    <div id="rpt-sec-MA" class="my-2">
+                        <div class="fw-semibold">MA</div>
+                        <table class="small" style="width:100%;border-collapse:collapse;">
+                            <tbody id="rpt-list-MA"></tbody>
+                        </table>
+                    </div>
+                    <!-- MADIN -->
+                    <div id="rpt-sec-MADIN" class="my-2">
+                        <div class="fw-semibold">MADIN</div>
+                        <table class="small" style="width:100%;border-collapse:collapse;">
+                            <tbody id="rpt-list-MADIN"></tbody>
+                        </table>
+                    </div>
+                    <hr />
+                    <div class="text-end">Grand Total: <span id="rpt-grand-total">-</span></div>
+                </section>
+            </div>
+
+            <!-- Template A4: Laporan Pengeluaran (PDF) -->
+            <div id="keuOut_a4" class="d-none">
+                <section class="p-4" style="width:210mm; background:#fff; color:#000;">
+                    <div class="text-center mb-3">
+                        <div id="rptOut-title" class="fw-bold">LAPORAN PENGELUARAN</div>
+                        <div id="rptOut-org" class="small">YAYASAN RIBHUL ULUM</div>
+                    </div>
+                    <div class="text-end small mb-2">Dibuat: <span id="rptOut-date"></span></div>
+                    <!-- RA -->
+                    <div id="rptOut-sec-RA" class="my-2">
+                        <div class="fw-semibold">RA</div>
+                        <table class="small" style="width:100%;border-collapse:collapse;">
+                            <tbody id="rptOut-list-RA"></tbody>
+                        </table>
+                    </div>
+                    <!-- MI -->
+                    <div id="rptOut-sec-MI" class="my-2">
+                        <div class="fw-semibold">MI</div>
+                        <table class="small" style="width:100%;border-collapse:collapse;">
+                            <tbody id="rptOut-list-MI"></tbody>
+                        </table>
+                    </div>
+                    <!-- MTs -->
+                    <div id="rptOut-sec-MTs" class="my-2">
+                        <div class="fw-semibold">MTs</div>
+                        <table class="small" style="width:100%;border-collapse:collapse;">
+                            <tbody id="rptOut-list-MTs"></tbody>
+                        </table>
+                    </div>
+                    <!-- MA -->
+                    <div id="rptOut-sec-MA" class="my-2">
+                        <div class="fw-semibold">MA</div>
+                        <table class="small" style="width:100%;border-collapse:collapse;">
+                            <tbody id="rptOut-list-MA"></tbody>
+                        </table>
+                    </div>
+                    <!-- MADIN -->
+                    <div id="rptOut-sec-MADIN" class="my-2">
+                        <div class="fw-semibold">MADIN</div>
+                        <table class="small" style="width:100%;border-collapse:collapse;">
+                            <tbody id="rptOut-list-MADIN"></tbody>
+                        </table>
+                    </div>
+                    <hr />
+                    <div class="text-end">Grand Total: <span id="rptOut-grand-total">-</span></div>
+                </section>
             </div>
 
             <!-- Tab: Keuangan - Pengeluaran -->
@@ -536,7 +645,13 @@
                         <div class="d-flex align-items-center gap-2 mb-3">
                             <button id="keuOut_add" class="btn btn-danger btn-sm"><i class="bi bi-plus-lg"></i>
                                 Tambah</button>
-                            <button id="keuOut_report" class="btn btn-primary btn-sm"><i class="bi bi-filetype-pdf"></i> Laporan</button>
+
+                            <button id="keuOut_reportA4Total" class="btn btn-outline-primary btn-sm"><i
+                                    class="bi bi-filetype-pdf"></i>
+                                Laporan A4</button>
+                            <button id="keuOut_reportTable" class="btn btn-outline-primary btn-sm"><i
+                                    class="bi bi-table"></i>
+                                Laporan Tabel</button>
                             <div class="ms-auto d-flex align-items-center gap-2" style="min-width:280px;">
                                 <input id="keuOut_search" type="text" class="form-control form-control-sm"
                                     placeholder="Cari..">
@@ -565,6 +680,8 @@
                                         <thead class="table-danger">
                                             <tr>
                                                 <th class="small">Tahun</th>
+                                                <th class="small">Unit</th>
+                                                <th class="small">Tanggal</th>
                                                 <th class="small">Sumber Dana</th>
                                                 <th class="small">Jumlah</th>
                                                 <th class="small">Keterangan</th>
@@ -575,6 +692,7 @@
                                     </table>
                                 </div>
                                 <div class="small text-muted" id="keuOut_info">Showing 0 entries</div>
+                                <div class="small" id="keuOut_meta"></div>
                             </div>
                         </div>
                     </div>
@@ -606,6 +724,10 @@
                                         <label class="form-label">Tahun</label>
                                         <input id="keu_tahun" type="number" class="form-control" min="2000" max="2100"
                                             value="2025">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tanggal</label>
+                                        <input id="keu_tanggal" type="date" class="form-control">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Sumber Dana</label>

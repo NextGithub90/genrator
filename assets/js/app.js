@@ -331,7 +331,33 @@ function exportPDF() {
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
   };
+  // Catat otomatis ke Keuangan sebagai Pengeluaran (Slip Gaji)
+  try { addPayrollExpenseFromSlip(); } catch {}
   html2pdf().from(element).set(opt).save();
+}
+
+// Integrasi: tambah pengeluaran keuangan saat slip gaji diunduh
+function addPayrollExpenseFromSlip() {
+  // Hitung gaji bersih
+  const totalIn = state.income.reduce((s, it) => s + parseIDR(it.amount), 0);
+  const totalOut = state.deduction.reduce((s, it) => s + parseIDR(it.amount), 0);
+  const net = totalIn - totalOut;
+  if (!net || net <= 0) return;
+  // Ambil tahun dari bulan payroll (YYYY-MM)
+  const ym = state.company.month || "";
+  const tahun = Number((ym || "").slice(0, 4)) || new Date().getFullYear();
+  const unit = state.employee.unit || "RA";
+  const sumber = "Slip Gaji";
+  const ket = `${state.employee.nama || "-"} — ${ym || new Date().toISOString().slice(0,7)}`;
+  const tanggal = ym ? `${String(ym).slice(0,4)}-${String(ym).slice(5,7)}-01` : new Date().toISOString().slice(0,10);
+  // Hindari duplikasi jika user unduh berkali-kali
+  const exists = keuData.find((d) => d.jenis === "pengeluaran" && d.unit === unit && d.tahun === tahun && d.sumber === sumber && d.ket === ket && Math.abs((Number(d.jumlah) || 0) - net) < 1);
+  if (exists) return;
+  const id = `keu_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  keuData.push({ id, jenis: "pengeluaran", unit, tahun, tanggal, sumber, jumlah: net, ket });
+  persistKeuData();
+  renderKeu("pengeluaran");
+  renderDashboard();
 }
 
 function attachEvents() {
@@ -1134,10 +1160,23 @@ function renderKeu(kind) {
       );
     });
 
+  // Meta info: unit aktif dan tanggal hari ini
+  try {
+    const metaEl = document.getElementById(isIn ? "keuIn_meta" : "keuOut_meta");
+    if (metaEl) {
+      const unitActive = unitFilter === "ALL" ? "Semua Unit" : unitFilter;
+      const today = new Date();
+      const ymd = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      metaEl.textContent = `Unit aktif: ${unitActive} • Tanggal: ${ymd}`;
+    }
+  } catch {}
+
   tbody.innerHTML = rows
     .map((d) => {
       return `<tr data-id="${d.id}">
           <td class="small">${d.tahun || ""}</td>
+          <td class="small">${d.unit || ""}</td>
+          <td class="small">${d.tanggal || ""}</td>
           <td class="small">${d.sumber || ""}</td>
           <td class="small">${formatIDR(d.jumlah || 0)}</td>
           <td class="small">${d.ket || ""}</td>
@@ -1167,11 +1206,149 @@ function renderKeu(kind) {
   });
 }
 
+// ===== Laporan Pendapatan (format khusus per unit) =====
+const UNIT_LIST = ["RA", "MI", "MTs", "MA", "MADIN"];
+function renderKeuInReport(withUnitTotals = false) {
+  let grand = 0;
+  const dateEl = document.getElementById("rpt-date");
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString("id-ID");
+  UNIT_LIST.forEach((u) => {
+    const listEl = document.getElementById(`rpt-list-${u}`);
+    const secEl = document.getElementById(`rpt-sec-${u}`);
+    if (!listEl) return;
+    const items = (keuData || []).filter((d) => d.jenis === "pendapatan" && d.unit === u);
+    let total = 0;
+    listEl.innerHTML = "";
+    items.forEach((d, i) => {
+      total += Number(d.jumlah) || 0;
+      const tr = document.createElement("tr");
+      const tdNo = document.createElement("td");
+      tdNo.textContent = `${i + 1}.`;
+      tdNo.style.width = "24px";
+      const tdDesc = document.createElement("td");
+      tdDesc.textContent = `${d.sumber || "-"} — ${formatIDR(Number(d.jumlah)||0)}${d.ket ? " — " + d.ket : ""}`;
+      const tdBlank = document.createElement("td");
+      tdBlank.textContent = "";
+      tr.appendChild(tdNo);
+      tr.appendChild(tdDesc);
+      tr.appendChild(tdBlank);
+      listEl.appendChild(tr);
+    });
+    grand += total;
+    // Sisipkan baris kecil Total unit di bawah tabel jika diminta
+    if (withUnitTotals && secEl) {
+      // Hapus baris total sebelumnya jika ada
+      const prev = secEl.querySelector(".rpt-unit-total");
+      if (prev) prev.remove();
+      const div = document.createElement("div");
+      div.className = "rpt-unit-total small";
+      div.style.marginTop = "4px";
+      div.textContent = `Total unit: ${formatIDR(total)}`;
+      secEl.appendChild(div);
+    } else if (secEl) {
+      const prev = secEl.querySelector(".rpt-unit-total");
+      if (prev) prev.remove();
+    }
+  });
+  const grandEl = document.getElementById("rpt-grand-total");
+  if (grandEl) grandEl.textContent = formatIDR(grand);
+  const titleEl = document.getElementById("rpt-title");
+  if (titleEl) titleEl.textContent = "LAPORAN PENDAPATAN";
+}
+
+function exportKeuInReportPDF(withUnitTotals = false) {
+  const elA4 = document.getElementById("keuIn_a4");
+  if (!elA4) return;
+  renderKeuInReport(withUnitTotals);
+  elA4.classList.remove("d-none");
+  const opt = {
+    margin: 0,
+    filename: "Laporan_Pendapatan.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+  };
+  html2pdf().from(elA4).set(opt).save().then(() => {
+    elA4.classList.add("d-none");
+  }).catch(() => {
+    elA4.classList.add("d-none");
+    alert("Gagal membuat PDF laporan pendapatan.");
+  });
+}
+
+// ===== Laporan Pengeluaran (format khusus per unit) =====
+function renderKeuOutReport(withUnitTotals = false) {
+  let grand = 0;
+  const dateEl = document.getElementById("rptOut-date");
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString("id-ID");
+  UNIT_LIST.forEach((u) => {
+    const listEl = document.getElementById(`rptOut-list-${u}`);
+    const secEl = document.getElementById(`rptOut-sec-${u}`);
+    if (!listEl) return;
+    const items = (keuData || []).filter((d) => d.jenis === "pengeluaran" && d.unit === u);
+    let total = 0;
+    listEl.innerHTML = "";
+    items.forEach((d, i) => {
+      total += Number(d.jumlah) || 0;
+      const tr = document.createElement("tr");
+      const tdNo = document.createElement("td");
+      tdNo.textContent = `${i + 1}.`;
+      tdNo.style.width = "24px";
+      const tdDesc = document.createElement("td");
+      tdDesc.textContent = `${d.sumber || "-"} — ${formatIDR(Number(d.jumlah)||0)}${d.ket ? " — " + d.ket : ""}`;
+      const tdBlank = document.createElement("td");
+      tdBlank.textContent = "";
+      tr.appendChild(tdNo);
+      tr.appendChild(tdDesc);
+      tr.appendChild(tdBlank);
+      listEl.appendChild(tr);
+    });
+    grand += total;
+    if (withUnitTotals && secEl) {
+      const prev = secEl.querySelector(".rpt-unit-total");
+      if (prev) prev.remove();
+      const div = document.createElement("div");
+      div.className = "rpt-unit-total small";
+      div.style.marginTop = "4px";
+      div.textContent = `Total unit: ${formatIDR(total)}`;
+      secEl.appendChild(div);
+    } else if (secEl) {
+      const prev = secEl.querySelector(".rpt-unit-total");
+      if (prev) prev.remove();
+    }
+  });
+  const grandEl = document.getElementById("rptOut-grand-total");
+  if (grandEl) grandEl.textContent = formatIDR(grand);
+  const titleEl = document.getElementById("rptOut-title");
+  if (titleEl) titleEl.textContent = "LAPORAN PENGELUARAN";
+}
+
+function exportKeuOutReportPDF(withUnitTotals = false) {
+  const elA4 = document.getElementById("keuOut_a4");
+  if (!elA4) return;
+  renderKeuOutReport(withUnitTotals);
+  elA4.classList.remove("d-none");
+  const opt = {
+    margin: 0,
+    filename: "Laporan_Pengeluaran.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+  };
+  html2pdf().from(elA4).set(opt).save().then(() => {
+    elA4.classList.add("d-none");
+  }).catch(() => {
+    elA4.classList.add("d-none");
+    alert("Gagal membuat PDF laporan pengeluaran.");
+  });
+}
+
 function openKeuModal(kind, id = null) {
   keuEditId = id;
   const title = document.getElementById("keuModalTitle");
   const unit = document.getElementById("keu_unit");
   const tahun = document.getElementById("keu_tahun");
+  const tanggal = document.getElementById("keu_tanggal");
   const sumber = document.getElementById("keu_sumber");
   const jumlah = document.getElementById("keu_jumlah");
   const ket = document.getElementById("keu_ket");
@@ -1182,13 +1359,19 @@ function openKeuModal(kind, id = null) {
     title.textContent = "Edit Data";
     unit.value = d.unit || "RA";
     tahun.value = d.tahun || new Date().getFullYear();
+    if (tanggal) tanggal.value = d.tanggal || new Date().toISOString().slice(0,10);
     sumber.value = d.sumber || "";
     jumlah.value = formatIDR(d.jumlah || 0);
     ket.value = d.ket || "";
   } else {
     title.textContent = "Tambah Data";
-    unit.value = "RA";
+    // Default unit mengikuti filter yang sedang aktif agar preview konsisten
+    const defUnit = kind === "pendapatan"
+      ? (keuCtx.unitIn && keuCtx.unitIn !== "ALL" ? keuCtx.unitIn : "RA")
+      : (keuCtx.unitOut && keuCtx.unitOut !== "ALL" ? keuCtx.unitOut : "RA");
+    unit.value = defUnit;
     tahun.value = new Date().getFullYear();
+    if (tanggal) tanggal.value = new Date().toISOString().slice(0,10);
     sumber.value = "";
     jumlah.value = "";
     ket.value = "";
@@ -1207,6 +1390,7 @@ function saveKeuFromModal() {
   const kind = modalEl ? modalEl.getAttribute("data-kind") : "pendapatan";
   const unit = document.getElementById("keu_unit").value;
   const tahun = Number(document.getElementById("keu_tahun").value);
+  const tanggal = (document.getElementById("keu_tanggal")?.value || "").trim();
   const sumber = document.getElementById("keu_sumber").value.trim();
   const jumlah = parseIDR(document.getElementById("keu_jumlah").value);
   const ket = document.getElementById("keu_ket").value.trim();
@@ -1214,16 +1398,39 @@ function saveKeuFromModal() {
   if (keuEditId) {
     const idx = keuData.findIndex((x) => x.id === keuEditId);
     if (idx >= 0) {
-      keuData[idx] = { ...keuData[idx], unit, tahun, sumber, jumlah, ket };
+      keuData[idx] = { ...keuData[idx], unit, tahun, tanggal, sumber, jumlah, ket };
     }
   } else {
     const id = `keu_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    keuData.push({ id, jenis: kind, unit, tahun, sumber, jumlah, ket });
+    keuData.push({ id, jenis: kind, unit, tahun, tanggal: (tanggal || new Date().toISOString().slice(0,10)), sumber, jumlah, ket });
   }
   persistKeuData();
   keuEditId = null;
   const m = bootstrap.Modal.getInstance(modalEl);
   if (m) m.hide();
+  // Pastikan preview langsung menampilkan data yang baru disimpan.
+  // Jika filter unit tidak ALL dan berbeda dengan unit item, alihkan filter ke unit item.
+  if (kind === "pendapatan") {
+    if (keuCtx.unitIn !== "ALL" && keuCtx.unitIn !== unit) {
+      keuCtx.unitIn = unit;
+      const list = document.getElementById("keuIn_unitList");
+      if (list) {
+        list.querySelectorAll(".list-group-item").forEach((b) => b.classList.remove("active"));
+        const btn = list.querySelector(`[data-unit="${unit}"]`);
+        if (btn) btn.classList.add("active");
+      }
+    }
+  } else {
+    if (keuCtx.unitOut !== "ALL" && keuCtx.unitOut !== unit) {
+      keuCtx.unitOut = unit;
+      const list = document.getElementById("keuOut_unitList");
+      if (list) {
+        list.querySelectorAll(".list-group-item").forEach((b) => b.classList.remove("active"));
+        const btn = list.querySelector(`[data-unit="${unit}"]`);
+        if (btn) btn.classList.add("active");
+      }
+    }
+  }
   renderKeu(kind);
   renderDashboard();
 }
@@ -1240,7 +1447,9 @@ function initKeu() {
   const inAdd = document.getElementById("keuIn_add");
   const inUnitList = document.getElementById("keuIn_unitList");
   const inSearch = document.getElementById("keuIn_search");
-  const inReport = document.getElementById("keuIn_report");
+  const inReportA4 = document.getElementById("keuIn_report");
+  const inReportA4Total = document.getElementById("keuIn_reportA4Total");
+  const inReportTable = document.getElementById("keuIn_reportTable");
   inAdd?.addEventListener("click", () => openKeuModal("pendapatan"));
   inUnitList?.querySelectorAll(".list-group-item").forEach((btn) => {
     btn.addEventListener("click", (e) => {
@@ -1251,13 +1460,18 @@ function initKeu() {
     });
   });
   inSearch?.addEventListener("input", (e) => { keuCtx.searchIn = e.target.value; renderKeu("pendapatan"); });
-  inReport?.addEventListener("click", () => generateKeuReport("pendapatan"));
+  // Laporan A4 (tanpa total per unit) dan Laporan A4 + Total Unit
+  inReportA4?.addEventListener("click", () => exportKeuInReportPDF(false));
+  inReportA4Total?.addEventListener("click", () => exportKeuInReportPDF(true));
+  inReportTable?.addEventListener("click", () => generateKeuReport("pendapatan"));
 
   // Pengeluaran controls
   const outAdd = document.getElementById("keuOut_add");
   const outUnitList = document.getElementById("keuOut_unitList");
   const outSearch = document.getElementById("keuOut_search");
-  const outReport = document.getElementById("keuOut_report");
+  const outReportA4 = document.getElementById("keuOut_report");
+  const outReportA4Total = document.getElementById("keuOut_reportA4Total");
+  const outReportTable = document.getElementById("keuOut_reportTable");
   outAdd?.addEventListener("click", () => openKeuModal("pengeluaran"));
   outUnitList?.querySelectorAll(".list-group-item").forEach((btn) => {
     btn.addEventListener("click", (e) => {
@@ -1268,7 +1482,10 @@ function initKeu() {
     });
   });
   outSearch?.addEventListener("input", (e) => { keuCtx.searchOut = e.target.value; renderKeu("pengeluaran"); });
-  outReport?.addEventListener("click", () => generateKeuReport("pengeluaran"));
+  // Laporan A4 (tanpa total per unit) dan Laporan A4 + Total Unit untuk Pengeluaran
+  outReportA4?.addEventListener("click", () => exportKeuOutReportPDF(false));
+  outReportA4Total?.addEventListener("click", () => exportKeuOutReportPDF(true));
+  outReportTable?.addEventListener("click", () => generateKeuReport("pengeluaran"));
 
   // Modal save
   document.getElementById("keuSave")?.addEventListener("click", saveKeuFromModal);
@@ -1305,6 +1522,7 @@ function generateKeuReport(kind) {
             <tr>
               <th style="border:1px solid #ddd;padding:6px;text-align:left;">Tahun</th>
               <th style="border:1px solid #ddd;padding:6px;text-align:left;">Unit</th>
+              <th style="border:1px solid #ddd;padding:6px;text-align:left;">Tanggal</th>
               <th style="border:1px solid #ddd;padding:6px;text-align:left;">Sumber Dana</th>
               <th style="border:1px solid #ddd;padding:6px;text-align:right;">Jumlah</th>
               <th style="border:1px solid #ddd;padding:6px;text-align:left;">Keterangan</th>
@@ -1315,6 +1533,7 @@ function generateKeuReport(kind) {
               <tr>
                 <td style="border:1px solid #ddd;padding:6px;">${d.tahun || "-"}</td>
                 <td style="border:1px solid #ddd;padding:6px;">${d.unit || "-"}</td>
+                <td style="border:1px solid #ddd;padding:6px;">${d.tanggal || "-"}</td>
                 <td style="border:1px solid #ddd;padding:6px;">${(d.sumber || "").replace(/</g, "&lt;")}</td>
                 <td style="border:1px solid #ddd;padding:6px;text-align:right;">${formatIDR(Number(d.jumlah)||0)}</td>
                 <td style="border:1px solid #ddd;padding:6px;">${(d.ket || "").replace(/</g, "&lt;")}</td>
@@ -1396,6 +1615,7 @@ function renderAsetTable() {
       <td class="small">${it.luas || "-"}</td>
       <td class="small">${it.lokasi || "-"}</td>
       <td class="small">${it.bukti || "-"}</td>
+      <td class="small">${it.sertifikat || "-"}</td>
       <td class="small">
         <button class="btn btn-sm btn-outline-primary me-1 aset-edit" data-id="${it.id}"><i class="bi bi-pencil-square"></i> Edit</button>
         <button class="btn btn-sm btn-outline-danger aset-del" data-id="${it.id}"><i class="bi bi-trash"></i> Hapus</button>
@@ -1412,6 +1632,7 @@ function openAsetModal(mode = "add", id = null) {
   const luas = document.getElementById("aset_luas");
   const lokasi = document.getElementById("aset_lokasi");
   const bukti = document.getElementById("aset_bukti");
+  const sertifikat = document.getElementById("aset_sertifikat");
   if (mode === "edit" && id) {
     const it = aset.data.find((d) => d.id === id);
     if (!it) return;
@@ -1420,12 +1641,14 @@ function openAsetModal(mode = "add", id = null) {
     luas.value = it.luas || "";
     lokasi.value = it.lokasi || "";
     bukti.value = it.bukti || "";
+    if (sertifikat) sertifikat.value = it.sertifikat || "";
   } else {
     title.textContent = "Tambah Aset";
     nama.value = "";
     luas.value = "";
     lokasi.value = "";
     bukti.value = "";
+    if (sertifikat) sertifikat.value = "";
   }
   const modalEl = document.getElementById("asetModal");
   if (modalEl) {
@@ -1439,13 +1662,14 @@ function saveAsetFromModal() {
   const luas = document.getElementById("aset_luas").value.trim();
   const lokasi = document.getElementById("aset_lokasi").value.trim();
   const bukti = document.getElementById("aset_bukti").value.trim();
+  const sertifikat = (document.getElementById("aset_sertifikat")?.value || "").trim();
   if (!nama) return;
   if (aset.editId) {
     const idx = aset.data.findIndex((d) => d.id === aset.editId);
-    if (idx >= 0) aset.data[idx] = { ...aset.data[idx], nama, luas, lokasi, bukti };
+    if (idx >= 0) aset.data[idx] = { ...aset.data[idx], nama, luas, lokasi, bukti, sertifikat };
   } else {
     const id = `aset_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    aset.data.push({ id, nama, luas, lokasi, bukti });
+    aset.data.push({ id, nama, luas, lokasi, bukti, sertifikat });
   }
   persistAsetData();
   const modalEl = document.getElementById("asetModal");
