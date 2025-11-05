@@ -1358,12 +1358,15 @@ function renderKeuOutReport(withUnitTotals = false) {
       const tdDesc = document.createElement("td");
       // Deskripsi tanpa label kategori agar tidak ada teks ([Lain-lain])
       tdDesc.textContent = `${d.sumber || "-"}${d.ket ? " — " + d.ket : ""}`;
+      const tdCat = document.createElement("td");
+      tdCat.textContent = d.kategori || mapOutCategoryLabel(d.sumber, d.ket);
       const tdNom = document.createElement("td");
       tdNom.textContent = formatIDR(amt);
       tr.appendChild(tdNo);
       tr.appendChild(tdYear);
       tr.appendChild(tdDate);
       tr.appendChild(tdDesc);
+      tr.appendChild(tdCat);
       tr.appendChild(tdNom);
       listEl.appendChild(tr);
     });
@@ -1639,6 +1642,7 @@ function generateKeuReport(kind) {
         return String(a.unit || "").localeCompare(String(b.unit || ""));
       });
     const total = arr.reduce((acc, d) => acc + (Number(d.jumlah) || 0), 0);
+    const isOut = kind === "pengeluaran";
 
     // Build printable container
     const container = document.createElement("div");
@@ -1655,6 +1659,7 @@ function generateKeuReport(kind) {
               <th style="border:1px solid #ddd;padding:6px;text-align:left;">Tahun</th>
               <th style="border:1px solid #ddd;padding:6px;text-align:left;">Unit</th>
               <th style="border:1px solid #ddd;padding:6px;text-align:left;">Tanggal</th>
+              ${isOut ? '<th style="border:1px solid #ddd;padding:6px;text-align:left;">Kategori</th>' : ''}
               <th style="border:1px solid #ddd;padding:6px;text-align:left;">Sumber Dana</th>
               <th style="border:1px solid #ddd;padding:6px;text-align:right;">Jumlah</th>
               <th style="border:1px solid #ddd;padding:6px;text-align:left;">Keterangan</th>
@@ -1668,6 +1673,7 @@ function generateKeuReport(kind) {
                 <td style="border:1px solid #ddd;padding:6px;">${d.tahun || "-"}</td>
                 <td style="border:1px solid #ddd;padding:6px;">${d.unit || "-"}</td>
                 <td style="border:1px solid #ddd;padding:6px;">${d.tanggal || "-"}</td>
+                ${isOut ? `<td style="border:1px solid #ddd;padding:6px;">${(d.kategori || mapOutCategoryLabel(d.sumber, d.ket) || "-")}</td>` : ''}
                 <td style="border:1px solid #ddd;padding:6px;">${(d.sumber || "").replace(/</g, "&lt;")}</td>
                 <td style="border:1px solid #ddd;padding:6px;text-align:right;">${formatIDR(Number(d.jumlah) || 0)}</td>
                 <td style="border:1px solid #ddd;padding:6px;">${(d.ket || "").replace(/</g, "&lt;")}</td>
