@@ -1235,14 +1235,13 @@ function renderKeuInReport(withUnitTotals = false) {
       const tr = document.createElement("tr");
       const tdNo = document.createElement("td");
       tdNo.textContent = `${i + 1}.`;
-      tdNo.style.width = "24px";
       const tdDesc = document.createElement("td");
-      tdDesc.textContent = `${d.sumber || "-"} — ${formatIDR(Number(d.jumlah)||0)}${d.ket ? " — " + d.ket : ""}`;
-      const tdBlank = document.createElement("td");
-      tdBlank.textContent = "";
+      tdDesc.textContent = `${d.sumber || "-"}${d.ket ? " — " + d.ket : ""}`;
+      const tdNom = document.createElement("td");
+      tdNom.textContent = formatIDR(Number(d.jumlah)||0);
       tr.appendChild(tdNo);
       tr.appendChild(tdDesc);
-      tr.appendChild(tdBlank);
+      tr.appendChild(tdNom);
       listEl.appendChild(tr);
     });
     grand += total;
@@ -1326,14 +1325,13 @@ function renderKeuOutReport(withUnitTotals = false) {
       const tr = document.createElement("tr");
       const tdNo = document.createElement("td");
       tdNo.textContent = `${rowNo++}.`;
-      tdNo.style.width = "24px";
       const tdDesc = document.createElement("td");
-      tdDesc.textContent = `${b} — ${formatIDR(val)}`;
-      const tdBlank = document.createElement("td");
-      tdBlank.textContent = "";
+      tdDesc.textContent = b;
+      const tdNom = document.createElement("td");
+      tdNom.textContent = formatIDR(val);
       tr.appendChild(tdNo);
       tr.appendChild(tdDesc);
-      tr.appendChild(tdBlank);
+      tr.appendChild(tdNom);
       listEl.appendChild(tr);
     });
     grand += total;
@@ -1647,8 +1645,8 @@ function renderAsetTable() {
       <td class="small">${it.nama || "-"}</td>
       <td class="small">${it.luas || "-"}</td>
       <td class="small">${it.lokasi || "-"}</td>
-      <td class="small">${it.bukti || "-"}</td>
-      <td class="small">${it.sertifikat || "-"}</td>
+      <td class="small">${(it.bukti || "-") + ((it.buktiImgs?.length||0) ? ` • Foto(${it.buktiImgs.length})` : "")}</td>
+      <td class="small">${(it.sertifikat || "-") + ((it.sertifikatImgs?.length||0) ? ` • Foto(${it.sertifikatImgs.length})` : "")}</td>
       <td class="small">
         <button class="btn btn-sm btn-outline-primary me-1 aset-edit" data-id="${it.id}"><i class="bi bi-pencil-square"></i> Edit</button>
         <button class="btn btn-sm btn-outline-danger aset-del" data-id="${it.id}"><i class="bi bi-trash"></i> Hapus</button>
@@ -1666,6 +1664,23 @@ function openAsetModal(mode = "add", id = null) {
   const lokasi = document.getElementById("aset_lokasi");
   const bukti = document.getElementById("aset_bukti");
   const sertifikat = document.getElementById("aset_sertifikat");
+  const buktiFiles = document.getElementById("aset_bukti_files");
+  const buktiPrev = document.getElementById("aset_bukti_preview");
+  const sertifikatFiles = document.getElementById("aset_sertifikat_files");
+  const sertifikatPrev = document.getElementById("aset_sertifikat_preview");
+  const renderFilesPreview = (input, container) => {
+    if (!input || !container) return;
+    const files = Array.from(input.files || []);
+    if (!files.length) { container.innerHTML = ""; return; }
+    const readers = files.map((file) => new Promise((res) => {
+      const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file);
+    }));
+    Promise.all(readers).then((srcs) => {
+      container.innerHTML = srcs.map((src)=>`<img src="${src}" alt="preview" style="width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">`).join("");
+    });
+  };
+  if (buktiFiles) buktiFiles.onchange = () => renderFilesPreview(buktiFiles, buktiPrev);
+  if (sertifikatFiles) sertifikatFiles.onchange = () => renderFilesPreview(sertifikatFiles, sertifikatPrev);
   if (mode === "edit" && id) {
     const it = aset.data.find((d) => d.id === id);
     if (!it) return;
@@ -1675,6 +1690,15 @@ function openAsetModal(mode = "add", id = null) {
     lokasi.value = it.lokasi || "";
     bukti.value = it.bukti || "";
     if (sertifikat) sertifikat.value = it.sertifikat || "";
+    // Tampilkan preview gambar yang tersimpan
+    if (buktiPrev) {
+      buktiPrev.innerHTML = (it.buktiImgs||[]).map((src)=>`<img src="${src}" alt="bukti" style="width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">`).join("");
+      if (buktiFiles) buktiFiles.value = ""; // reset input file
+    }
+    if (sertifikatPrev) {
+      sertifikatPrev.innerHTML = (it.sertifikatImgs||[]).map((src)=>`<img src="${src}" alt="sertifikat" style="width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">`).join("");
+      if (sertifikatFiles) sertifikatFiles.value = "";
+    }
   } else {
     title.textContent = "Tambah Aset";
     nama.value = "";
@@ -1682,6 +1706,10 @@ function openAsetModal(mode = "add", id = null) {
     lokasi.value = "";
     bukti.value = "";
     if (sertifikat) sertifikat.value = "";
+    if (buktiPrev) buktiPrev.innerHTML = "";
+    if (sertifikatPrev) sertifikatPrev.innerHTML = "";
+    if (buktiFiles) buktiFiles.value = "";
+    if (sertifikatFiles) sertifikatFiles.value = "";
   }
   const modalEl = document.getElementById("asetModal");
   if (modalEl) {
@@ -1690,19 +1718,37 @@ function openAsetModal(mode = "add", id = null) {
   }
 }
 
-function saveAsetFromModal() {
+async function saveAsetFromModal() {
   const nama = document.getElementById("aset_nama").value.trim();
   const luas = document.getElementById("aset_luas").value.trim();
   const lokasi = document.getElementById("aset_lokasi").value.trim();
   const bukti = document.getElementById("aset_bukti").value.trim();
   const sertifikat = (document.getElementById("aset_sertifikat")?.value || "").trim();
+  const buktiFiles = document.getElementById("aset_bukti_files");
+  const sertifikatFiles = document.getElementById("aset_sertifikat_files");
+  const readFiles = async (input) => {
+    const f = input?.files ? Array.from(input.files) : [];
+    const readers = f.map((file) => new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    }));
+    return Promise.all(readers);
+  };
+  const buktiImgs = await readFiles(buktiFiles);
+  const sertifikatImgs = await readFiles(sertifikatFiles);
   if (!nama) return;
   if (aset.editId) {
     const idx = aset.data.findIndex((d) => d.id === aset.editId);
-    if (idx >= 0) aset.data[idx] = { ...aset.data[idx], nama, luas, lokasi, bukti, sertifikat };
+    if (idx >= 0) aset.data[idx] = { ...aset.data[idx], nama, luas, lokasi, bukti, sertifikat,
+      // jika user memilih file baru, ganti; jika tidak, pertahankan yang lama
+      buktiImgs: buktiImgs.length ? buktiImgs : (aset.data[idx].buktiImgs||[]),
+      sertifikatImgs: sertifikatImgs.length ? sertifikatImgs : (aset.data[idx].sertifikatImgs||[]),
+    };
   } else {
     const id = `aset_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    aset.data.push({ id, nama, luas, lokasi, bukti, sertifikat });
+    aset.data.push({ id, nama, luas, lokasi, bukti, sertifikat, buktiImgs, sertifikatImgs });
   }
   persistAsetData();
   const modalEl = document.getElementById("asetModal");

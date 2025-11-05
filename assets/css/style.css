@@ -199,6 +199,26 @@ body {
   height: auto;
   object-fit: contain;
 }
+
+/* ===== A4 Report Grid & Table Borders ===== */
+.rpt-grid-2col > .my-2 {
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 8px;
+}
+.rpt-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rpt-table th, .rpt-table td {
+  border: 1px solid #333;
+  padding: 4px 6px;
+}
+.rpt-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+.rpt-unit-total { margin-top: 6px; }
 .sidebar-desktop .nav-link {
   display: block;
   padding: 10px 12px;

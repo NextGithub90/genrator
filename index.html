@@ -463,13 +463,17 @@
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Bukti Fisik</label>
-                                        <input id="aset_bukti" type="text" class="form-control"
+                                        <input id="aset_bukti" type="text" class="form-control mb-2"
                                             placeholder="Contoh: Sertifikat, Foto, Nota, Inventaris">
+                                        <input id="aset_bukti_files" type="file" class="form-control" accept="image/*" multiple>
+                                        <div id="aset_bukti_preview" class="d-flex flex-wrap gap-2 mt-2"></div>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Sertifikat</label>
-                                        <input id="aset_sertifikat" type="text" class="form-control"
+                                        <input id="aset_sertifikat" type="text" class="form-control mb-2"
                                             placeholder="Contoh: SHM, HGB, AJB, dll">
+                                        <input id="aset_sertifikat_files" type="file" class="form-control" accept="image/*" multiple>
+                                        <div id="aset_sertifikat_preview" class="d-flex flex-wrap gap-2 mt-2"></div>
                                     </div>
                                 </div>
                             </form>
@@ -550,40 +554,77 @@
                         <div id="rpt-org" class="small">YAYASAN RIBHUL ULUM</div>
                     </div>
                     <div class="text-end small mb-2">Dibuat: <span id="rpt-date"></span></div>
+                    <div class="rpt-grid-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;align-items:start;">
                     <!-- RA -->
                     <div id="rpt-sec-RA" class="my-2">
                         <div class="fw-semibold">RA</div>
-                        <table class="small" style="width:100%;border-collapse:collapse;">
+                        <table class="small rpt-table" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width:26px;">No</th>
+                                    <th>Keterangan</th>
+                                    <th style="width:100px;">Nominal</th>
+                                </tr>
+                            </thead>
                             <tbody id="rpt-list-RA"></tbody>
                         </table>
                     </div>
                     <!-- MI -->
                     <div id="rpt-sec-MI" class="my-2">
                         <div class="fw-semibold">MI</div>
-                        <table class="small" style="width:100%;border-collapse:collapse;">
+                        <table class="small rpt-table" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width:26px;">No</th>
+                                    <th>Keterangan</th>
+                                    <th style="width:100px;">Nominal</th>
+                                </tr>
+                            </thead>
                             <tbody id="rpt-list-MI"></tbody>
                         </table>
                     </div>
                     <!-- MTs -->
                     <div id="rpt-sec-MTs" class="my-2">
                         <div class="fw-semibold">MTs</div>
-                        <table class="small" style="width:100%;border-collapse:collapse;">
+                        <table class="small rpt-table" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width:26px;">No</th>
+                                    <th>Keterangan</th>
+                                    <th style="width:100px;">Nominal</th>
+                                </tr>
+                            </thead>
                             <tbody id="rpt-list-MTs"></tbody>
                         </table>
                     </div>
                     <!-- MA -->
                     <div id="rpt-sec-MA" class="my-2">
                         <div class="fw-semibold">MA</div>
-                        <table class="small" style="width:100%;border-collapse:collapse;">
+                        <table class="small rpt-table" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width:26px;">No</th>
+                                    <th>Keterangan</th>
+                                    <th style="width:100px;">Nominal</th>
+                                </tr>
+                            </thead>
                             <tbody id="rpt-list-MA"></tbody>
                         </table>
                     </div>
                     <!-- MADIN -->
                     <div id="rpt-sec-MADIN" class="my-2">
                         <div class="fw-semibold">MADIN</div>
-                        <table class="small" style="width:100%;border-collapse:collapse;">
+                        <table class="small rpt-table" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width:26px;">No</th>
+                                    <th>Keterangan</th>
+                                    <th style="width:100px;">Nominal</th>
+                                </tr>
+                            </thead>
                             <tbody id="rpt-list-MADIN"></tbody>
                         </table>
+                    </div>
                     </div>
                     <hr />
                     <div class="text-end">Grand Total: <span id="rpt-grand-total">-</span></div>
@@ -598,40 +639,77 @@
                         <div id="rptOut-org" class="small">YAYASAN RIBHUL ULUM</div>
                     </div>
                     <div class="text-end small mb-2">Dibuat: <span id="rptOut-date"></span></div>
+                    <div class="rpt-grid-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;align-items:start;">
                     <!-- RA -->
                     <div id="rptOut-sec-RA" class="my-2">
                         <div class="fw-semibold">RA</div>
-                        <table class="small" style="width:100%;border-collapse:collapse;">
+                        <table class="small rpt-table" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width:26px;">No</th>
+                                    <th>Kategori</th>
+                                    <th style="width:100px;">Nominal</th>
+                                </tr>
+                            </thead>
                             <tbody id="rptOut-list-RA"></tbody>
                         </table>
                     </div>
                     <!-- MI -->
                     <div id="rptOut-sec-MI" class="my-2">
                         <div class="fw-semibold">MI</div>
-                        <table class="small" style="width:100%;border-collapse:collapse;">
+                        <table class="small rpt-table" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width:26px;">No</th>
+                                    <th>Kategori</th>
+                                    <th style="width:100px;">Nominal</th>
+                                </tr>
+                            </thead>
                             <tbody id="rptOut-list-MI"></tbody>
                         </table>
                     </div>
                     <!-- MTs -->
                     <div id="rptOut-sec-MTs" class="my-2">
                         <div class="fw-semibold">MTs</div>
-                        <table class="small" style="width:100%;border-collapse:collapse;">
+                        <table class="small rpt-table" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width:26px;">No</th>
+                                    <th>Kategori</th>
+                                    <th style="width:100px;">Nominal</th>
+                                </tr>
+                            </thead>
                             <tbody id="rptOut-list-MTs"></tbody>
                         </table>
                     </div>
                     <!-- MA -->
                     <div id="rptOut-sec-MA" class="my-2">
                         <div class="fw-semibold">MA</div>
-                        <table class="small" style="width:100%;border-collapse:collapse;">
+                        <table class="small rpt-table" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width:26px;">No</th>
+                                    <th>Kategori</th>
+                                    <th style="width:100px;">Nominal</th>
+                                </tr>
+                            </thead>
                             <tbody id="rptOut-list-MA"></tbody>
                         </table>
                     </div>
                     <!-- MADIN -->
                     <div id="rptOut-sec-MADIN" class="my-2">
                         <div class="fw-semibold">MADIN</div>
-                        <table class="small" style="width:100%;border-collapse:collapse;">
+                        <table class="small rpt-table" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width:26px;">No</th>
+                                    <th>Kategori</th>
+                                    <th style="width:100px;">Nominal</th>
+                                </tr>
+                            </thead>
                             <tbody id="rptOut-list-MADIN"></tbody>
                         </table>
+                    </div>
                     </div>
                     <hr />
                     <div class="text-end">Grand Total: <span id="rptOut-grand-total">-</span></div>
