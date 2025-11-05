@@ -498,9 +498,9 @@
                             <button id="keuIn_reportA4Total" class="btn btn-outline-primary btn-sm"><i
                                     class="bi bi-filetype-pdf"></i>
                                 Laporan A4</button>
-                            <!-- <button id="keuIn_previewA4" class="btn btn-outline-secondary btn-sm"><i
+                            <button id="keuIn_previewA4" class="btn btn-outline-secondary btn-sm"><i
                                     class="bi bi-eye"></i>
-                                Lihat Preview</button> -->
+                                Lihat Preview</button>
                             <button id="keuIn_reportTable" class="btn btn-outline-primary btn-sm"><i
                                     class="bi bi-table"></i>
                                 Laporan Tabel</button>
@@ -749,6 +749,12 @@
                             <button id="keuOut_add" class="btn btn-danger btn-sm"><i class="bi bi-plus-lg"></i>
                                 Tambah</button>
 
+                            <!-- Quick Add Kategori Pengeluaran -->
+                            <button id="keuOut_addATK" class="btn btn-outline-danger btn-sm">ATK</button>
+                            <button id="keuOut_addPeralatan" class="btn btn-outline-danger btn-sm">Peralatan</button>
+                            <button id="keuOut_addGaji" class="btn btn-outline-danger btn-sm">Gaji</button>
+                            <button id="keuOut_addLain" class="btn btn-outline-danger btn-sm">Lain-lain</button>
+
                             <button id="keuOut_reportA4Total" class="btn btn-outline-primary btn-sm"><i
                                     class="bi bi-filetype-pdf"></i>
                                 Laporan A4</button>
@@ -789,6 +795,7 @@
                                                 <th class="small">Unit</th>
                                                 <th class="small">Tanggal</th>
                                                 <th class="small">Sumber Dana</th>
+                                                <th class="small">Kategori</th>
                                                 <th class="small">Jumlah</th>
                                                 <th class="small">Keterangan</th>
                                                 <th class="small">Aksi</th>
@@ -834,6 +841,16 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Tanggal</label>
                                         <input id="keu_tanggal" type="date" class="form-control">
+                                    </div>
+                                    <div class="col-md-6" id="keu_kategori_wrap">
+                                        <label class="form-label">Kategori (Pengeluaran)</label>
+                                        <select id="keu_kategori" class="form-select">
+                                            <option value="">-</option>
+                                            <option value="ATK">ATK</option>
+                                            <option value="Peralatan">Peralatan</option>
+                                            <option value="Gaji">Gaji</option>
+                                            <option value="Biaya lain-lain">Biaya lain-lain</option>
+                                        </select>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Sumber Dana</label>

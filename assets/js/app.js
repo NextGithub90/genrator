@@ -106,19 +106,26 @@ function loadOrgDetails() {
     }
   } catch (err) {}
   // jika belum ada di storage, seed dari textarea (state.org)
-  const toArr = (str) => (str || "").split(/\r?\n/).map(s => s.trim()).filter(Boolean).map(line => {
-    const m = line.split("—");
-    const nama = (m[0] || line).trim();
-    const jabatan = (m[1] || "").trim();
-    return { nama, jabatan, ttl: "", pendidikan: "" };
-  });
+  const toArr = (str) =>
+    (str || "")
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const m = line.split("—");
+        const nama = (m[0] || line).trim();
+        const jabatan = (m[1] || "").trim();
+        return { nama, jabatan, ttl: "", pendidikan: "" };
+      });
   orgDetails.pengurus = toArr(state.org.pengurus);
   orgDetails.pembina = toArr(state.org.pembina);
   orgDetails.pengawas = toArr(state.org.pengawas);
 }
 
 function persistOrgDetails() {
-  try { localStorage.setItem(ORG_STORAGE_KEY, JSON.stringify(orgDetails)); } catch (err) {}
+  try {
+    localStorage.setItem(ORG_STORAGE_KEY, JSON.stringify(orgDetails));
+  } catch (err) {}
 }
 
 // Elements
@@ -245,10 +252,11 @@ function updateEmployeePreview() {
 }
 
 function renderOrgPreview() {
-  const toList = (str) => str
-    .split(/\r?\n/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
+  const toList = (str) =>
+    str
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
   const renderUL = (ulEl, arr) => {
     if (!ulEl) return;
     ulEl.innerHTML = "";
@@ -333,7 +341,9 @@ function exportPDF() {
     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
   };
   // Catat otomatis ke Keuangan sebagai Pengeluaran (Slip Gaji)
-  try { addPayrollExpenseFromSlip(); } catch {}
+  try {
+    addPayrollExpenseFromSlip();
+  } catch {}
   html2pdf().from(element).set(opt).save();
 }
 
@@ -349,13 +359,13 @@ function addPayrollExpenseFromSlip() {
   const tahun = Number((ym || "").slice(0, 4)) || new Date().getFullYear();
   const unit = state.employee.unit || "RA";
   const sumber = "Slip Gaji";
-  const ket = `${state.employee.nama || "-"} — ${ym || new Date().toISOString().slice(0,7)}`;
-  const tanggal = ym ? `${String(ym).slice(0,4)}-${String(ym).slice(5,7)}-01` : new Date().toISOString().slice(0,10);
+  const ket = `${state.employee.nama || "-"} — ${ym || new Date().toISOString().slice(0, 7)}`;
+  const tanggal = ym ? `${String(ym).slice(0, 4)}-${String(ym).slice(5, 7)}-01` : new Date().toISOString().slice(0, 10);
   // Hindari duplikasi jika user unduh berkali-kali
   const exists = keuData.find((d) => d.jenis === "pengeluaran" && d.unit === unit && d.tahun === tahun && d.sumber === sumber && d.ket === ket && Math.abs((Number(d.jumlah) || 0) - net) < 1);
   if (exists) return;
   const id = `keu_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-  keuData.push({ id, jenis: "pengeluaran", unit, tahun, tanggal, sumber, jumlah: net, ket });
+  keuData.push({ id, jenis: "pengeluaran", unit, tahun, tanggal, sumber, jumlah: net, ket, kategori: "Gaji" });
   persistKeuData();
   renderKeu("pengeluaran");
   renderDashboard();
@@ -363,7 +373,9 @@ function addPayrollExpenseFromSlip() {
 
 function attachEvents() {
   // Inputs company/employee
-  ["companyName", "companyAddress", "companyPhone", "companyCity", "payrollMonth", "nik", "kode", "nama", "jabatan", "npwp", "orgPengurus", "orgPembina", "orgPengawas"].forEach((id) => document.getElementById(id)?.addEventListener("input", syncFromInputs));
+  ["companyName", "companyAddress", "companyPhone", "companyCity", "payrollMonth", "nik", "kode", "nama", "jabatan", "npwp", "orgPengurus", "orgPembina", "orgPengawas"].forEach((id) =>
+    document.getElementById(id)?.addEventListener("input", syncFromInputs)
+  );
 
   // Delegation for item edit/remove
   el.incomeItems.addEventListener("input", (e) => {
@@ -537,7 +549,7 @@ function attachEvents() {
   orgAddBtn?.addEventListener("click", () => openOrgModal("add", "pengurus"));
 
   function syncOrgText(role) {
-    const joined = (orgDetails[role] || []).map(it => `${it.nama} — ${it.jabatan}`).join("\n");
+    const joined = (orgDetails[role] || []).map((it) => `${it.nama} — ${it.jabatan}`).join("\n");
     let ta = el.orgPengurus;
     if (role === "pembina") ta = el.orgPembina;
     else if (role === "pengawas") ta = el.orgPengawas;
@@ -546,7 +558,7 @@ function attachEvents() {
   }
 
   orgSave?.addEventListener("click", () => {
-    const kategori = (orgCategory?.value || "pengurus");
+    const kategori = orgCategory?.value || "pengurus";
     const nama = (orgNama?.value || "").trim();
     const jabatan = (orgJabatan?.value || "").trim();
     const ttl = (orgTTL?.value || "").trim();
@@ -663,8 +675,10 @@ document.addEventListener("click", (e) => {
     orgDetails[role].splice(idx, 1);
     persistOrgDetails();
     // sinkronisasi ke textarea dan preview
-    const joined = orgDetails[role].map(v => `${v.nama} — ${v.jabatan}`).join("\n");
-    if (role === "pembina") document.getElementById("orgPembina").value = joined; else if (role === "pengawas") document.getElementById("orgPengawas").value = joined; else document.getElementById("orgPengurus").value = joined;
+    const joined = orgDetails[role].map((v) => `${v.nama} — ${v.jabatan}`).join("\n");
+    if (role === "pembina") document.getElementById("orgPembina").value = joined;
+    else if (role === "pengawas") document.getElementById("orgPengawas").value = joined;
+    else document.getElementById("orgPengurus").value = joined;
     state.org[role] = joined;
     renderOrgBoxes();
     renderOrgPreview();
@@ -752,7 +766,9 @@ function initNavigation() {
 
     // Render ulang Dashboard saat ditampilkan agar metriknya selalu terbaru
     if (which === "dashboard") {
-      try { renderDashboard(); } catch {}
+      try {
+        renderDashboard();
+      } catch {}
     }
 
     // Tutup sidebar mobile jika terbuka
@@ -1079,10 +1095,7 @@ function initGuruPage() {
   gEl.excel?.addEventListener("click", () => {
     const arr = filteredData();
     const header = ["No", "NIK", "NUPTK/PegID", "Nama", "L/P", "TTL", "Pendidikan", "Wali Kelas", "JTM", "Unit"];
-    const csv = [
-      header.join(","),
-      ...arr.map((it, i) => [i + 1, it.nik, it.nuptk || "", it.nama, it.gender, `"${it.ttl.replace(/"/g, '""')}"`, `"${it.pendidikan.replace(/"/g, '""')}"`, it.wali, it.jtm, it.unit].join(",")),
-    ].join("\n");
+    const csv = [header.join(","), ...arr.map((it, i) => [i + 1, it.nik, it.nuptk || "", it.nama, it.gender, `"${it.ttl.replace(/"/g, '""')}"`, `"${it.pendidikan.replace(/"/g, '""')}"`, it.wali, it.jtm, it.unit].join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -1163,11 +1176,13 @@ function renderKeu(kind) {
     .filter((d) => {
       if (!search) return true;
       const s = search.toLowerCase();
+      const cat = String(d.kategori || mapOutCategoryLabel(d.sumber, d.ket) || "").toLowerCase();
       return (
         String(d.tahun).includes(s) ||
         (d.sumber || "").toLowerCase().includes(s) ||
         (d.ket || "").toLowerCase().includes(s) ||
-        (d.unit || "").toLowerCase().includes(s)
+        (d.unit || "").toLowerCase().includes(s) ||
+        cat.includes(s)
       );
     });
 
@@ -1177,18 +1192,20 @@ function renderKeu(kind) {
     if (metaEl) {
       const unitActive = unitFilter === "ALL" ? "Semua Unit" : unitFilter;
       const today = new Date();
-      const ymd = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      const ymd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
       metaEl.textContent = `Unit aktif: ${unitActive} • Tanggal: ${ymd}`;
     }
   } catch {}
 
   tbody.innerHTML = rows
     .map((d) => {
+      const kategoriCell = !isIn ? `<td class="small">${d.kategori || mapOutCategoryLabel(d.sumber, d.ket) || ""}</td>` : "";
       return `<tr data-id="${d.id}">
           <td class="small">${d.tahun || ""}</td>
           <td class="small">${d.unit || ""}</td>
           <td class="small">${d.tanggal || ""}</td>
           <td class="small">${d.sumber || ""}</td>
+          ${kategoriCell}
           <td class="small">${formatIDR(d.jumlah || 0)}</td>
           <td class="small">${d.ket || ""}</td>
           <td class="small">
@@ -1240,8 +1257,9 @@ function renderKeuInReport(withUnitTotals = false) {
       tdYear.textContent = d.tahun || "-";
       const tdDate = document.createElement("td");
       tdDate.textContent = d.tanggal || "-";
-      const tdDesc = document.createElement("td");
-      tdDesc.textContent = `${d.sumber || "-"}${d.ket ? " — " + d.ket : ""}`;
+  const tdDesc = document.createElement("td");
+  const cat = d.kategori || mapOutCategoryLabel(d.sumber, d.ket);
+  tdDesc.textContent = `${cat ? `[${cat}] ` : ""}${d.sumber || "-"}${d.ket ? " — " + d.ket : ""}`;
       const tdNom = document.createElement("td");
       tdNom.textContent = formatIDR(amt);
       tr.appendChild(tdNo);
@@ -1260,7 +1278,7 @@ function renderKeuInReport(withUnitTotals = false) {
       const div = document.createElement("div");
       div.className = "rpt-unit-total small";
       div.style.marginTop = "4px";
-      div.textContent = `Total unit: ${formatIDR(total)}`;
+      div.textContent = `Total : ${formatIDR(total)}`;
       secEl.appendChild(div);
     } else if (secEl) {
       const prev = secEl.querySelector(".rpt-unit-total");
@@ -1285,11 +1303,16 @@ function exportKeuInReportPDF(withUnitTotals = false) {
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
   };
-  html2pdf().from(elA4).set(opt).save().then(() => {
-    // Biarkan preview tetap tampil
-  }).catch(() => {
-    alert("Gagal membuat PDF laporan pendapatan.");
-  });
+  html2pdf()
+    .from(elA4)
+    .set(opt)
+    .save()
+    .then(() => {
+      // Biarkan preview tetap tampil
+    })
+    .catch(() => {
+      alert("Gagal membuat PDF laporan pendapatan.");
+    });
 }
 
 // ===== Laporan Pengeluaran (format khusus per unit) =====
@@ -1298,7 +1321,7 @@ function mapOutCategoryLabel(sumber = "", ket = "") {
   const k = String(ket || "").toLowerCase();
   if (s.includes("atk") || k.includes("atk") || s.includes("alat tulis")) return "ATK";
   if (s.includes("peralatan") || s.includes("inventaris") || s.includes("perlengkapan") || k.includes("peralatan")) return "Peralatan";
-  if (s.includes("gaji") || s.includes("slip gaji") || s.includes("beban gaji") || k.includes("gaji")) return "Beban Gaji";
+  if (s.includes("gaji") || s.includes("slip gaji") || s.includes("beban gaji") || k.includes("gaji")) return "Gaji";
   if (s.includes("utang") || s.includes("hutang") || s.includes("pinjaman") || s.includes("cicilan") || k.includes("utang") || k.includes("hutang")) return "Beban Utang";
   return "Lain-lain";
 }
@@ -1325,7 +1348,8 @@ function renderKeuOutReport(withUnitTotals = false) {
       const tdDate = document.createElement("td");
       tdDate.textContent = d.tanggal || "-";
       const tdDesc = document.createElement("td");
-      tdDesc.textContent = `${d.sumber || "-"}${d.ket ? " — " + d.ket : ""}`;
+      const kategoriLabel = d.kategori || mapOutCategoryLabel(d.sumber, d.ket) || "";
+      tdDesc.textContent = `${kategoriLabel ? "[" + kategoriLabel + "] " : ""}${d.sumber || "-"}${d.ket ? " — " + d.ket : ""}`;
       const tdNom = document.createElement("td");
       tdNom.textContent = formatIDR(amt);
       tr.appendChild(tdNo);
@@ -1342,7 +1366,7 @@ function renderKeuOutReport(withUnitTotals = false) {
       const div = document.createElement("div");
       div.className = "rpt-unit-total small";
       div.style.marginTop = "4px";
-      div.textContent = `Total unit: ${formatIDR(total)}`;
+      div.textContent = `Total : ${formatIDR(total)}`;
       secEl.appendChild(div);
     } else if (secEl) {
       const prev = secEl.querySelector(".rpt-unit-total");
@@ -1367,11 +1391,16 @@ function exportKeuOutReportPDF(withUnitTotals = false) {
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
   };
-  html2pdf().from(elA4).set(opt).save().then(() => {
-    // Biarkan preview tetap tampil
-  }).catch(() => {
-    alert("Gagal membuat PDF laporan pengeluaran.");
-  });
+  html2pdf()
+    .from(elA4)
+    .set(opt)
+    .save()
+    .then(() => {
+      // Biarkan preview tetap tampil
+    })
+    .catch(() => {
+      alert("Gagal membuat PDF laporan pengeluaran.");
+    });
 }
 
 // Tampilkan preview A4 secara permanen sampai ditutup manual
@@ -1395,7 +1424,7 @@ function showKeuOutA4Preview(withUnitTotals = true) {
   } catch {}
 }
 
-function openKeuModal(kind, id = null) {
+function openKeuModal(kind, id = null, defaultKategori = null) {
   keuEditId = id;
   const title = document.getElementById("keuModalTitle");
   const unit = document.getElementById("keu_unit");
@@ -1404,6 +1433,8 @@ function openKeuModal(kind, id = null) {
   const sumber = document.getElementById("keu_sumber");
   const jumlah = document.getElementById("keu_jumlah");
   const ket = document.getElementById("keu_ket");
+  const kategoriWrap = document.getElementById("keu_kategori_wrap");
+  const kategoriSelect = document.getElementById("keu_kategori");
 
   if (id) {
     const d = keuData.find((x) => x.id === id);
@@ -1411,22 +1442,24 @@ function openKeuModal(kind, id = null) {
     title.textContent = "Edit Data";
     unit.value = d.unit || "RA";
     tahun.value = d.tahun || new Date().getFullYear();
-    if (tanggal) tanggal.value = d.tanggal || new Date().toISOString().slice(0,10);
+    if (tanggal) tanggal.value = d.tanggal || new Date().toISOString().slice(0, 10);
     sumber.value = d.sumber || "";
     jumlah.value = formatIDR(d.jumlah || 0);
     ket.value = d.ket || "";
+    if (kategoriWrap) kategoriWrap.classList.toggle("d-none", kind === "pendapatan");
+    if (kategoriSelect && kind === "pengeluaran") kategoriSelect.value = d.kategori || mapOutCategoryLabel(d.sumber, d.ket) || "";
   } else {
     title.textContent = "Tambah Data";
     // Default unit mengikuti filter yang sedang aktif agar preview konsisten
-    const defUnit = kind === "pendapatan"
-      ? (keuCtx.unitIn && keuCtx.unitIn !== "ALL" ? keuCtx.unitIn : "RA")
-      : (keuCtx.unitOut && keuCtx.unitOut !== "ALL" ? keuCtx.unitOut : "RA");
+    const defUnit = kind === "pendapatan" ? (keuCtx.unitIn && keuCtx.unitIn !== "ALL" ? keuCtx.unitIn : "RA") : keuCtx.unitOut && keuCtx.unitOut !== "ALL" ? keuCtx.unitOut : "RA";
     unit.value = defUnit;
     tahun.value = new Date().getFullYear();
-    if (tanggal) tanggal.value = new Date().toISOString().slice(0,10);
+    if (tanggal) tanggal.value = new Date().toISOString().slice(0, 10);
     sumber.value = "";
     jumlah.value = "";
     ket.value = "";
+    if (kategoriWrap) kategoriWrap.classList.toggle("d-none", kind === "pendapatan");
+    if (kategoriSelect && kind === "pengeluaran") kategoriSelect.value = defaultKategori || "";
   }
 
   const modalEl = document.getElementById("keuModal");
@@ -1446,15 +1479,17 @@ function saveKeuFromModal() {
   const sumber = document.getElementById("keu_sumber").value.trim();
   const jumlah = parseIDR(document.getElementById("keu_jumlah").value);
   const ket = document.getElementById("keu_ket").value.trim();
+  const kategori = document.getElementById("keu_kategori")?.value || "";
 
   if (keuEditId) {
     const idx = keuData.findIndex((x) => x.id === keuEditId);
     if (idx >= 0) {
-      keuData[idx] = { ...keuData[idx], unit, tahun, tanggal, sumber, jumlah, ket };
+      keuData[idx] = { ...keuData[idx], unit, tahun, tanggal, sumber, jumlah, ket, ...(kind === "pengeluaran" ? { kategori } : {}) };
     }
   } else {
     const id = `keu_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    keuData.push({ id, jenis: kind, unit, tahun, tanggal: (tanggal || new Date().toISOString().slice(0,10)), sumber, jumlah, ket });
+    const base = { id, jenis: kind, unit, tahun, tanggal: tanggal || new Date().toISOString().slice(0, 10), sumber, jumlah, ket };
+    keuData.push(kind === "pengeluaran" ? { ...base, kategori } : base);
   }
   persistKeuData();
   keuEditId = null;
@@ -1512,7 +1547,10 @@ function initKeu() {
       renderKeu("pendapatan");
     });
   });
-  inSearch?.addEventListener("input", (e) => { keuCtx.searchIn = e.target.value; renderKeu("pendapatan"); });
+  inSearch?.addEventListener("input", (e) => {
+    keuCtx.searchIn = e.target.value;
+    renderKeu("pendapatan");
+  });
   // Laporan A4 (tanpa total per unit) dan Laporan A4 + Total Unit
   inReportA4?.addEventListener("click", () => exportKeuInReportPDF(false));
   inReportA4Total?.addEventListener("click", () => exportKeuInReportPDF(true));
@@ -1528,6 +1566,10 @@ function initKeu() {
   const outPreviewA4 = document.getElementById("keuOut_previewA4");
   const outReportTable = document.getElementById("keuOut_reportTable");
   outAdd?.addEventListener("click", () => openKeuModal("pengeluaran"));
+  document.getElementById("keuOut_addATK")?.addEventListener("click", () => openKeuModal("pengeluaran", null, "ATK"));
+  document.getElementById("keuOut_addPeralatan")?.addEventListener("click", () => openKeuModal("pengeluaran", null, "Peralatan"));
+  document.getElementById("keuOut_addGaji")?.addEventListener("click", () => openKeuModal("pengeluaran", null, "Gaji"));
+  document.getElementById("keuOut_addLain")?.addEventListener("click", () => openKeuModal("pengeluaran", null, "Biaya lain-lain"));
   outUnitList?.querySelectorAll(".list-group-item").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       outUnitList.querySelectorAll(".list-group-item").forEach((b) => b.classList.remove("active"));
@@ -1536,7 +1578,10 @@ function initKeu() {
       renderKeu("pengeluaran");
     });
   });
-  outSearch?.addEventListener("input", (e) => { keuCtx.searchOut = e.target.value; renderKeu("pengeluaran"); });
+  outSearch?.addEventListener("input", (e) => {
+    keuCtx.searchOut = e.target.value;
+    renderKeu("pengeluaran");
+  });
   // Laporan A4 (tanpa total per unit) dan Laporan A4 + Total Unit untuk Pengeluaran
   outReportA4?.addEventListener("click", () => exportKeuOutReportPDF(false));
   outReportA4Total?.addEventListener("click", () => exportKeuOutReportPDF(true));
@@ -1556,12 +1601,14 @@ function generateKeuReport(kind) {
   try {
     const title = kind === "pendapatan" ? "Laporan Pendapatan" : "Laporan Pengeluaran";
     const now = new Date();
-    const arr = (keuData || []).filter((d) => d.jenis === kind).sort((a, b) => {
-      // sort by tahun desc, then unit
-      const t = (Number(b.tahun) || 0) - (Number(a.tahun) || 0);
-      if (t !== 0) return t;
-      return String(a.unit || "").localeCompare(String(b.unit || ""));
-    });
+    const arr = (keuData || [])
+      .filter((d) => d.jenis === kind)
+      .sort((a, b) => {
+        // sort by tahun desc, then unit
+        const t = (Number(b.tahun) || 0) - (Number(a.tahun) || 0);
+        if (t !== 0) return t;
+        return String(a.unit || "").localeCompare(String(b.unit || ""));
+      });
     const total = arr.reduce((acc, d) => acc + (Number(d.jumlah) || 0), 0);
 
     // Build printable container
@@ -1585,16 +1632,20 @@ function generateKeuReport(kind) {
             </tr>
           </thead>
           <tbody>
-            ${arr.map(d => `
+            ${arr
+              .map(
+                (d) => `
               <tr>
                 <td style="border:1px solid #ddd;padding:6px;">${d.tahun || "-"}</td>
                 <td style="border:1px solid #ddd;padding:6px;">${d.unit || "-"}</td>
                 <td style="border:1px solid #ddd;padding:6px;">${d.tanggal || "-"}</td>
                 <td style="border:1px solid #ddd;padding:6px;">${(d.sumber || "").replace(/</g, "&lt;")}</td>
-                <td style="border:1px solid #ddd;padding:6px;text-align:right;">${formatIDR(Number(d.jumlah)||0)}</td>
+                <td style="border:1px solid #ddd;padding:6px;text-align:right;">${formatIDR(Number(d.jumlah) || 0)}</td>
                 <td style="border:1px solid #ddd;padding:6px;">${(d.ket || "").replace(/</g, "&lt;")}</td>
               </tr>
-            `).join("")}
+            `
+              )
+              .join("")}
           </tbody>
         </table>
         <div style="margin-top:8px;font-weight:600;">TOTAL: ${formatIDR(total)}</div>
@@ -1609,12 +1660,17 @@ function generateKeuReport(kind) {
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     };
-    html2pdf().from(container).set(opt).save().then(() => {
-      container.remove();
-    }).catch(() => {
-      container.remove();
-      alert("Gagal membuat PDF laporan.");
-    });
+    html2pdf()
+      .from(container)
+      .set(opt)
+      .save()
+      .then(() => {
+        container.remove();
+      })
+      .catch(() => {
+        container.remove();
+        alert("Gagal membuat PDF laporan.");
+      });
   } catch (err) {
     alert("Terjadi error saat membuat laporan.");
     console.error(err);
@@ -1624,7 +1680,9 @@ function generateKeuReport(kind) {
 document.addEventListener("DOMContentLoaded", () => {
   init();
   // Muat statistik dashboard lebih awal supaya tampil saat default showSection('dashboard')
-  try { loadDashboardStats(); } catch {}
+  try {
+    loadDashboardStats();
+  } catch {}
   initNavigation();
   initGuruPage();
   initKeu();
@@ -1651,10 +1709,7 @@ function persistAsetData() {
 function filteredAset() {
   const s = (aset.search || "").toLowerCase();
   if (!s) return aset.data;
-  return aset.data.filter((it) =>
-    (it.nama || "").toLowerCase().includes(s) ||
-    (it.lokasi || "").toLowerCase().includes(s)
-  );
+  return aset.data.filter((it) => (it.nama || "").toLowerCase().includes(s) || (it.lokasi || "").toLowerCase().includes(s));
 }
 
 function renderAsetTable() {
@@ -1665,8 +1720,8 @@ function renderAsetTable() {
   tbody.innerHTML = "";
   arr.forEach((it, idx) => {
     const tr = document.createElement("tr");
-    const buktiThumbs = (it.buktiImgs||[]).map((src)=>`<img src="${src}" alt="bukti" class="aset-thumb">`).join("");
-    const sertifikatThumbs = (it.sertifikatImgs||[]).map((src)=>`<img src="${src}" alt="sertifikat" class="aset-thumb">`).join("");
+    const buktiThumbs = (it.buktiImgs || []).map((src) => `<img src="${src}" alt="bukti" class="aset-thumb">`).join("");
+    const sertifikatThumbs = (it.sertifikatImgs || []).map((src) => `<img src="${src}" alt="sertifikat" class="aset-thumb">`).join("");
     tr.innerHTML = `
       <td class="small">${idx + 1}</td>
       <td class="small">${it.nama || "-"}</td>
@@ -1674,11 +1729,11 @@ function renderAsetTable() {
       <td class="small">${it.lokasi || "-"}</td>
       <td class="small">
         <div>${it.bukti || "-"}</div>
-        ${(it.buktiImgs?.length||0) ? `<div class="aset-thumb-list">${buktiThumbs}</div>` : ""}
+        ${it.buktiImgs?.length || 0 ? `<div class="aset-thumb-list">${buktiThumbs}</div>` : ""}
       </td>
       <td class="small">
         <div>${it.sertifikat || "-"}</div>
-        ${(it.sertifikatImgs?.length||0) ? `<div class="aset-thumb-list">${sertifikatThumbs}</div>` : ""}
+        ${it.sertifikatImgs?.length || 0 ? `<div class="aset-thumb-list">${sertifikatThumbs}</div>` : ""}
       </td>
       <td class="small">
         <button class="btn btn-sm btn-outline-primary me-1 aset-edit" data-id="${it.id}"><i class="bi bi-pencil-square"></i> Edit</button>
@@ -1704,12 +1759,20 @@ function openAsetModal(mode = "add", id = null) {
   const renderFilesPreview = (input, container) => {
     if (!input || !container) return;
     const files = Array.from(input.files || []);
-    if (!files.length) { container.innerHTML = ""; return; }
-    const readers = files.map((file) => new Promise((res) => {
-      const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file);
-    }));
+    if (!files.length) {
+      container.innerHTML = "";
+      return;
+    }
+    const readers = files.map(
+      (file) =>
+        new Promise((res) => {
+          const r = new FileReader();
+          r.onload = () => res(r.result);
+          r.readAsDataURL(file);
+        })
+    );
     Promise.all(readers).then((srcs) => {
-      container.innerHTML = srcs.map((src)=>`<img src="${src}" alt="preview" style="width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">`).join("");
+      container.innerHTML = srcs.map((src) => `<img src="${src}" alt="preview" style="width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">`).join("");
     });
   };
   if (buktiFiles) buktiFiles.onchange = () => renderFilesPreview(buktiFiles, buktiPrev);
@@ -1725,11 +1788,11 @@ function openAsetModal(mode = "add", id = null) {
     if (sertifikat) sertifikat.value = it.sertifikat || "";
     // Tampilkan preview gambar yang tersimpan
     if (buktiPrev) {
-      buktiPrev.innerHTML = (it.buktiImgs||[]).map((src)=>`<img src="${src}" alt="bukti" style="width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">`).join("");
+      buktiPrev.innerHTML = (it.buktiImgs || []).map((src) => `<img src="${src}" alt="bukti" style="width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">`).join("");
       if (buktiFiles) buktiFiles.value = ""; // reset input file
     }
     if (sertifikatPrev) {
-      sertifikatPrev.innerHTML = (it.sertifikatImgs||[]).map((src)=>`<img src="${src}" alt="sertifikat" style="width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">`).join("");
+      sertifikatPrev.innerHTML = (it.sertifikatImgs || []).map((src) => `<img src="${src}" alt="sertifikat" style="width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">`).join("");
       if (sertifikatFiles) sertifikatFiles.value = "";
     }
   } else {
@@ -1761,12 +1824,15 @@ async function saveAsetFromModal() {
   const sertifikatFiles = document.getElementById("aset_sertifikat_files");
   const readFiles = async (input) => {
     const f = input?.files ? Array.from(input.files) : [];
-    const readers = f.map((file) => new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = () => res(r.result);
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    }));
+    const readers = f.map(
+      (file) =>
+        new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(r.result);
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        })
+    );
     return Promise.all(readers);
   };
   const buktiImgs = await readFiles(buktiFiles);
@@ -1774,11 +1840,18 @@ async function saveAsetFromModal() {
   if (!nama) return;
   if (aset.editId) {
     const idx = aset.data.findIndex((d) => d.id === aset.editId);
-    if (idx >= 0) aset.data[idx] = { ...aset.data[idx], nama, luas, lokasi, bukti, sertifikat,
-      // jika user memilih file baru, ganti; jika tidak, pertahankan yang lama
-      buktiImgs: buktiImgs.length ? buktiImgs : (aset.data[idx].buktiImgs||[]),
-      sertifikatImgs: sertifikatImgs.length ? sertifikatImgs : (aset.data[idx].sertifikatImgs||[]),
-    };
+    if (idx >= 0)
+      aset.data[idx] = {
+        ...aset.data[idx],
+        nama,
+        luas,
+        lokasi,
+        bukti,
+        sertifikat,
+        // jika user memilih file baru, ganti; jika tidak, pertahankan yang lama
+        buktiImgs: buktiImgs.length ? buktiImgs : aset.data[idx].buktiImgs || [],
+        sertifikatImgs: sertifikatImgs.length ? sertifikatImgs : aset.data[idx].sertifikatImgs || [],
+      };
   } else {
     const id = `aset_${Date.now()}_${Math.random().toString(16).slice(2)}`;
     aset.data.push({ id, nama, luas, lokasi, bukti, sertifikat, buktiImgs, sertifikatImgs });
@@ -1806,7 +1879,10 @@ function initAset() {
   loadAsetData();
   renderAsetTable();
   document.getElementById("asetAdd")?.addEventListener("click", () => openAsetModal("add"));
-  document.getElementById("asetSearch")?.addEventListener("input", (e) => { aset.search = e.target.value; renderAsetTable(); });
+  document.getElementById("asetSearch")?.addEventListener("input", (e) => {
+    aset.search = e.target.value;
+    renderAsetTable();
+  });
   document.getElementById("asetSave")?.addEventListener("click", saveAsetFromModal);
   document.getElementById("asetTable")?.addEventListener("click", (e) => {
     const editBtn = e.target.closest(".aset-edit");
@@ -1821,7 +1897,9 @@ function initAset() {
 function sumKeu(kind) {
   try {
     return keuData.filter((d) => d.jenis === kind).reduce((acc, d) => acc + (Number(d.jumlah) || 0), 0);
-  } catch { return 0; }
+  } catch {
+    return 0;
+  }
 }
 
 function renderDashboardMetrics() {
@@ -1831,7 +1909,7 @@ function renderDashboardMetrics() {
   const inEl = document.getElementById("cardPendapatanTotal");
   const outEl = document.getElementById("cardPengeluaranTotal");
   const saldoEl = document.getElementById("cardSaldo");
-  const guruCount = (window.gEl && Array.isArray(window.guru?.data)) ? window.guru.data.length : (typeof guru !== 'undefined' ? guru.data.length : 0);
+  const guruCount = window.gEl && Array.isArray(window.guru?.data) ? window.guru.data.length : typeof guru !== "undefined" ? guru.data.length : 0;
   const totalIn = sumKeu("pendapatan");
   const totalOut = sumKeu("pengeluaran");
   const saldo = totalIn - totalOut;
@@ -1889,7 +1967,7 @@ function loadDashboardStats() {
   try {
     const raw = localStorage.getItem(DASHBOARD_STORAGE_KEY);
     const obj = raw ? JSON.parse(raw) : null;
-    if (obj && typeof obj === 'object') {
+    if (obj && typeof obj === "object") {
       dashboardStats = {
         siswaCount: Number(obj.siswaCount) || 0,
         kelasCount: Number(obj.kelasCount) || 0,
@@ -1898,7 +1976,9 @@ function loadDashboardStats() {
   } catch {}
 }
 function persistDashboardStats() {
-  try { localStorage.setItem(DASHBOARD_STORAGE_KEY, JSON.stringify(dashboardStats)); } catch {}
+  try {
+    localStorage.setItem(DASHBOARD_STORAGE_KEY, JSON.stringify(dashboardStats));
+  } catch {}
 }
 function openDashStatsModal() {
   const mEl = document.getElementById("dashStatsModal");
@@ -1917,6 +1997,8 @@ function saveDashStatsFromModal() {
   dashboardStats.kelasCount = isNaN(kelas) ? 0 : kelas;
   persistDashboardStats();
   const mEl = document.getElementById("dashStatsModal");
-  try { bootstrap.Modal.getInstance(mEl)?.hide(); } catch {}
+  try {
+    bootstrap.Modal.getInstance(mEl)?.hide();
+  } catch {}
   renderDashboard();
 }
