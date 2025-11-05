@@ -51,14 +51,14 @@
                     <p class="text-muted mb-0 small">Modern • Elegan • Presisi • SEO-friendly</p>
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-2">
+            <!-- <div class="d-flex align-items-center gap-2">
                 <a class="btn btn-outline-primary btn-sm d-none d-lg-inline-flex" href="#preview"
                     aria-label="Loncat ke Preview">Lihat Preview</a>
                 <button class="btn btn-primary btn-sm d-lg-none" type="button" data-bs-toggle="offcanvas"
                     data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Buka Menu">
                     <i class="bi bi-list"></i>
                 </button>
-            </div>
+            </div> -->
         </div>
     </header>
 
@@ -646,6 +646,77 @@
                 </section>
             </div>
 
+            <!-- Tab: Keuangan - Pengeluaran -->
+            <div id="tab-pengeluaran" class="d-none">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <button id="keuOut_add" class="btn btn-danger btn-sm"><i class="bi bi-plus-lg"></i>
+                                Tambah</button>
+
+                            <!-- Quick Add Kategori Pengeluaran -->
+                            <button id="keuOut_addATK" class="btn btn-outline-danger btn-sm">ATK</button>
+                            <button id="keuOut_addPeralatan" class="btn btn-outline-danger btn-sm">Peralatan</button>
+                            <button id="keuOut_addGaji" class="btn btn-outline-danger btn-sm">Gaji</button>
+                            <button id="keuOut_addLain" class="btn btn-outline-danger btn-sm">Lain-lain</button>
+
+                            <button id="keuOut_reportA4Total" class="btn btn-outline-primary btn-sm"><i
+                                    class="bi bi-filetype-pdf"></i>
+                                Laporan A4</button>
+                            <button id="keuOut_previewA4" class="btn btn-outline-secondary btn-sm"><i
+                                    class="bi bi-eye"></i>
+                                Lihat Preview</button>
+                            <button id="keuOut_reportTable" class="btn btn-outline-primary btn-sm"><i
+                                    class="bi bi-table"></i>
+                                Laporan Tabel</button>
+                            <div class="ms-auto d-flex align-items-center gap-2" style="min-width:280px;">
+                                <input id="keuOut_search" type="text" class="form-control form-control-sm"
+                                    placeholder="Cari..">
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-2">
+                            <div class="col-md-3">
+                                <div id="keuOut_unitList" class="list-group list-group-sm">
+                                    <button type="button" class="list-group-item list-group-item-action active"
+                                        data-unit="ALL">Semua Unit</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="RA">RA</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MI">MI</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MTs">MTs</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MA">MA</button>
+                                    <button type="button" class="list-group-item list-group-item-action"
+                                        data-unit="MADIN">MADIN</button>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="table-responsive">
+                                    <table id="keuOut_table" class="table table-sm align-middle">
+                                        <thead class="table-danger">
+                                            <tr>
+                                                <th class="small">Tahun</th>
+                                                <th class="small">Unit</th>
+                                                <th class="small">Tanggal</th>
+                                                <th class="small">Keterangan</th>
+                                                <th class="small">Kategori</th>
+                                                <th class="small">Jumlah</th>
+                                                <th class="small">Keterangan</th>
+                                                <th class="small">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="small text-muted" id="keuOut_info">Showing 0 entries</div>
+                                <div class="small" id="keuOut_meta"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Template A4: Laporan Pengeluaran (PDF) -->
             <div id="keuOut_a4" class="d-none">
                 <section class="p-4" style="width:210mm; background:#fff; color:#000;">
@@ -740,78 +811,6 @@
                     <div class="text-end">Grand Total: <span id="rptOut-grand-total">-</span></div>
                 </section>
             </div>
-
-            <!-- Tab: Keuangan - Pengeluaran -->
-            <div id="tab-pengeluaran" class="d-none">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <button id="keuOut_add" class="btn btn-danger btn-sm"><i class="bi bi-plus-lg"></i>
-                                Tambah</button>
-
-                            <!-- Quick Add Kategori Pengeluaran -->
-                            <button id="keuOut_addATK" class="btn btn-outline-danger btn-sm">ATK</button>
-                            <button id="keuOut_addPeralatan" class="btn btn-outline-danger btn-sm">Peralatan</button>
-                            <button id="keuOut_addGaji" class="btn btn-outline-danger btn-sm">Gaji</button>
-                            <button id="keuOut_addLain" class="btn btn-outline-danger btn-sm">Lain-lain</button>
-
-                            <button id="keuOut_reportA4Total" class="btn btn-outline-primary btn-sm"><i
-                                    class="bi bi-filetype-pdf"></i>
-                                Laporan A4</button>
-                            <button id="keuOut_previewA4" class="btn btn-outline-secondary btn-sm"><i
-                                    class="bi bi-eye"></i>
-                                Lihat Preview</button>
-                            <button id="keuOut_reportTable" class="btn btn-outline-primary btn-sm"><i
-                                    class="bi bi-table"></i>
-                                Laporan Tabel</button>
-                            <div class="ms-auto d-flex align-items-center gap-2" style="min-width:280px;">
-                                <input id="keuOut_search" type="text" class="form-control form-control-sm"
-                                    placeholder="Cari..">
-                            </div>
-                        </div>
-                        <div class="row g-3 mb-2">
-                            <div class="col-md-3">
-                                <div id="keuOut_unitList" class="list-group list-group-sm">
-                                    <button type="button" class="list-group-item list-group-item-action active"
-                                        data-unit="ALL">Semua Unit</button>
-                                    <button type="button" class="list-group-item list-group-item-action"
-                                        data-unit="RA">RA</button>
-                                    <button type="button" class="list-group-item list-group-item-action"
-                                        data-unit="MI">MI</button>
-                                    <button type="button" class="list-group-item list-group-item-action"
-                                        data-unit="MTs">MTs</button>
-                                    <button type="button" class="list-group-item list-group-item-action"
-                                        data-unit="MA">MA</button>
-                                    <button type="button" class="list-group-item list-group-item-action"
-                                        data-unit="MADIN">MADIN</button>
-                                </div>
-                            </div>
-                            <div class="col-md-9">
-                                <div class="table-responsive">
-                                    <table id="keuOut_table" class="table table-sm align-middle">
-                                        <thead class="table-danger">
-                                            <tr>
-                                                <th class="small">Tahun</th>
-                                                <th class="small">Unit</th>
-                                                <th class="small">Tanggal</th>
-                                                <th class="small">Sumber Dana</th>
-                                                <th class="small">Kategori</th>
-                                                <th class="small">Jumlah</th>
-                                                <th class="small">Keterangan</th>
-                                                <th class="small">Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                                <div class="small text-muted" id="keuOut_info">Showing 0 entries</div>
-                                <div class="small" id="keuOut_meta"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Modal: Tambah/Edit Keuangan -->
             <div class="modal fade" id="keuModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog">

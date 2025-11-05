@@ -764,6 +764,14 @@ function initNavigation() {
     mNavSlip?.classList.toggle("active", which === "slip");
     mNavGuru?.classList.toggle("active", which === "guru");
 
+    // Sembunyikan preview A4 keuangan ketika berada di tab selainnya
+    try {
+      const inA4 = document.getElementById("keuIn_a4");
+      const outA4 = document.getElementById("keuOut_a4");
+      if (which !== "pendapatan") inA4?.classList.add("d-none");
+      if (which !== "pengeluaran") outA4?.classList.add("d-none");
+    } catch {}
+
     // Render ulang Dashboard saat ditampilkan agar metriknya selalu terbaru
     if (which === "dashboard") {
       try {
@@ -1348,8 +1356,8 @@ function renderKeuOutReport(withUnitTotals = false) {
       const tdDate = document.createElement("td");
       tdDate.textContent = d.tanggal || "-";
       const tdDesc = document.createElement("td");
-      const kategoriLabel = d.kategori || mapOutCategoryLabel(d.sumber, d.ket) || "";
-      tdDesc.textContent = `${kategoriLabel ? "[" + kategoriLabel + "] " : ""}${d.sumber || "-"}${d.ket ? " — " + d.ket : ""}`;
+      // Deskripsi tanpa label kategori agar tidak ada teks ([Lain-lain])
+      tdDesc.textContent = `${d.sumber || "-"}${d.ket ? " — " + d.ket : ""}`;
       const tdNom = document.createElement("td");
       tdNom.textContent = formatIDR(amt);
       tr.appendChild(tdNo);
@@ -1409,6 +1417,7 @@ function showKeuInA4Preview(withUnitTotals = true) {
     const elA4 = document.getElementById("keuIn_a4");
     if (!elA4) return;
     renderKeuInReport(withUnitTotals);
+    document.getElementById("keuOut_a4")?.classList.add("d-none");
     elA4.classList.remove("d-none");
     elA4.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch {}
@@ -1419,6 +1428,7 @@ function showKeuOutA4Preview(withUnitTotals = true) {
     const elA4 = document.getElementById("keuOut_a4");
     if (!elA4) return;
     renderKeuOutReport(withUnitTotals);
+    document.getElementById("keuIn_a4")?.classList.add("d-none");
     elA4.classList.remove("d-none");
     elA4.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch {}
@@ -1435,6 +1445,9 @@ function openKeuModal(kind, id = null, defaultKategori = null) {
   const ket = document.getElementById("keu_ket");
   const kategoriWrap = document.getElementById("keu_kategori_wrap");
   const kategoriSelect = document.getElementById("keu_kategori");
+  const sumberWrap = sumber?.closest(".col-12");
+  const sumberLabel = sumberWrap?.querySelector(".form-label");
+  const ketWrap = ket?.closest(".col-12");
 
   if (id) {
     const d = keuData.find((x) => x.id === id);
@@ -1448,6 +1461,14 @@ function openKeuModal(kind, id = null, defaultKategori = null) {
     ket.value = d.ket || "";
     if (kategoriWrap) kategoriWrap.classList.toggle("d-none", kind === "pendapatan");
     if (kategoriSelect && kind === "pengeluaran") kategoriSelect.value = d.kategori || mapOutCategoryLabel(d.sumber, d.ket) || "";
+    // Penyesuaian label/field khusus pengeluaran
+    if (kind === "pengeluaran") {
+      if (sumberLabel) sumberLabel.textContent = "Keterangan";
+      ketWrap?.classList.add("d-none");
+    } else {
+      if (sumberLabel) sumberLabel.textContent = "Sumber Dana";
+      ketWrap?.classList.remove("d-none");
+    }
   } else {
     title.textContent = "Tambah Data";
     // Default unit mengikuti filter yang sedang aktif agar preview konsisten
@@ -1460,6 +1481,14 @@ function openKeuModal(kind, id = null, defaultKategori = null) {
     ket.value = "";
     if (kategoriWrap) kategoriWrap.classList.toggle("d-none", kind === "pendapatan");
     if (kategoriSelect && kind === "pengeluaran") kategoriSelect.value = defaultKategori || "";
+    // Penyesuaian label/field khusus pengeluaran
+    if (kind === "pengeluaran") {
+      if (sumberLabel) sumberLabel.textContent = "Keterangan";
+      ketWrap?.classList.add("d-none");
+    } else {
+      if (sumberLabel) sumberLabel.textContent = "Sumber Dana";
+      ketWrap?.classList.remove("d-none");
+    }
   }
 
   const modalEl = document.getElementById("keuModal");
