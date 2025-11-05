@@ -1231,15 +1231,22 @@ function renderKeuInReport(withUnitTotals = false) {
     let total = 0;
     listEl.innerHTML = "";
     items.forEach((d, i) => {
-      total += Number(d.jumlah) || 0;
+      const amt = Number(d.jumlah) || 0;
+      total += amt;
       const tr = document.createElement("tr");
       const tdNo = document.createElement("td");
-      tdNo.textContent = `${i + 1}.`;
+      tdNo.textContent = `${i + 1}`;
+      const tdYear = document.createElement("td");
+      tdYear.textContent = d.tahun || "-";
+      const tdDate = document.createElement("td");
+      tdDate.textContent = d.tanggal || "-";
       const tdDesc = document.createElement("td");
       tdDesc.textContent = `${d.sumber || "-"}${d.ket ? " — " + d.ket : ""}`;
       const tdNom = document.createElement("td");
-      tdNom.textContent = formatIDR(Number(d.jumlah)||0);
+      tdNom.textContent = formatIDR(amt);
       tr.appendChild(tdNo);
+      tr.appendChild(tdYear);
+      tr.appendChild(tdDate);
       tr.appendChild(tdDesc);
       tr.appendChild(tdNom);
       listEl.appendChild(tr);
@@ -1279,9 +1286,8 @@ function exportKeuInReportPDF(withUnitTotals = false) {
     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
   };
   html2pdf().from(elA4).set(opt).save().then(() => {
-    elA4.classList.add("d-none");
+    // Biarkan preview tetap tampil
   }).catch(() => {
-    elA4.classList.add("d-none");
     alert("Gagal membuat PDF laporan pendapatan.");
   });
 }
@@ -1308,28 +1314,23 @@ function renderKeuOutReport(withUnitTotals = false) {
     const items = (keuData || []).filter((d) => d.jenis === "pengeluaran" && d.unit === u);
     let total = 0;
     listEl.innerHTML = "";
-    // Hitung total per kategori sesuai permintaan (ATK, Peralatan, Beban Gaji, Beban Utang, dll)
-    const buckets = ["ATK", "Peralatan", "Beban Gaji", "Beban Utang", "Lain-lain"];
-    const byCat = Object.fromEntries(buckets.map((b) => [b, 0]));
-    items.forEach((d) => {
+    items.forEach((d, i) => {
       const amt = Number(d.jumlah) || 0;
       total += amt;
-      const cat = mapOutCategoryLabel(d.sumber, d.ket);
-      byCat[cat] = (byCat[cat] || 0) + amt;
-    });
-    // Render satu baris per kategori yang terpakai
-    let rowNo = 1;
-    buckets.forEach((b) => {
-      const val = byCat[b] || 0;
-      if (!val) return; // skip kategori nol
       const tr = document.createElement("tr");
       const tdNo = document.createElement("td");
-      tdNo.textContent = `${rowNo++}.`;
+      tdNo.textContent = `${i + 1}`;
+      const tdYear = document.createElement("td");
+      tdYear.textContent = d.tahun || "-";
+      const tdDate = document.createElement("td");
+      tdDate.textContent = d.tanggal || "-";
       const tdDesc = document.createElement("td");
-      tdDesc.textContent = b;
+      tdDesc.textContent = `${d.sumber || "-"}${d.ket ? " — " + d.ket : ""}`;
       const tdNom = document.createElement("td");
-      tdNom.textContent = formatIDR(val);
+      tdNom.textContent = formatIDR(amt);
       tr.appendChild(tdNo);
+      tr.appendChild(tdYear);
+      tr.appendChild(tdDate);
       tr.appendChild(tdDesc);
       tr.appendChild(tdNom);
       listEl.appendChild(tr);
@@ -1367,11 +1368,31 @@ function exportKeuOutReportPDF(withUnitTotals = false) {
     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
   };
   html2pdf().from(elA4).set(opt).save().then(() => {
-    elA4.classList.add("d-none");
+    // Biarkan preview tetap tampil
   }).catch(() => {
-    elA4.classList.add("d-none");
     alert("Gagal membuat PDF laporan pengeluaran.");
   });
+}
+
+// Tampilkan preview A4 secara permanen sampai ditutup manual
+function showKeuInA4Preview(withUnitTotals = true) {
+  try {
+    const elA4 = document.getElementById("keuIn_a4");
+    if (!elA4) return;
+    renderKeuInReport(withUnitTotals);
+    elA4.classList.remove("d-none");
+    elA4.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch {}
+}
+
+function showKeuOutA4Preview(withUnitTotals = true) {
+  try {
+    const elA4 = document.getElementById("keuOut_a4");
+    if (!elA4) return;
+    renderKeuOutReport(withUnitTotals);
+    elA4.classList.remove("d-none");
+    elA4.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch {}
 }
 
 function openKeuModal(kind, id = null) {
@@ -1480,6 +1501,7 @@ function initKeu() {
   const inSearch = document.getElementById("keuIn_search");
   const inReportA4 = document.getElementById("keuIn_report");
   const inReportA4Total = document.getElementById("keuIn_reportA4Total");
+  const inPreviewA4 = document.getElementById("keuIn_previewA4");
   const inReportTable = document.getElementById("keuIn_reportTable");
   inAdd?.addEventListener("click", () => openKeuModal("pendapatan"));
   inUnitList?.querySelectorAll(".list-group-item").forEach((btn) => {
@@ -1494,6 +1516,7 @@ function initKeu() {
   // Laporan A4 (tanpa total per unit) dan Laporan A4 + Total Unit
   inReportA4?.addEventListener("click", () => exportKeuInReportPDF(false));
   inReportA4Total?.addEventListener("click", () => exportKeuInReportPDF(true));
+  inPreviewA4?.addEventListener("click", () => showKeuInA4Preview(true));
   inReportTable?.addEventListener("click", () => generateKeuReport("pendapatan"));
 
   // Pengeluaran controls
@@ -1502,6 +1525,7 @@ function initKeu() {
   const outSearch = document.getElementById("keuOut_search");
   const outReportA4 = document.getElementById("keuOut_report");
   const outReportA4Total = document.getElementById("keuOut_reportA4Total");
+  const outPreviewA4 = document.getElementById("keuOut_previewA4");
   const outReportTable = document.getElementById("keuOut_reportTable");
   outAdd?.addEventListener("click", () => openKeuModal("pengeluaran"));
   outUnitList?.querySelectorAll(".list-group-item").forEach((btn) => {
@@ -1516,6 +1540,7 @@ function initKeu() {
   // Laporan A4 (tanpa total per unit) dan Laporan A4 + Total Unit untuk Pengeluaran
   outReportA4?.addEventListener("click", () => exportKeuOutReportPDF(false));
   outReportA4Total?.addEventListener("click", () => exportKeuOutReportPDF(true));
+  outPreviewA4?.addEventListener("click", () => showKeuOutA4Preview(true));
   outReportTable?.addEventListener("click", () => generateKeuReport("pengeluaran"));
 
   // Modal save
@@ -1640,13 +1665,21 @@ function renderAsetTable() {
   tbody.innerHTML = "";
   arr.forEach((it, idx) => {
     const tr = document.createElement("tr");
+    const buktiThumbs = (it.buktiImgs||[]).map((src)=>`<img src="${src}" alt="bukti" class="aset-thumb">`).join("");
+    const sertifikatThumbs = (it.sertifikatImgs||[]).map((src)=>`<img src="${src}" alt="sertifikat" class="aset-thumb">`).join("");
     tr.innerHTML = `
       <td class="small">${idx + 1}</td>
       <td class="small">${it.nama || "-"}</td>
       <td class="small">${it.luas || "-"}</td>
       <td class="small">${it.lokasi || "-"}</td>
-      <td class="small">${(it.bukti || "-") + ((it.buktiImgs?.length||0) ? ` • Foto(${it.buktiImgs.length})` : "")}</td>
-      <td class="small">${(it.sertifikat || "-") + ((it.sertifikatImgs?.length||0) ? ` • Foto(${it.sertifikatImgs.length})` : "")}</td>
+      <td class="small">
+        <div>${it.bukti || "-"}</div>
+        ${(it.buktiImgs?.length||0) ? `<div class="aset-thumb-list">${buktiThumbs}</div>` : ""}
+      </td>
+      <td class="small">
+        <div>${it.sertifikat || "-"}</div>
+        ${(it.sertifikatImgs?.length||0) ? `<div class="aset-thumb-list">${sertifikatThumbs}</div>` : ""}
+      </td>
       <td class="small">
         <button class="btn btn-sm btn-outline-primary me-1 aset-edit" data-id="${it.id}"><i class="bi bi-pencil-square"></i> Edit</button>
         <button class="btn btn-sm btn-outline-danger aset-del" data-id="${it.id}"><i class="bi bi-trash"></i> Hapus</button>
