@@ -1207,13 +1207,12 @@ function renderKeu(kind) {
 
   tbody.innerHTML = rows
     .map((d) => {
-      const kategoriCell = !isIn ? `<td class="small">${d.kategori || mapOutCategoryLabel(d.sumber, d.ket) || ""}</td>` : "";
-      return `<tr data-id="${d.id}">
+      if (isIn) {
+        return `<tr data-id="${d.id}">
           <td class="small">${d.tahun || ""}</td>
           <td class="small">${d.unit || ""}</td>
           <td class="small">${d.tanggal || ""}</td>
           <td class="small">${d.sumber || ""}</td>
-          ${kategoriCell}
           <td class="small">${formatIDR(d.jumlah || 0)}</td>
           <td class="small">${d.ket || ""}</td>
           <td class="small">
@@ -1221,6 +1220,20 @@ function renderKeu(kind) {
             <button class="btn btn-light btn-sm" data-action="del"><i class="bi bi-trash"></i></button>
           </td>
         </tr>`;
+      } else {
+        // Pengeluaran: hapus kolom Unit & Kategori, gabungkan keterangan
+        const desc = `${d.sumber || ""}${d.ket ? " — " + d.ket : ""}`;
+        return `<tr data-id="${d.id}">
+          <td class="small">${d.tahun || ""}</td>
+          <td class="small">${d.tanggal || ""}</td>
+          <td class="small">${desc}</td>
+          <td class="small">${formatIDR(d.jumlah || 0)}</td>
+          <td class="small">
+            <button class="btn btn-light btn-sm me-1" data-action="edit"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-light btn-sm" data-action="del"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>`;
+      }
     })
     .join("");
 
@@ -1243,7 +1256,7 @@ function renderKeu(kind) {
 }
 
 // ===== Laporan Pendapatan (format khusus per unit) =====
-const UNIT_LIST = ["RA", "MI", "MTs", "MA", "MADIN"];
+const UNIT_LIST = ["RA", "MI", "MTs", "MA", "MADIN", "LAIN"];
 function renderKeuInReport(withUnitTotals = false) {
   let grand = 0;
   const dateEl = document.getElementById("rpt-date");
@@ -1261,8 +1274,10 @@ function renderKeuInReport(withUnitTotals = false) {
       const tr = document.createElement("tr");
       const tdNo = document.createElement("td");
       tdNo.textContent = `${i + 1}`;
+      tdNo.style.textAlign = "center";
       const tdYear = document.createElement("td");
       tdYear.textContent = d.tahun || "-";
+      tdYear.style.textAlign = "center";
       const tdDate = document.createElement("td");
       tdDate.textContent = d.tanggal || "-";
       const tdDesc = document.createElement("td");
@@ -1327,8 +1342,9 @@ function exportKeuInReportPDF(withUnitTotals = false) {
 function mapOutCategoryLabel(sumber = "", ket = "") {
   const s = String(sumber || "").toLowerCase();
   const k = String(ket || "").toLowerCase();
-  if (s.includes("atk") || k.includes("atk") || s.includes("alat tulis")) return "ATK";
-  if (s.includes("peralatan") || s.includes("inventaris") || s.includes("perlengkapan") || k.includes("peralatan")) return "Peralatan";
+  if (s.includes("atk") || k.includes("atk") || s.includes("alat tulis")) return "Alat Tulis Kantor";
+  if (s.includes("perlengkapan")) return "Perlengkapan";
+  if (s.includes("peralatan") || s.includes("inventaris") || k.includes("peralatan")) return "Peralatan";
   if (s.includes("gaji") || s.includes("slip gaji") || s.includes("beban gaji") || k.includes("gaji")) return "Gaji";
   if (s.includes("utang") || s.includes("hutang") || s.includes("pinjaman") || s.includes("cicilan") || k.includes("utang") || k.includes("hutang")) return "Beban Utang";
   return "Lain-lain";
@@ -1342,7 +1358,15 @@ function renderKeuOutReport(withUnitTotals = false) {
     const listEl = document.getElementById(`rptOut-list-${u}`);
     const secEl = document.getElementById(`rptOut-sec-${u}`);
     if (!listEl) return;
-    const items = (keuData || []).filter((d) => d.jenis === "pengeluaran" && d.unit === u);
+    let items = (keuData || []).filter((d) => d.jenis === "pengeluaran" && d.unit === u);
+    // Seksi khusus Lain-lain: kumpulkan berdasarkan kategori "Lain-lain" dari semua unit
+    if (u === "LAIN") {
+      items = (keuData || []).filter((d) => {
+        if (d.jenis !== "pengeluaran") return false;
+        const cat = String(d.kategori || mapOutCategoryLabel(d.sumber, d.ket) || "");
+        return cat.toLowerCase() === "lain-lain";
+      });
+    }
     let total = 0;
     listEl.innerHTML = "";
     items.forEach((d, i) => {
@@ -1351,8 +1375,10 @@ function renderKeuOutReport(withUnitTotals = false) {
       const tr = document.createElement("tr");
       const tdNo = document.createElement("td");
       tdNo.textContent = `${i + 1}`;
+      tdNo.style.textAlign = "center";
       const tdYear = document.createElement("td");
       tdYear.textContent = d.tahun || "-";
+      tdYear.style.textAlign = "center";
       const tdDate = document.createElement("td");
       tdDate.textContent = d.tanggal || "-";
       const tdDesc = document.createElement("td");
